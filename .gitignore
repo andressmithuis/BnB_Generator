@@ -1,6 +1,6 @@
 .venv
 .idea
-__pycache__
+__pycache__/
 /img/shields/*
 /img/weapons/*
 /img/tmp.avif

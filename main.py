@@ -26,7 +26,7 @@ if __name__ == '__main__':
             # 'level': 1,
             # 'manufacturer': Manufacturers.ERIDIAN,
             # 'gun_type': Guntypes.PISTOL,
-            # 'rarity': abnb.PEARLESCENT,
+            # 'rarity': Rarity.LEGENDARY,
         }
 
         new_gun = Gun()
