@@ -1,9 +1,9 @@
 .venv
 .idea
 __pycache__
-.img/shields/*
-.img/weapons/*
-.img/tmp.avif
+/img/shields/*
+/img/weapons/*
+/img/tmp.avif
 
 assets.json
 test.bmp

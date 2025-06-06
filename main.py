@@ -21,7 +21,7 @@ if __name__ == '__main__':
         load_resources()
 
     # Generate Gun Card
-    if False:
+    if True:
         props = {
             # 'level': 1,
             # 'manufacturer': Manufacturers.ERIDIAN,
@@ -44,6 +44,6 @@ if __name__ == '__main__':
         new_shield.generate_card()
 
     # Generate Potion Card
-    if True:
+    if False:
         new_potion = HealthPotion(Rarity.COMMON)
         new_potion.generate_card()
