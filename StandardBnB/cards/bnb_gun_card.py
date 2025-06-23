@@ -173,6 +173,9 @@ def generate_gun_card(gun_obj):
         card_img = draw_text_to_field(card_img, name_field, ef_name[i],'Avenir-Next-LT-Pro-Demi-Condensed_5186.ttf', align='left', font_size=25)
         card_img = draw_text_to_field(card_img, text_field, ef_text[i], 'avenir-next-condensed-medium.otf', align='left',font_size=25)
 
-    card_img.show()
+    #card_img.show()
+
+
 
     card_img.save('test.bmp', 'BMP', quality=100)
+    card_img.save(os.path.join('app/static/generated', 'new_gun.bmp'), 'BMP', quality=100)

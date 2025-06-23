@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 from PIL import Image, ImageOps
+from copy import deepcopy
 
 from util.cards.card_generation import Field, draw_image_to_field, draw_text_to_field, draw_field_locations
 
@@ -103,12 +104,12 @@ def generate_gun_card(gun_obj):
     card_front = draw_image_to_field(card_front, symbol, card_field)
 
     # Add Ammo counter
-    card_field = gun_card_front_template['fld_ammo_logo']
+    _field = deepcopy(gun_card_front_template['fld_ammo_logo'])
     symbol = Image.open(f"img/gun_symbol/ammo.png")
     for i in range(gun_obj.mag_size):
         if i > 0:
-            card_field.x += 0.05
-        card_front = draw_image_to_field(card_front, symbol, card_field)
+            _field.x += 0.05
+        card_front = draw_image_to_field(card_front, symbol, _field)
 
     # Add Element symbols
     if gun_obj.forced_elemental or not gun_obj.forced_non_elemental:
@@ -349,9 +350,10 @@ def generate_gun_card(gun_obj):
         card_joined.paste(card_front, (0, 0))
         card_joined.paste(card_back, (w1, 0))
 
-    card_joined.show()
+    #card_joined.show()
 
     card_joined.save('test.bmp', 'BMP', quality=100)
+    card_joined.save(os.path.join('app/static/generated', 'new_gun.bmp'), 'BMP', quality=100)
 
 def split_text_on_length(text: str, length:int):
     ret = ['']

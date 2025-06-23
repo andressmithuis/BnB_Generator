@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Catch a Gun! {% endblock %}</h1>
+    <form method="POST">
+        <div>
+            <label class="switch">
+                <input type="checkbox" name="bnb_ruleset" value="AdvancedBunkers&Badasses" {% if bnb_ruleset == "AdvancedBunkers&Badasses" %}checked{% endif %}>
+                <span class="slider"></span>
+            </label>
+            <div>
+                Enable <strong>Advanced</strong> Bunkers & Badasses
+            </div>
+        </div>
+        <button type="submit">Generate a new Gun!</button>
+    </form>
+
+    {% if image_file %}
+        <h2>Generated Gun Card:</h2>
+        <div class="image-center-wrapper">
+            <img src="{{ image_file }}" alt="Generated Gun Card" />
+        </div>
+    {% else %}
+        <p>Press the button to generate a Gun!</p>
+    {% endif %}
+{% endblock %}

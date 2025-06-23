@@ -5,5 +5,7 @@ __pycache__/
 /img/weapons/*
 /img/tmp.avif
 
+/app/static/generated
+
 assets.json
 test.bmp
