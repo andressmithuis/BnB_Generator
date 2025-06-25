@@ -4,13 +4,13 @@
     <h1>{% block title %} Generate a Shield! {% endblock %}</h1>
     <form method="POST">
         <!-- Advanced BnB Toggle -->
-        <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px; visibility: hidden;">
             <label class="switch">
                 <input type="checkbox" name="bnb_ruleset" value="advanced" {% if bnb_ruleset == "advanced" %}checked{% endif %}>
                 <span class="slider"></span>
             </label>
             <div>
-                Enable for <strong>Advanced</strong> Bunkers & Badasses (NOT YET WORKING)
+                Enable for <strong>Advanced</strong> Bunkers & Badasses
             </div>
         </div>
 

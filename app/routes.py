@@ -93,4 +93,4 @@ def health_potions():
     return render_template('health_potions.html', image_file=img_file, item_rarity=item_rarity)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
