@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Generate a Shield! {% endblock %}</h1>
+    <form method="POST">
+        <!-- Advanced BnB Toggle -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <label class="switch">
+                <input type="checkbox" name="bnb_ruleset" value="advanced" {% if bnb_ruleset == "advanced" %}checked{% endif %}>
+                <span class="slider"></span>
+            </label>
+            <div>
+                Enable for <strong>Advanced</strong> Bunkers & Badasses (NOT YET WORKING)
+            </div>
+        </div>
+
+        <!-- Gun Card Image -->
+        {% if image_file %}
+            <h2>Generated Shield Card:</h2>
+            <div class="image-center-wrapper">
+                <img src="{{ image_file }}" alt="Generated Shield Card" />
+            </div>
+        {% else %}
+            <p>Press the button to generate a Shield!</p>
+        {% endif %}
+
+        <!-- 'Generate' Button -->
+        <div style="display: flex; justify-content: center; margin-top: 20px;">
+            <form method="POST">
+                <button type="submit" class="btn btn-primary">Generate a new Shield!</button>
+            </form>
+        </div>
+    </form>
+{% endblock %}

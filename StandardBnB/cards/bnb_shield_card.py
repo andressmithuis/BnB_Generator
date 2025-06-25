@@ -145,9 +145,10 @@ def generate_shield_card(shield_obj):
         card_img = draw_text_to_field(card_img, text_field, ef_text[i], 'avenir-next-condensed-medium.otf',
                                       align='left', font_size=25)
 
-    card_img.show()
+    #card_img.show()
 
     card_img.save('test.bmp', 'BMP', quality=100)
+    card_img.save(os.path.join('app/static/generated', 'new_shield.bmp'), 'BMP', quality=100)
 
 def draw_text_to_modfield(img: ImageFile, field: Field, text: str, font_file: str, color=(0, 0, 0)):
     # TODO: Fit font_size to text width

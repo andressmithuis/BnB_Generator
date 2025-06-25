@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Health Potion Cards {% endblock %}</h1>
+    <form method="POST">
+        <!-- Rarity drop-down menu -->
+        <div class="mb-3">
+            <label class="form-label">Select Potion Rarity</label>
+            <select class="form-select" id="item_rarity" name="item_rarity">
+                {% for rarity in ["common", "uncommon", "rare", "epic", "legendary"] %}
+                    <option value="{{ rarity }}" {% if rarity == item_rarity %}selected{% endif %}>{{ rarity.capitalize() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Potion Card Image -->
+        {% if image_file %}
+            <h2>Generated Potion Card:</h2>
+            <div class="image-center-wrapper">
+                <img src="{{ image_file }}" alt="Generated Potion Card" />
+            </div>
+        {% else %}
+            <p>Press the button to generate a Card!</p>
+        {% endif %}
+
+        <!-- 'Generate' Button -->
+        <div style="display: flex; justify-content: center; margin-top: 20px;">
+            <form method="POST">
+                <button type="submit" class="btn btn-primary">Create a Potion Card!</button>
+            </form>
+        </div>
+    </form>
+{% endblock %}

@@ -53,6 +53,7 @@ def generate_potion_card(potion_obj):
     symbol = Image.open(f"img/gun_symbol/potion.png")
     card_img = draw_image_to_field(card_img, symbol, card_field)
 
-    card_img.show()
+    #card_img.show()
 
     card_img.save('test.bmp', 'BMP', quality=100)
+    card_img.save(os.path.join('app/static/generated', 'new_potion.bmp'), 'BMP', quality=100)
