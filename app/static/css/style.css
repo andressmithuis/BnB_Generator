@@ -9,17 +9,18 @@ h1 {
 .image-center-wrapper {
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
+    margin: 20px;
 }
 
 /* Scaled image */
 .image-center-wrapper img {
-    max-width: 90vw;
-    max-height: 90vh;
+    max-width: 100%;
+    max-height: 60vh;
+    width: auto;
+    height: auto:
     object-fit: contain;
     border: 2px solid #ccc;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* The switch - the box around the slider */
