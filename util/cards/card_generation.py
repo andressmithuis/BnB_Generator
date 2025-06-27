@@ -170,3 +170,10 @@ def draw_image_to_field(base_img: ImageFile, insert_img: ImageFile, field: Field
 
     return base_img
 
+def recolor_image(src_image, new_color):
+    alpha = src_image.getchannel('A')
+    img_out = Image.new('RGBA', src_image.size, new_color + (0,))
+    img_out.putalpha(alpha)
+
+    return img_out
+

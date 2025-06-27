@@ -51,6 +51,15 @@ weapon_part_count = {
     Rarity.PEARLESCENT:    5
 }
 
+shield_part_count = {
+    Rarity.COMMON:         0,
+    Rarity.UNCOMMON:       1,
+    Rarity.RARE:           2,
+    Rarity.EPIC:           3,
+    Rarity.LEGENDARY:      4,
+    Rarity.PEARLESCENT:    5
+}
+
 elemental_table = {
     ( 1,  4):   { Rarity.COMMON: None, Rarity.UNCOMMON: None, Rarity.RARE: None,                 Rarity.EPIC: None,                             Rarity.LEGENDARY: None,                            Rarity.PEARLESCENT: None},
     ( 5,  8):   { Rarity.COMMON: None, Rarity.UNCOMMON: None, Rarity.RARE: None,                 Rarity.EPIC: Incendiary(),              Rarity.LEGENDARY: Incendiary(),             Rarity.PEARLESCENT: Incendiary(1)},

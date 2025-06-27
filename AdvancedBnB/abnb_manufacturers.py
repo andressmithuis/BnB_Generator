@@ -1,5 +1,7 @@
 from .abnb_element import FusionElement
 from .abnb_guntypes import Guntypes
+from .abnb_shield_parts import shd_part_brimming, shd_part_adaptive
+from .abnb_shieldtypes import Shieldtypes
 from .abnb_weapon_parts import weapon_accessories_table
 from .abnb_weapon_traits import *
 from util import roll_on_table
@@ -31,7 +33,7 @@ class Anshin(Manufacturer):
         self.makes = {
             'weapons': [Guntypes.PISTOL, Guntypes.SMG, Guntypes.SNIPER],
             'grenades': [],
-            'shields': [],
+            'shield': Shieldtypes.FAST,
             'relics': []
         }
         self.weapon_traits = {
@@ -55,6 +57,12 @@ class Anshin(Manufacturer):
         }
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
+
+    def edit_shield(self, shield_obj):
+        shield_obj.shield_type = self.makes['shield']
+        shield_obj.tag = 'Energy'
+        shield_obj.parts.append(shd_part_adaptive())
+
 
 class Atlas(Manufacturer):
     name = 'Atlas'
@@ -80,6 +88,11 @@ class Atlas(Manufacturer):
         }
 
         return roll_on_table(table, dice_roll)
+
+    def edit_shield(self, shield_obj):
+        shield_obj.shield_type = self.makes['shield']
+        shield_obj.tag = 'Alloy'
+        shield_obj.parts.append(shd_part_brimming())
 
 class Bandit(Manufacturer):
     name = 'Bandit'

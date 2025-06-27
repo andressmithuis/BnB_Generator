@@ -1,7 +1,8 @@
 import os
-from PIL import Image, ImageFile, ImageDraw, ImageFont
+from PIL import Image, ImageFile, ImageDraw, ImageFont, ImageOps
 
-from util.cards.card_generation import Field, draw_image_to_field, draw_text_to_field, draw_field_locations, split_text_on_length
+from util import Rarity
+from util.cards.card_generation import Field, draw_image_to_field, draw_text_to_field, draw_field_locations, split_text_on_length, recolor_image
 
 shield_card_template = {
     'fld_name': Field(0.498, 0.095, 0.38, 0.10, False),
@@ -15,12 +16,11 @@ shield_card_template = {
 
     'fld_element': Field(0.115, 0.85, 0.11, 0.11, False),
 
-    'fld_cap_txt': Field(0.21, 0.40, 0.12, 0.05, False),
-    'fld_rr_txt': Field(0.17, 0.50, 0.20, 0.05, False),
+    'fld_cap_icon': Field(0.18, 0.40, 0.12, 0.12, True),
+    'fld_rr_icon': Field(0.18, 0.58, 0.12, 0.12, True),
 
-    'fld_cap_val': Field(0.35, 0.40, 0.07, 0.05, False),
-    'fld_rr_val': Field(0.35, 0.50, 0.07, 0.05, False),
-
+    'fld_cap_val': Field(0.30, 0.40, 0.12, 0.12, True),
+    'fld_rr_val': Field(0.30, 0.58, 0.12, 0.12, True),
 
     'fld_mod_txt': Field(0.56, 0.82, 0.74, 0.09, False)
 }
@@ -79,17 +79,30 @@ def generate_shield_card(shield_obj):
     card_img = draw_text_to_field(card_img, card_field, 'SHIELD', 'Avenir-Next-LT-Pro-Demi-Condensed_5186.ttf')
 
     # Capacity and Recharge Rate
-    card_field = shield_card_template['fld_cap_txt']
-    card_img = draw_text_to_field(card_img, card_field, 'Capacity:', 'rexlia rg.otf')
+    # Icons
+    colors = {
+        Rarity.COMMON: (191, 191, 191),
+        Rarity.UNCOMMON: (0, 102, 0),
+        Rarity.RARE: (0, 0, 179),
+        Rarity.EPIC: (128, 0, 128),
+        Rarity.LEGENDARY: (204, 122, 0),
+    }
+    card_field = shield_card_template['fld_cap_icon']
+    icon = Image.open(f"img/item_icons/shield_capacity.png")
+    icon = recolor_image(icon, colors[shield_obj.rarity])
+    card_img = draw_image_to_field(card_img, icon, card_field)
 
+    card_field = shield_card_template['fld_rr_icon']
+    icon = Image.open(f"img/item_icons/shield_rechargerate.png")
+    icon = recolor_image(icon, colors[shield_obj.rarity])
+    card_img = draw_image_to_field(card_img, icon, card_field)
+
+    # Value
     card_field = shield_card_template['fld_cap_val']
-    card_img = draw_text_to_field(card_img, card_field, f"{shield_obj.capacity}", 'Avenir-Next-LT-Pro-Demi-Condensed_5186.ttf', color=(11, 121, 189))
-
-    card_field = shield_card_template['fld_rr_txt']
-    card_img = draw_text_to_field(card_img, card_field, 'Recharge Rate:', 'rexlia rg.otf')
+    card_img = draw_text_to_field(card_img, card_field, f"{shield_obj.capacity}", 'rexlia rg.otf', color=(11, 121, 189), font_size=50)
 
     card_field = shield_card_template['fld_rr_val']
-    card_img = draw_text_to_field(card_img, card_field, f"{shield_obj.recharge_rate}",'Avenir-Next-LT-Pro-Demi-Condensed_5186.ttf', color=(11, 121, 189))
+    card_img = draw_text_to_field(card_img, card_field, f"{shield_obj.recharge_rate}",'rexlia rg.otf', color=(11, 121, 189), font_size=50)
 
     # Modifier Texts
     ef_name = []
