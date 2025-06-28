@@ -53,12 +53,12 @@ class shd_part_amp(Modifier):
 
 class shd_part_brimming(Modifier):
     name = 'Brimming'
-    effect = 'While Full: gain 5/P Recharge Rate.'
+    effect = 'While Full: gain 5/P Health Regen.'
     situational = True
 
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"While Full: gain +{n_parts * 5} Shield Recharge Rate."
+        return f"While Full: gain +{n_parts * 5} Health Regen."
 
 
 class shd_part_capacity(Modifier):
@@ -137,10 +137,11 @@ class shd_part_reflect(Modifier):
 class shd_part_resistant(Modifier):
     name = 'Resistant'
     effect = 'Gain an Extra 1d8/P Elemental Damage Reduction.'
+    type = 'Unknown'
 
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"Gain an Extra {n_parts}d8 Elemental Damage Reduction."
+        return f"Gain an Extra {n_parts}d8 {self.type }Elemental Damage Reduction."
 
 
 class shd_part_roid(Modifier):
@@ -180,7 +181,7 @@ class shd_part_spike(Modifier):
 
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"On taking Melee Damage: deal {n_parts}d10 Damage to the Attacker."
+        return f"On taking Melee Damage: deal {n_parts}d10 Elemental Damage to the Attacker."
 
 
 class shd_part_turtle(Modifier):
@@ -208,6 +209,21 @@ class shd_part_vagabond(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
         return f"While Full: Gain +{n_parts * 2} Movement."
+
+
+class shd_tag_energy(Modifier):
+    name = 'Energy'
+    effect = 'Weak to Shock Damage.'
+
+
+class shd_tag_alloy(Modifier):
+    name = 'Alloy'
+    effect = 'Weak to Corrosive Damage.'
+
+
+class shd_tag_bio(Modifier):
+    name = 'Bio'
+    effect = 'Weak to Incendiary Damage.'
 
 
 shield_parts_table = {

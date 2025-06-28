@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from .abnb_tables import *
 from .abnb_util import get_item_tier
-from .abnb_shield_parts import shield_parts_table
+from .abnb_shield_parts import shield_parts_table, shd_part_resistant
 from .cards.abnb_shield_card import generate_shield_card
 
 def mod_to_string(val_1, val_2):
@@ -110,6 +110,12 @@ class Shield:
             self.elemental_roll['n_rolls'] = 1
             self.roll_for_element()
 
+        self.elements = [Frostburn(bonus=1)]
+
+        # If Shield is Elemental, add Resistance part
+        if len(self.elements) > 0:
+            self.add_resistance_part()
+
         # Roll for Shield parts
         print(f"Determining Shield Parts...")
         self.max_parts = shield_part_count[self.rarity]
@@ -121,9 +127,21 @@ class Shield:
             print(f"Rolling for part {self.n_parts+1}/{self.max_parts}...")
             roll = d100.roll(self.user_rolls)
             part = roll_on_table(shield_parts_table, roll)
+            new_part = deepcopy(part)
 
-            self.parts.append(part)
-            self.n_parts += 1
+            # Elemental part exceptions (Resistant, Nova, Spike)
+            # TODO: Add Spike, Nova
+            if new_part.name == 'Resistant':
+                # Force an element if item is not elemental
+                if len(self.elements) == 0:
+                    self.forced_elemental = True
+                    self.roll_for_element()
+
+                self.add_resistance_part()
+                self.n_parts += 1
+            else:
+                self.parts.append(new_part)
+                self.n_parts += 1
 
         # Apply Shield Part Effects
         self.apply_effects()
@@ -180,6 +198,25 @@ class Shield:
             else:
                 self.elements.append(el_roll)
                 self.elemental_roll['n_rolls'] -= 1
+
+    def add_resistance_part(self):
+        el = []
+        if len(self.elements) > 0:
+            for element in self.elements:
+                if isinstance(element, FusionElement):
+                    for sub_element in element.fusion_elements:
+                        for i in range(element.bonus + 1):
+                            el.append(sub_element)
+
+                else:
+                    el.append(element)
+
+        for element in el:
+            new_part = shd_part_resistant()
+            new_part.name = f"Resistant ({element.name})"
+            new_part.type = element.name
+            for i in range(element.bonus + 1):
+                self.parts.append(new_part)
 
     def apply_effects(self):
         # Create deduplicated list of parts

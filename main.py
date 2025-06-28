@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     props = {
         # 'level': 1,
-        'manufacturer': Manufacturers.ANSHIN,
+        # 'manufacturer': Manufacturers.ANSHIN,
         # 'gun_type': Guntypes.PISTOL,
         # 'rarity': Rarity.PEARLESCENT,
     }

@@ -175,6 +175,7 @@ def generate_shield_card(shield_obj):
         Rarity.RARE: (0, 0, 179),
         Rarity.EPIC: (128, 0, 128),
         Rarity.LEGENDARY: (204, 122, 0),
+        Rarity.PEARLESCENT: (0, 153, 153),
     }
     card_field = shield_card_front_template['fld_cap_icon']
     icon = Image.open(f"img/item_icons/shield_capacity.png")
@@ -208,6 +209,7 @@ def generate_shield_card(shield_obj):
 
     # Quick Reference
     idx = 0
+    quick_ref = quick_ref[:5]
     for i in range(len(quick_ref)):
         ref = quick_ref[i]
         name_field = shield_card_front_template['fld_quickref_name'][idx]
@@ -220,7 +222,7 @@ def generate_shield_card(shield_obj):
             card_front = draw_text_to_field(card_front, effect_field, line, 'avenir-next-condensed-medium.otf', align='left', font_size=25)
             idx += 1
 
-    # Shield Parts - Collecting column contents
+    # Shield Parts / Tag - Collecting column contents
     header_col = []
     effect_col = []
     header_idx = [0]
@@ -238,6 +240,16 @@ def generate_shield_card(shield_obj):
 
         while len(header_col) < len(effect_col):
             header_col.append('')
+
+    header_col.append('')
+    effect_col.append('')
+
+    header_idx.append(len(header_col))
+    header_col.append(f"--Shield Tag--")
+    effect_col.append('')
+    header_col.append(f"{shield_obj.tag.name}:")
+    effect_col.append(f"{shield_obj.tag.effect}")
+
 
     # Printing column content to card
     fonts = {

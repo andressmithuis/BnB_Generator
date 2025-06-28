@@ -1,6 +1,6 @@
 from .abnb_element import FusionElement
 from .abnb_guntypes import Guntypes
-from .abnb_shield_parts import shd_part_brimming, shd_part_adaptive
+from .abnb_shield_parts import shd_part_brimming, shd_part_adaptive, shd_tag_energy
 from .abnb_shieldtypes import Shieldtypes
 from .abnb_weapon_parts import weapon_accessories_table
 from .abnb_weapon_traits import *
@@ -60,7 +60,7 @@ class Anshin(Manufacturer):
 
     def edit_shield(self, shield_obj):
         shield_obj.shield_type = self.makes['shield']
-        shield_obj.tag = 'Energy'
+        shield_obj.tag = shd_tag_energy()
         shield_obj.parts.append(shd_part_adaptive())
 
 
