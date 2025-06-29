@@ -1,6 +1,6 @@
 from .abnb_element import FusionElement
 from .abnb_guntypes import Guntypes
-from .abnb_shield_parts import shd_part_brimming, shd_part_adaptive, shd_tag_energy
+from .abnb_shield_parts import *
 from .abnb_shieldtypes import Shieldtypes
 from .abnb_weapon_parts import weapon_accessories_table
 from .abnb_weapon_traits import *

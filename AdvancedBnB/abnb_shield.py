@@ -285,7 +285,7 @@ class Shield:
                         w = w.upper()
                     w_parts[i] = w
                 k = ' '.join(w_parts)
-                str += f" - {k} {'+' if v > 0 else ''}{v} \n"
+                str += f" - {k} {'+' if v != 0 else ''}{v} \n"
 
         return str
 

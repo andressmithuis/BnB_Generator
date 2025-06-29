@@ -1,9 +1,10 @@
 import os
+from copy import deepcopy
 
 import numpy as np
 from PIL import Image, ImageOps
 
-from util.cards.card_generation import Field, draw_image_to_field, draw_text_to_field, draw_field_locations, recolor_image
+from util.cards.card_generation import *
 from util import Rarity
 
 shield_card_front_template = {
@@ -24,8 +25,8 @@ shield_card_front_template = {
 
     'fld_element': Field(0.115, 0.85, 0.11, 0.11, False),
 
-    'fld_quickref_name': Field(0.28, 0.78, 0.20, 0.035, False),
-    'fld_quickref_effect': Field(0.64, 0.78, 0.50, 0.035, False),
+    'fld_quickref_name': Field(0.28, 0.84, 0.20, 0.151, False),
+    'fld_quickref_effect': Field(0.655, 0.84, 0.54, 0.151, False),
 }
 
 shield_card_back_template = {
@@ -39,23 +40,13 @@ shield_card_back_template = {
     'fld_type_bonus_txt': Field(0.28, 0.72, 0.2, 0.05, False),
     'fld_type_bonus_effect': Field(0.535, 0.82, 0.71, 0.14, False),
 
-    'fld_part_name': [],
-    'fld_part_effect': [],
+    'fld_part_name': Field(0.17, 0.25, 0.18, 0.030, False),
+    'fld_part_effect': Field(0.41, 0.25, 0.3, 0.030, False),
 
     'fld_mod_effects': []
 }
 
-shield_card_front_template['fld_quickref_name'] = []
-shield_card_front_template['fld_quickref_effect'] = []
-for i in range(6):
-    shield_card_front_template['fld_quickref_name'].append(Field(0.28, 0.78 + i * 0.03, 0.20, 0.031, False))
-    shield_card_front_template['fld_quickref_effect'].append(Field(0.64, 0.78 + i * 0.03, 0.50, 0.031, False))
-
-shield_card_back_template['fld_part_name'] = []
-shield_card_back_template['fld_part_effect'] = []
 for i in range(14):
-    shield_card_back_template['fld_part_name'].append(Field(0.17, 0.25 + i * 0.033, 0.18, 0.030, False))
-    shield_card_back_template['fld_part_effect'].append(Field(0.41, 0.25 + i * 0.033, 0.3, 0.030, False))
     shield_card_back_template['fld_mod_effects'].append(Field(0.82, 0.25 + i * 0.033, 0.18, 0.030, False))
 
 def generate_shield_card(shield_obj):
@@ -196,7 +187,7 @@ def generate_shield_card(shield_obj):
     card_front = draw_text_to_field(card_front, card_field, f"{shield_obj.recharge_rate}", 'rexlia rg.otf',
                                   color=(11, 121, 189), font_size=50)
 
-    # Collect Situational Parts
+    # Collect Situational Parts for Quick Reference
     quick_ref = []
 
     for part in shield_obj.parts:
@@ -204,25 +195,51 @@ def generate_shield_card(shield_obj):
             if part.name not in [x.name for x in quick_ref]:
                 quick_ref.append(part)
 
-    print(len(quick_ref))
+    # Quick Reference n Rows and Font Size
+    font_file = 'avenir-next-condensed-medium.otf'
+    fnt_size = get_max_font_size(card_front, [x.to_text(shield_obj) for x in quick_ref], shield_card_front_template['fld_quickref_effect'], font_file)
+    font = ImageFont.truetype(f"fonts/{font_file}", fnt_size)
 
+    name_col = []
+    effect_col = []
+    for part in quick_ref:
+        name_col.append(f"{part.name}:")
 
-    # Quick Reference
-    idx = 0
-    quick_ref = quick_ref[:5]
-    for i in range(len(quick_ref)):
-        ref = quick_ref[i]
-        name_field = shield_card_front_template['fld_quickref_name'][idx]
-        card_front = draw_text_to_field(card_front, name_field, f"{ref.name}:",'Avenir-Next-LT-Pro-Demi-Condensed_5186.ttf', align='left', font_size=25)
-
-        ef_text = split_text_on_length(f"{ref.to_text(shield_obj)}", 70)
+        ef_text = wrap_text(card_front, part.to_text(shield_obj), font, shield_card_front_template['fld_quickref_effect'])
         for line in ef_text:
-            if idx < 6:
-                effect_field = shield_card_front_template['fld_quickref_effect'][idx]
-            card_front = draw_text_to_field(card_front, effect_field, line, 'avenir-next-condensed-medium.otf', align='left', font_size=25)
-            idx += 1
+            effect_col.append(line)
 
-    # Shield Parts / Tag - Collecting column contents
+        while len(name_col) < len(effect_col):
+            name_col.append('')
+
+    # Print Quick Ref to Card
+    print(len(name_col))
+    for i in range(len(name_col)):
+        y_offset = 0.155 / max([len(name_col), 6])
+        name_field = deepcopy(shield_card_front_template['fld_quickref_name'])
+        effect_field = deepcopy(shield_card_front_template['fld_quickref_effect'])
+        name_field.y = name_field.y - (name_field.h / 2) + (y_offset * i)
+        effect_field.y = effect_field.y - (effect_field.h / 2) + (y_offset * i)
+
+        card_front = draw_text_to_field(card_front, name_field, name_col[i], 'Avenir-Next-LT-Pro-Demi-Condensed_5186.ttf', align='left', font_size=fnt_size)
+        card_front = draw_text_to_field(card_front, effect_field, effect_col[i], 'avenir-next-condensed-medium.otf', align='left', font_size=fnt_size)
+
+
+    # Shield Parts / Tag
+    # Collect part count / deduplication of parts
+    dedup_list = []
+    for part in shield_obj.parts:
+        part_added = False
+        for dedup_part in dedup_list:
+            if part.name == dedup_part['part'].name:
+                dedup_part['count'] += 1
+                part_added = True
+                break
+
+        if not part_added:
+            dedup_list.append({'part': part, 'count': 1})
+
+    # Collecting column content
     header_col = []
     effect_col = []
     header_idx = [0]
@@ -230,11 +247,16 @@ def generate_shield_card(shield_obj):
     header_col.append(f"--Shield Parts--")
     effect_col.append('')
 
-    for i in range(len(shield_obj.parts)):
-        part = shield_obj.parts[i]
-        header_col.append(f"{part.name}:")
+    for i in range(len(dedup_list)):
+        part = dedup_list[i]['part']
+        new_header = f"{part.name}"
+        if dedup_list[i]['count'] > 1:
+            new_header += f" x{dedup_list[i]['count']}"
+        new_header += ':'
 
-        ef_str = split_text_on_length(f"{part.effect}", 65)
+        header_col.append(new_header)
+
+        ef_str = split_text_on_length(f"{part.to_text(shield_obj)}", 65)
         for ef in ef_str:
             effect_col.append(ef)
 
@@ -250,7 +272,6 @@ def generate_shield_card(shield_obj):
     header_col.append(f"{shield_obj.tag.name}:")
     effect_col.append(f"{shield_obj.tag.effect}")
 
-
     # Printing column content to card
     fonts = {
         'header': 'rexlia rg.otf',
@@ -259,9 +280,11 @@ def generate_shield_card(shield_obj):
     }
 
     for i in range(len(header_col)):
-        _offset = 0.462 / max([len(header_col), 12])
-        name_field = Field(0.17, 0.25 + i * _offset, 0.18, 0.030, False)
-        effect_field = Field(0.41, 0.25 + i * _offset, 0.3, 0.030, False)
+        y_offset = 0.462 / max([len(header_col), 12])
+        name_field = deepcopy(shield_card_back_template['fld_part_name'])
+        effect_field = deepcopy(shield_card_back_template['fld_part_effect'])
+        name_field.y += i * y_offset
+        effect_field.y += i * y_offset
 
         font = fonts['name']
         if i in header_idx:

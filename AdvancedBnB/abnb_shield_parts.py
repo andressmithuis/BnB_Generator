@@ -2,8 +2,8 @@ from AdvancedBnB.abnb_shieldtypes import Shieldtypes
 from util import Modifier
 
 class shd_part_empty(Modifier):
-    name = 'Empty'
-    effect = 'No Special Effects.'
+    name = 'Trinket'
+    effect = 'Looks cool. Does Nothing.'
 
 
 class shd_part_absorb(Modifier):
@@ -74,6 +74,9 @@ class shd_part_capacity(Modifier):
         }
         item.mod_stats['capacity'] += (cap_bonus[item.shield_type] * n_parts)
 
+    def to_text(self, item):
+        return f"Increased Shield Capacity."
+
 
 class shd_part_fleet(Modifier):
     name = 'Fleet'
@@ -93,6 +96,9 @@ class shd_part_health(Modifier):
         n_parts = len([x for x in item.parts if x.name == self.name])
         item.mod_stats.setdefault('mods', {}).setdefault('max_health', 0)
         item.mod_stats['mods']['max_health'] += (n_parts * 20)
+
+    def to_text(self, item):
+        return f"Increased Max Health."
 
 
 class shd_part_nova(Modifier):
@@ -123,6 +129,9 @@ class shd_part_recharge(Modifier):
         n_parts = len([x for x in item.parts if x.name == self.name])
         item.mod_stats['charge_rate'] += (n_parts * 10)
 
+    def to_text(self, item):
+        return f"Increased Shield Recharge Rate."
+
 
 class shd_part_reflect(Modifier):
     name = 'Reflect'
@@ -141,7 +150,7 @@ class shd_part_resistant(Modifier):
 
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"Gain an Extra {n_parts}d8 {self.type }Elemental Damage Reduction."
+        return f"Gain {n_parts}d8 {self.type} Elemental Damage Reduction."
 
 
 class shd_part_roid(Modifier):
@@ -199,6 +208,9 @@ class shd_part_turtle(Modifier):
 
         item.mod_stats.setdefault('mods', {}).setdefault('max_health', 0)
         item.mod_stats['mods']['max_health'] -= (n_parts * 10)
+
+    def to_text(self, item):
+        return f"Increased Shield Capacity. Decreased Max Health."
 
 
 class shd_part_vagabond(Modifier):
