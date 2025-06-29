@@ -248,7 +248,7 @@ class Gun:
         self.crit_dice = self.mod_stats['crit_dice']
         self.hits_crits = self.mod_stats['hits_crits']
         self.range = self.mod_stats['range']
-        self.mag_size = self.mod_stats['mag_size']
+        self.mag_size = max(self.mod_stats['mag_size'], 1)
 
     def randomize_name(self):
         with open('assets.json') as file:

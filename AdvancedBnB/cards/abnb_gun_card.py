@@ -9,8 +9,7 @@ from util.cards.card_basics import *
 gun_card_front_template = {
     'fld_red_txt': Field(0.66, 0.68, 0.45, 0.08, False),
 
-    'fld_ammo_logo': Field(0.425, 0.72, 0.05, 0, True),
-    'fld_ammo_cnt': Field(0.47, 0.74, 0.025, 0, True),
+    'fld_ammo_bar': Field(0.67, 0.72, 0.51, 0.07, False),
 
     'fld_acctop_h': Field(0.311, 0.344, 0.02, 0, True),
     'fld_acctop_c': Field(0.3578, 0.344, 0.02, 0, True),
@@ -28,23 +27,17 @@ gun_card_back_template = {
     'fld_type_bonus_txt': Field(0.28, 0.72, 0.2, 0.05, False),
     'fld_type_bonus_effect': Field(0.535, 0.82, 0.71, 0.14, False),
 
-    'fld_part_name': [],
-    'fld_part_effect': [],
+    'fld_part_name': Field(0.17, 0.25, 0.18, 0.030, False),
+    'fld_part_effect': Field(0.41, 0.25, 0.3, 0.030, False),
 
     'fld_mod_effects': []
 }
 
-gun_card_front_template['fld_quickref_name'] = []
-gun_card_front_template['fld_quickref_effect'] = []
-for i in range(6):
-    gun_card_front_template['fld_quickref_name'].append(Field(0.28, 0.78 + i * 0.03, 0.20, 0.031, False))
-    gun_card_front_template['fld_quickref_effect'].append(Field(0.64, 0.78 + i * 0.03, 0.50, 0.031, False))
-
-gun_card_back_template['fld_part_name'] = []
-gun_card_back_template['fld_part_effect'] = []
+#gun_card_back_template['fld_part_name'] = []
+#gun_card_back_template['fld_part_effect'] = []
 for i in range(14):
-    gun_card_back_template['fld_part_name'].append(Field(0.17, 0.25 + i * 0.033, 0.18, 0.030, False))
-    gun_card_back_template['fld_part_effect'].append(Field(0.41, 0.25 + i * 0.033, 0.3, 0.030, False))
+    #gun_card_back_template['fld_part_name'].append(Field(0.17, 0.25 + i * 0.033, 0.18, 0.030, False))
+    #gun_card_back_template['fld_part_effect'].append(Field(0.41, 0.25 + i * 0.033, 0.3, 0.030, False))
     gun_card_back_template['fld_mod_effects'].append(Field(0.82, 0.25 + i * 0.033, 0.18, 0.030, False))
 
 def generate_gun_card(gun_obj):
@@ -59,6 +52,7 @@ def generate_gun_card(gun_obj):
     card_back = Image.open(path)
 
     if False:
+        card_front = draw_field_locations(card_front, basic_card_template)
         card_front = draw_field_locations(card_front, gun_card_front_template)
         card_back = draw_field_locations(card_back, gun_card_back_template)
 
@@ -82,12 +76,20 @@ def generate_gun_card(gun_obj):
     card_front = draw_image_to_field(card_front, symbol, card_field)
 
     # Add Ammo counter
-    card_field = gun_card_front_template['fld_ammo_logo']
-    symbol = Image.open(f"img/gun_symbol/ammo.png")
-    for i in range(gun_obj.mag_size):
-        if i > 0:
-            card_field.x += 0.05
-        card_front = draw_image_to_field(card_front, symbol, card_field)
+    symbol = Image.open(f"img/item_icons/ammo_{gun_obj.gun_type.asset_dir}.png")
+
+    n_fields = max(gun_obj.mag_size, 10)
+    ammo_cnt_field = deepcopy(gun_card_front_template['fld_ammo_bar'])
+    ammo_cnt_field.w = ammo_cnt_field.w / n_fields
+    ammo_cnt_field.h = 0
+    ammo_cnt_field.sq = True
+
+    origin_x = ammo_cnt_field.x - ((n_fields / 2) * ammo_cnt_field.w) + (0.5 * ammo_cnt_field.w)
+    for i in range(n_fields):
+        if i > gun_obj.mag_size:
+            break
+        ammo_cnt_field.x = origin_x + (ammo_cnt_field.w * i)
+        card_front = draw_image_to_field(card_front, symbol, ammo_cnt_field)
 
     # Add Element symbols
     card_front = card_add_element(card_front, gun_obj)

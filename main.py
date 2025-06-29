@@ -10,7 +10,7 @@ USE_ABNB_SYSTEM = False  # Set to True to generate equipment using the new Advan
 
 if USE_ABNB_SYSTEM:
     from AdvancedBnB import Gun, Shield
-    from AdvancedBnB import Manufacturers
+    from AdvancedBnB import Manufacturers, Guntypes
 else:
     from StandardBnB import Gun, Shield
 
@@ -22,10 +22,10 @@ if __name__ == '__main__':
         load_resources()
 
     props = {
-        # 'level': 1,
-        'manufacturer': Manufacturers.ANSHIN,
-        # 'gun_type': Guntypes.PISTOL,
-        # 'rarity': Rarity.LEGENDARY,
+        # 'level': 30,
+        # 'manufacturer': Manufacturers.ERIDIAN,
+        # 'gun_type': Guntypes.RIFLE,
+        # 'rarity': Rarity.PEARLESCENT,
     }
 
     # Generate Gun Card

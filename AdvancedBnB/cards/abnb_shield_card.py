@@ -189,24 +189,25 @@ def generate_shield_card(shield_obj):
     card_field = shield_card_back_template['fld_mod_effects'][0]
     card_back = draw_text_to_field(card_back, card_field, f"--Mods & Checks--", 'rexlia rg.otf', align='left', font_size=22)
 
-    mods = shield_obj.mod_stats['mods']
-    idx = 0
-    for k, v in mods.items():
-        if v != 0:
-            w_parts = k.split('_')
-            for i in range(len(w_parts)):
-                w = w_parts[i]
-                w = f"{w[0].upper()}{w[1:]}"
+    if 'mods' in shield_obj.mod_stats:
+        mods = shield_obj.mod_stats['mods']
+        idx = 0
+        for k, v in mods.items():
+            if v != 0:
+                w_parts = k.split('_')
+                for i in range(len(w_parts)):
+                    w = w_parts[i]
+                    w = f"{w[0].upper()}{w[1:]}"
 
-                if w in ['Dmg', 'Ads', 'Acc', 'Mod']:
-                    w = w.upper()
+                    if w in ['Dmg', 'Ads', 'Acc', 'Mod']:
+                        w = w.upper()
 
-                w_parts[i] = w
-            k = ' '.join(w_parts)
-            card_field = shield_card_back_template['fld_mod_effects'][1 + idx]
-            card_back = draw_text_to_field(card_back, card_field, f"{k} {'+' if v > 0 else ''}{v}",'avenir-next-condensed-medium.otf', align='left', font_size=22)
+                    w_parts[i] = w
+                k = ' '.join(w_parts)
+                card_field = shield_card_back_template['fld_mod_effects'][1 + idx]
+                card_back = draw_text_to_field(card_back, card_field, f"{k} {'+' if v > 0 else ''}{v}",'avenir-next-condensed-medium.otf', align='left', font_size=22)
 
-            idx += 1
+                idx += 1
 
     # Merge front and back of card
     card_joined = card_merge_sideways(card_front, card_back)

@@ -104,13 +104,11 @@ class Shield:
         if props is not None and 'rarity' in props:
             self.rarity = props['rarity']
 
-        print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Shield Rarity = {self.rarity}.{' Might also be Elemental.' if roll_for_element else ''}")
-
         if roll_for_element:
             self.elemental_roll['n_rolls'] = 1
             self.roll_for_element()
 
-        self.elements = [Frostburn(bonus=1)]
+        print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Shield Rarity = {self.rarity}, Element = {[el for el in self.elements]}")
 
         # If Shield is Elemental, add Resistance part
         if len(self.elements) > 0:
@@ -130,28 +128,34 @@ class Shield:
             new_part = deepcopy(part)
 
             # Elemental part exceptions (Resistant, Nova, Spike)
-            # TODO: Add Spike, Nova
-            if new_part.name == 'Resistant':
+            if new_part.name in ['Resistant', 'Spike', 'Nova']:
                 # Force an element if item is not elemental
                 if len(self.elements) == 0:
                     self.forced_elemental = True
                     self.roll_for_element()
 
+            if new_part.name == 'Resistant':
                 self.add_resistance_part()
                 self.n_parts += 1
             else:
+                print(f"Adding part: {new_part.name} - {new_part.effect}")
                 self.parts.append(new_part)
                 self.n_parts += 1
 
         # Apply Shield Part Effects
         self.apply_effects()
 
-        # If Originally Manufactured by Eridian, apply Eridian Shield Effects
-        if self.eridian:
-            self.manufacturer = Manufacturers.ERIDIAN
-
         # Calculate final stats
         self.calculate_stats()
+
+        # If Originally Manufactured by Eridian, apply Eridian Shield Effects
+        # NOTE: Needs to have the final stats calculated
+        if self.eridian:
+            self.manufacturer = Manufacturers.ERIDIAN
+            eridian_traits = [shd_trait_reverse_engineer(), shd_trait_symbiotic()]
+            for trait in eridian_traits:
+                self.parts.append(trait)
+                trait.apply(self)
 
         # Pick random Shield Name
         self.randomize_name()
@@ -217,6 +221,7 @@ class Shield:
             new_part.type = element.name
             for i in range(element.bonus + 1):
                 self.parts.append(new_part)
+                print(f"Adding part: {new_part.name} - {new_part.effect}")
 
     def apply_effects(self):
         # Create deduplicated list of parts

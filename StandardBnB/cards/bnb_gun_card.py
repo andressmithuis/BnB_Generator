@@ -26,7 +26,7 @@ def generate_gun_card(gun_obj):
 
     card_img = Image.open(path)
 
-    if True:
+    if False:
         card_img = draw_field_locations(card_img, basic_card_template)
         card_img = draw_field_locations(card_img, gun_card_template)
 

@@ -139,12 +139,15 @@ def card_add_quick_ref(card_img, item_parts, item_obj):
             name_col.append('')
 
     # Print Quick Ref to Card
-    y_offset = basic_card_template['fld_quickref_name'].h / max(len(name_col), 6)
+    tst_bbox = font.getbbox("Ay")
+    y_offset = (tst_bbox[3] - tst_bbox[1]) / 2 / card_img.size[1]
+
+    row_h = basic_card_template['fld_quickref_name'].h / max(len(name_col), 6)
     for i in range(len(name_col)):
         name_field = deepcopy(basic_card_template['fld_quickref_name'])
         effect_field = deepcopy(basic_card_template['fld_quickref_effect'])
-        name_field.y = name_field.y - (name_field.h / 2) + (y_offset * i)
-        effect_field.y = effect_field.y - (effect_field.h / 2) + (y_offset * i)
+        name_field.y = name_field.y - (name_field.h / 2) + (row_h * i) + y_offset
+        effect_field.y = effect_field.y - (effect_field.h / 2) + (row_h * i) + y_offset
 
         card_img = draw_text_to_field(card_img, name_field, name_col[i],card_fonts['bold'], align='left', font_size=fnt_size)
         card_img = draw_text_to_field(card_img, effect_field, effect_col[i], card_fonts['default'],align='left', font_size=fnt_size)

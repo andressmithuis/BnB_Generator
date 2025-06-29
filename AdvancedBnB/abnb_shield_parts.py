@@ -223,6 +223,29 @@ class shd_part_vagabond(Modifier):
         return f"While Full: Gain +{n_parts * 2} Movement."
 
 
+class shd_trait_reverse_engineer(Modifier):
+    name = 'Reverse Engineer'
+    effect = 'This Shield is made using a Shield from another Manufacturer as a base.'
+
+class shd_trait_symbiotic(Modifier):
+    name = 'Symbiotic'
+    effect = 'While this shield is equipped it merges with you.'
+    situational = True
+
+    def apply(self, item):
+        # Health is increased by Shield Capacity. Health Tags change to that of Shield.
+        # Health Regen is increased by Shield Recharge Rate
+        # Effect that activate when shield depletes, now activate when Health falls below Half.
+        item.mod_stats.setdefault('mods', {}).setdefault('max_health', 0)
+        item.mod_stats['mods']['max_health'] += item.capacity
+
+        item.mod_stats.setdefault('mods', {}).setdefault('health_regen', 0)
+        item.mod_stats['mods']['health_regen'] += item.recharge_rate
+
+    def to_text(self, item):
+        return f"Health Tag: {item.tag.name} ({item.tag.effect}). Effects that would activate when Shield Depletes, now activate when Health falls below Half."
+
+
 class shd_tag_energy(Modifier):
     name = 'Energy'
     effect = 'Weak to Shock Damage.'

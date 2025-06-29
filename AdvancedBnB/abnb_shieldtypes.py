@@ -69,6 +69,6 @@ class Fast(Shieldtype):
 
 
 class Shieldtypes:
-    BALANCED = Balanced(),
-    HIGHCAPACITY = HighCapacity(),
+    BALANCED = Balanced()
+    HIGHCAPACITY = HighCapacity()
     FAST = Fast()
