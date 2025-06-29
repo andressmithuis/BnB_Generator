@@ -201,7 +201,7 @@ def wrap_text(img, text_str, font, field):
 
 def get_max_font_size(img, text_list, field, font_file):
     fnt_size_min = 5
-    fnt_size_max = 100
+    fnt_size_max = 25
 
     tl, br = field.get_bbox(img)
     max_height = br[1] - tl[1]
@@ -214,7 +214,8 @@ def get_max_font_size(img, text_list, field, font_file):
         for line in text_list:
             wrapped = wrap_text(img, line, font, field)
             # Bounding Box Height * 1.1 for a little bit of space between rows
-            row_h = (font.getbbox("A")[3] * 1.1) * max(1, len(wrapped))
+            tst_bbox = font.getbbox("Ay")
+            row_h = ((tst_bbox[3] - tst_bbox[1]) * 1.2) * max(1, len(wrapped))
             text_height += row_h
 
         if text_height <= max_height:

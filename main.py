@@ -23,9 +23,9 @@ if __name__ == '__main__':
 
     props = {
         # 'level': 1,
-        # 'manufacturer': Manufacturers.ANSHIN,
+        'manufacturer': Manufacturers.ANSHIN,
         # 'gun_type': Guntypes.PISTOL,
-        # 'rarity': Rarity.PEARLESCENT,
+        # 'rarity': Rarity.LEGENDARY,
     }
 
     # Generate Gun Card
@@ -46,5 +46,5 @@ if __name__ == '__main__':
 
     # Generate Potion Card
     if False:
-        new_potion = HealthPotion(Rarity.COMMON)
+        new_potion = HealthPotion(Rarity.LEGENDARY)
         new_potion.generate_card()
