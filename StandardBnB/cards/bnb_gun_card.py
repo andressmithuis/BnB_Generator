@@ -2,16 +2,10 @@ import os
 from PIL import Image
 
 from util.cards.card_generation import Field, draw_image_to_field, draw_text_to_field, draw_field_locations, split_text_on_length
+from util.cards.card_basics import *
 
 gun_card_template = {
-    'fld_name': Field(0.498, 0.095, 0.38, 0.10, False),
-    'fld_gun_img': Field(0.66, 0.45, 0.45, 0.38, False),
     'fld_red_txt': Field(0.66, 0.68, 0.45, 0.08, False),
-
-    'fld_rarity_txt': Field(0.14, 0.18, 0.15, 0.018, False),
-    'fld_guild_logo': Field(0.14, 0.145, 0.15, 0.038, False),
-    'fld_guntype_txt': Field(0.855, 0.18, 0.15, 0.018, False),
-    'fld_guntype_logo': Field(0.855, 0.145, 0.15, 0.038, False),
 
     'fld_acctop_h': Field(0.311, 0.344, 0.02, 0, True),
     'fld_acctop_c': Field(0.3578, 0.344, 0.02, 0, True),
@@ -23,11 +17,6 @@ gun_card_template = {
     'fld_dmg_dice': Field(0.135, 0.63, 0.07, 0, True),
     'fld_dmg_dice_n': Field(0.17, 0.68, 0.02, 0, True),
     'fld_range': Field(0.255, 0.724, 0.02, 0, True),
-
-    'fld_element': Field(0.115, 0.85, 0.11, 0.11, False),
-
-    'fld_ef_name': Field(0.56, 0.82, 0.74, 0.09, False),
-    'fld_ef_text': Field(0.56, 0.82, 0.74, 0.09, False)
 }
 
 def generate_gun_card(gun_obj):
@@ -38,22 +27,20 @@ def generate_gun_card(gun_obj):
     card_img = Image.open(path)
 
     if False:
+        card_img = draw_field_locations(card_img, basic_card_template)
         card_img = draw_field_locations(card_img, gun_card_template)
 
     # Add Gun Image
-    card_field = gun_card_template['fld_gun_img']
     img_to_insert = Image.open(gun_obj.asset['path_to_img'])
-    card_img = draw_image_to_field(card_img, img_to_insert, card_field)
+    card_img = card_add_item_image(card_img, img_to_insert)
 
     # Add Manufacturer logo
-    card_field = gun_card_template['fld_guild_logo']
     symbol = Image.open(f"img/guild_logo/StandardBnB/{gun_obj.guild.logo_file}")
-    card_img = draw_image_to_field(card_img, symbol, card_field)
+    card_img = card_add_tl_logo(card_img, symbol)
 
     # Add Gun type symbol
-    card_field = gun_card_template['fld_guntype_logo']
     symbol = Image.open(f"img/gun_symbol/{gun_obj.type.img_file}")
-    card_img = draw_image_to_field(card_img, symbol, card_field)
+    card_img = card_add_tr_logo(card_img, symbol)
 
     # Add Damage Dice symbol
     card_field = gun_card_template['fld_dmg_dice']
@@ -61,37 +48,37 @@ def generate_gun_card(gun_obj):
     card_img = draw_image_to_field(card_img, symbol, card_field)
 
     # Add Element symbols
-    card_field = gun_card_template['fld_element']
-    gun_elements = list(set(gun_obj.elements))[:6]
-    el_symbols = [gun_elements]
-    if len(gun_elements) > 3:
-        split_idx = len(gun_elements) - int(len(gun_elements) / 2)
-        el_symbols = [gun_elements[:split_idx], gun_elements[split_idx:]]
+    card_img = card_add_element(card_img, gun_obj)
 
-    for row in range(len(el_symbols)):
-        for j in range(len(el_symbols[row])):
-            _w = card_field.w / len(el_symbols[row])
-            _h = card_field.h / len(el_symbols)
-            _x = card_field.x - (card_field.w / 2) + (_w / 2) + (j * _w)
-            _y = card_field.y - (card_field.h / 2) + (_h / 2) + (row * _h)
-            subfield = Field(_x, _y, _w, _h, True)
+    if False:
+        card_field = gun_card_template['fld_element']
+        gun_elements = list(set(gun_obj.elements))[:6]
+        el_symbols = [gun_elements]
+        if len(gun_elements) > 3:
+            split_idx = len(gun_elements) - int(len(gun_elements) / 2)
+            el_symbols = [gun_elements[:split_idx], gun_elements[split_idx:]]
 
-            symbol = Image.open(f"img/element_symbol/{el_symbols[row][j].name}.png")
-            card_img = draw_image_to_field(card_img, symbol, subfield)
+        for row in range(len(el_symbols)):
+            for j in range(len(el_symbols[row])):
+                _w = card_field.w / len(el_symbols[row])
+                _h = card_field.h / len(el_symbols)
+                _x = card_field.x - (card_field.w / 2) + (_w / 2) + (j * _w)
+                _y = card_field.y - (card_field.h / 2) + (_h / 2) + (row * _h)
+                subfield = Field(_x, _y, _w, _h, True)
+
+                symbol = Image.open(f"img/element_symbol/{el_symbols[row][j].name}.png")
+                card_img = draw_image_to_field(card_img, symbol, subfield)
 
     # Add gun name
-    card_field = gun_card_template['fld_name']
-    gun_name = f"{gun_obj.name}"
-    if gun_obj.name_prefix is not None:
-        gun_name = f"{gun_obj.name_prefix.name} {gun_obj.name}"
-    card_img = draw_text_to_field(card_img, card_field, gun_name, 'rexlia rg.otf')
+    item_name = f"{gun_obj.name_prefix + ' ' if gun_obj.name_prefix != None else ''}{gun_obj.name}"
+    card_img = card_add_item_name(card_img, item_name)
 
     # Add Rarity and Gun Type
-    card_field = gun_card_template['fld_rarity_txt']
-    card_img = draw_text_to_field(card_img, card_field, gun_obj.rarity.upper(), 'Avenir-Next-LT-Pro-Demi-Condensed_5186.ttf')
+    item_rarity = f"{gun_obj.rarity}".upper()
+    card_img = card_add_tl_text(card_img, item_rarity)
 
-    card_field = gun_card_template['fld_guntype_txt']
-    card_img = draw_text_to_field(card_img, card_field, gun_obj.type.name.upper(),'Avenir-Next-LT-Pro-Demi-Condensed_5186.ttf')
+    item_type = f"{gun_obj.type}".upper()
+    card_img = card_add_tr_text(card_img, item_type)
 
     # Add Hits/Crits/Range
     card_field = gun_card_template['fld_acctop_h']
@@ -120,14 +107,29 @@ def generate_gun_card(gun_obj):
         card_field = gun_card_template['fld_dmg_dice_n']
         card_img = draw_text_to_field(card_img, card_field, f"x{gun_obj.hit_dice.count}",'rexlia rg.otf', color=(255, 255, 255))
 
-    # Modifier Texts
+    # Quick reference
+    # Determine Font Size
+    ef_buffer = []
+    for ef in gun_obj.effects:
+        ef_buffer.append(f"{ef.to_text(gun_obj)}")
+
+    if 'mods' in gun_obj.mod_stats:
+        mods = gun_obj.mod_stats['mods']
+        for k, v in mods.items():
+            if v != 0:
+                ef_buffer.append(f"{'+' if v > 0 else ''}{v}")
+
+    font_file = card_fonts['default']
+    fnt_size = get_max_font_size(card_img, ef_buffer, basic_card_template['fld_quickref_effect'], font_file)
+    font = ImageFont.truetype(f"fonts/{font_file}", fnt_size)
+
+    # Gun Effects
     ef_name = []
     ef_text = []
 
-    # Gun Effects
     for ef in gun_obj.effects:
         ef_name.append(f"{ef.name}:")
-        ef_lines = split_text_on_length(f"{ef.to_text(gun_obj)}", 65)
+        ef_lines = wrap_text(card_img, f"{ef.to_text(gun_obj)}", font, basic_card_template['fld_quickref_effect'])
         for line in ef_lines:
             ef_text.append(line)
 
@@ -150,29 +152,24 @@ def generate_gun_card(gun_obj):
                     w_parts[i] = w
 
                 ef_name.append(f"{' '.join(w_parts)}:")
-                ef_lines = split_text_on_length(f"{'+' if v > 0 else ''}{v}", 70)
+                ef_lines = wrap_text(card_img,f"{'+' if v > 0 else ''}{v}", font, basic_card_template['fld_quickref_name'])
                 for line in ef_lines:
                     ef_text.append(line)
 
                 while len(ef_name) < len(ef_text):
                     ef_name.append('')
 
-
-    # Prepare Text Rows
-    gun_card_template['fld_ef_name'] = []
-    gun_card_template['fld_ef_text'] = []
-    for i in range(max([len(ef_name), 6])):
-        gun_card_template['fld_ef_name'].append(Field(0.28, 0.78 + i * 0.03, 0.20, 0.031, False))
-        gun_card_template['fld_ef_text'].append(Field(0.64, 0.78 + i * 0.03, 0.50, 0.031, False))
-
-    # Print Effects, Mods & Checks to the Card
+    # Print Quick Ref to Card
+    y_offset = basic_card_template['fld_quickref_name'].h / max(len(ef_name), 6)
     for i in range(len(ef_name)):
-        name_field = gun_card_template['fld_ef_name'][i]
-        text_field = gun_card_template['fld_ef_text'][i]
+        name_field = deepcopy(basic_card_template['fld_quickref_name'])
+        effect_field = deepcopy(basic_card_template['fld_quickref_effect'])
+        name_field.y = name_field.y - (name_field.h / 2) + (y_offset * i)
+        effect_field.y = effect_field.y - (effect_field.h / 2) + (y_offset * i)
 
-        card_img = draw_text_to_field(card_img, name_field, ef_name[i],'Avenir-Next-LT-Pro-Demi-Condensed_5186.ttf', align='left', font_size=25)
-        card_img = draw_text_to_field(card_img, text_field, ef_text[i], 'avenir-next-condensed-medium.otf', align='left',font_size=25)
+        card_img = draw_text_to_field(card_img, name_field, ef_name[i], card_fonts['bold'], align='left', font_size=fnt_size)
+        card_img = draw_text_to_field(card_img, effect_field, ef_text[i], card_fonts['default'], align='left', font_size=fnt_size)
 
+    # Card Output
     card_img.show()
-
     card_img.save('test.bmp', 'BMP', quality=100)

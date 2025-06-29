@@ -471,7 +471,7 @@ class trait_drain(Modifier):
 
 # Tediore - Primary
 class trait_fire_and_forget(Modifier):
-    name = 'Fire & Forget.'
+    name = 'Fire & Forget'
     effect = 'When you Reload this Gun, you Throw it away instead and deal Damage.'
     situational = True
 

@@ -170,3 +170,59 @@ def draw_image_to_field(base_img: ImageFile, insert_img: ImageFile, field: Field
 
     return base_img
 
+def recolor_image(src_image, new_color):
+    alpha = src_image.getchannel('A')
+    img_out = Image.new('RGBA', src_image.size, new_color + (0,))
+    img_out.putalpha(alpha)
+
+    return img_out
+
+def wrap_text(img, text_str, font, field):
+    tl, br = field.get_bbox(img)
+    max_width = br[0] - tl[0]
+    draw = ImageDraw.Draw(img)
+
+    lines = []
+    for paragraph in text_str.split('\n'):
+        line = []
+        for word in paragraph.split():
+            tmp_line = ' '.join(line + [word])
+            if draw.textlength(tmp_line, font=font) <=  max_width:
+                line.append(word)
+            else:
+                lines.append(' '.join(line))
+                line = [word]
+
+        # End of Line
+        if line:
+            lines.append(' '.join(line))
+
+    return lines
+
+def get_max_font_size(img, text_list, field, font_file):
+    fnt_size_min = 5
+    fnt_size_max = 25
+
+    tl, br = field.get_bbox(img)
+    max_height = br[1] - tl[1]
+
+    for fnt_size in range(fnt_size_max, fnt_size_min - 1, -1):
+        # Load font with new font size
+        font = ImageFont.truetype(f"fonts/{font_file}", fnt_size)
+
+        text_height = 0
+        for line in text_list:
+            wrapped = wrap_text(img, line, font, field)
+            # Bounding Box Height * 1.1 for a little bit of space between rows
+            tst_bbox = font.getbbox("Ay")
+            row_h = ((tst_bbox[3] - tst_bbox[1]) * 1.2) * max(1, len(wrapped))
+            text_height += row_h
+
+        if text_height <= max_height:
+            return fnt_size
+
+    return fnt_size_min
+
+
+
+

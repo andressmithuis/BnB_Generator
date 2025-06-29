@@ -1,5 +1,7 @@
 from .abnb_element import FusionElement
 from .abnb_guntypes import Guntypes
+from .abnb_shield_parts import *
+from .abnb_shieldtypes import Shieldtypes
 from .abnb_weapon_parts import weapon_accessories_table
 from .abnb_weapon_traits import *
 from util import roll_on_table
@@ -31,7 +33,7 @@ class Anshin(Manufacturer):
         self.makes = {
             'weapons': [Guntypes.PISTOL, Guntypes.SMG, Guntypes.SNIPER],
             'grenades': [],
-            'shields': [],
+            'shield': Shieldtypes.FAST,
             'relics': []
         }
         self.weapon_traits = {
@@ -56,6 +58,12 @@ class Anshin(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
+    def edit_shield(self, shield_obj):
+        shield_obj.shield_type = self.makes['shield']
+        shield_obj.tag = shd_tag_energy()
+        shield_obj.parts.append(shd_part_adaptive())
+
+
 class Atlas(Manufacturer):
     name = 'Atlas'
     logo_file = 'Atlas.png'
@@ -64,7 +72,7 @@ class Atlas(Manufacturer):
         self.makes = {
             'weapons': [Guntypes.RIFLE, Guntypes.PISTOL, Guntypes.LAUNCHER],
             'grenades': [],
-            'shields': [],
+            'shield': Shieldtypes.HIGHCAPACITY,
             'relics': []
         }
         self.weapon_traits = {
@@ -81,6 +89,12 @@ class Atlas(Manufacturer):
 
         return roll_on_table(table, dice_roll)
 
+    def edit_shield(self, shield_obj):
+        shield_obj.shield_type = self.makes['shield']
+        shield_obj.tag = shd_tag_alloy()
+        shield_obj.parts.append(shd_part_brimming())
+        shield_obj.forced_non_elemental = True
+
 class Bandit(Manufacturer):
     name = 'Bandit'
     logo_file = 'Bandit.png'
@@ -89,7 +103,7 @@ class Bandit(Manufacturer):
         self.makes = {
             'weapons': [Guntypes.RIFLE, Guntypes.PISTOL, Guntypes.LAUNCHER, Guntypes.SHOTGUN, Guntypes.SMG],
             'grenades': [],
-            'shields': [],
+            'shield': Shieldtypes.BALANCED,
             'relics': []
         }
         self.weapon_traits = {
@@ -114,6 +128,11 @@ class Bandit(Manufacturer):
             part = roll_on_table(weapon_accessories_table, 1)
             gun.parts.append(part)
 
+    def edit_shield(self, shield_obj):
+        shield_obj.shield_type = self.makes['shield']
+        shield_obj.tag = shd_tag_alloy()
+        shield_obj.parts.append(shd_part_roid())
+
 
 class Dahl(Manufacturer):
     name = 'Dahl'
@@ -123,7 +142,7 @@ class Dahl(Manufacturer):
         self.makes = {
             'weapons': [Guntypes.RIFLE, Guntypes.PISTOL, Guntypes.SNIPER, Guntypes.SMG],
             'grenades': [],
-            'shields': [],
+            'shield': Shieldtypes.FAST,
             'relics': []
         }
         self.weapon_traits = {
@@ -159,6 +178,8 @@ class Dahl(Manufacturer):
 
             # Add Scopes
             for _ in range(bonus['scopes']):
+                if gun.n_scopes >= gun.max_scopes:
+                    break
                 part = gun.pick_weapon_scope()
                 gun.parts.append(part)
                 gun.n_scopes += 1
@@ -178,6 +199,16 @@ class Dahl(Manufacturer):
                         gun.traits.append(trait)
                         break
 
+    def edit_shield(self, shield_obj):
+        shield_obj.shield_type = self.makes['shield']
+        shield_obj.tag = shd_tag_energy()
+        starting_part = {
+            (1, 3): shd_part_charge_health(),
+            (4, 6): shd_part_charge_shield()
+        }
+        d6 = Dice.from_string('1d6')
+        shield_obj.parts.append(roll_on_table(starting_part, d6.roll()))
+
 class Hyperion(Manufacturer):
     name = 'Hyperion'
     logo_file = 'Hyperion.png'
@@ -186,7 +217,7 @@ class Hyperion(Manufacturer):
         self.makes = {
             'weapons': [Guntypes.PISTOL, Guntypes.SMG, Guntypes.SHOTGUN, Guntypes.SNIPER],
             'grenades': [],
-            'shields': [],
+            'shield': Shieldtypes.FAST,
             'relics': []
         }
         self.weapon_traits = {
@@ -213,6 +244,11 @@ class Hyperion(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
+    def edit_shield(self, shield_obj):
+        shield_obj.shield_type = self.makes['shield']
+        shield_obj.tag = shd_tag_energy()
+        shield_obj.parts.append(shd_part_amp())
+
 class Jakobs(Manufacturer):
     name = 'Jakobs'
     logo_file = 'Jakobs.png'
@@ -221,7 +257,7 @@ class Jakobs(Manufacturer):
         self.makes = {
             'weapons': [Guntypes.RIFLE, Guntypes.PISTOL, Guntypes.SHOTGUN, Guntypes.SNIPER],
             'grenades': [],
-            'shields': [],
+            'shield': Shieldtypes.HIGHCAPACITY,
             'relics': []
         }
         self.weapon_traits = {
@@ -248,6 +284,12 @@ class Jakobs(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
+    def edit_shield(self, shield_obj):
+        shield_obj.shield_type = self.makes['shield']
+        shield_obj.tag = shd_tag_bio()
+        shield_obj.parts.append(shd_part_health())
+        shield_obj.forced_non_elemental = True
+
 class Maliwan(Manufacturer):
     name = 'Maliwan'
     logo_file = 'Maliwan.png'
@@ -256,7 +298,7 @@ class Maliwan(Manufacturer):
         self.makes = {
             'weapons': [Guntypes.PISTOL, Guntypes.SMG, Guntypes.SNIPER, Guntypes.LAUNCHER],
             'grenades': [],
-            'shields': [],
+            'shield': Shieldtypes.BALANCED,
             'relics': []
         }
         self.weapon_traits = {
@@ -274,6 +316,21 @@ class Maliwan(Manufacturer):
 
         return roll_on_table(table, dice_roll)
 
+    def edit_shield(self, shield_obj):
+        shield_obj.shield_type = self.makes['shield']
+        shield_obj.tag = shd_tag_energy()
+        starting_part = {
+            (1, 3): shd_part_spike(),
+            (4, 6): shd_part_nova()
+        }
+        d6 = Dice.from_string('1d6')
+        shield_obj.parts.append(roll_on_table(starting_part, d6.roll()))
+        # Force an Element because of the Spike or Nova part, but make sure no more elements can be rolled after
+        shield_obj.forced_elemental = True
+        shield_obj.roll_for_element()
+        shield_obj.forced_elemental = False
+        shield_obj.forced_non_elemental = True
+
 class Torgue(Manufacturer):
     name = 'Torgue'
     logo_file = 'Torgue.png'
@@ -282,7 +339,7 @@ class Torgue(Manufacturer):
         self.makes = {
             'weapons': [Guntypes.PISTOL, Guntypes.RIFLE, Guntypes.SHOTGUN, Guntypes.LAUNCHER],
             'grenades': [],
-            'shields': [],
+            'shield': Shieldtypes.BALANCED,
             'relics': []
         }
         self.weapon_traits = {
@@ -327,6 +384,35 @@ class Torgue(Manufacturer):
 
             gun.elements = fixed_elements
 
+    def edit_shield(self, shield_obj):
+        shield_obj.shield_type = self.makes['shield']
+        shield_obj.tag = shd_tag_alloy()
+        starting_part = {
+            (1, 3): shd_part_spike(),
+            (4, 6): shd_part_nova()
+        }
+        d6 = Dice.from_string('1d6')
+        shield_obj.parts.append(roll_on_table(starting_part, d6.roll()))
+        # Force Explosive Element
+        shield_obj.forced_elemental = True
+        shield_obj.roll_for_element()
+        shield_obj.forced_elemental = False
+        shield_obj.forced_non_elemental = True
+
+        # Check if Element is Explosive, else replace
+        has_explosive = False
+        for el in shield_obj.elements:
+            if isinstance(el, FusionElement):
+                for sub_el in el:
+                    if isinstance(sub_el, Explosive):
+                        has_explosive = True
+            else:
+                if isinstance(el, Explosive):
+                    has_explosive = True
+
+        if not has_explosive:
+            shield_obj.elements = [Explosive()]
+
 
 class Pangolin(Manufacturer):
     name = 'Pangolin'
@@ -336,7 +422,7 @@ class Pangolin(Manufacturer):
         self.makes = {
             'weapons': [Guntypes.PISTOL, Guntypes.RIFLE, Guntypes.SHOTGUN],
             'grenades': [],
-            'shields': [],
+            'shield': Shieldtypes.HIGHCAPACITY,
             'relics': []
         }
         self.weapon_traits = {
@@ -361,6 +447,11 @@ class Pangolin(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
+    def edit_shield(self, shield_obj):
+        shield_obj.shield_type = self.makes['shield']
+        shield_obj.tag = shd_tag_energy()
+        shield_obj.parts.append(shd_part_turtle())
+
 
 class Tediore(Manufacturer):
     name = 'Tediore'
@@ -370,7 +461,7 @@ class Tediore(Manufacturer):
         self.makes = {
             'weapons': [Guntypes.PISTOL, Guntypes.SMG, Guntypes.SHOTGUN, Guntypes.LAUNCHER],
             'grenades': [],
-            'shields': [],
+            'shield': Shieldtypes.FAST,
             'relics': []
         }
         self.weapon_traits = {
@@ -396,6 +487,11 @@ class Tediore(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
+    def edit_shield(self, shield_obj):
+        shield_obj.shield_type = self.makes['shield']
+        shield_obj.tag = shd_tag_energy()
+        shield_obj.parts.append(shd_part_recharge())
+
 
 class Vladof(Manufacturer):
     name = 'Vladof'
@@ -405,7 +501,7 @@ class Vladof(Manufacturer):
         self.makes = {
             'weapons': [Guntypes.PISTOL, Guntypes.RIFLE, Guntypes.SNIPER, Guntypes.LAUNCHER],
             'grenades': [],
-            'shields': [],
+            'shield': Shieldtypes.BALANCED,
             'relics': []
         }
         self.weapon_traits = {
@@ -430,6 +526,16 @@ class Vladof(Manufacturer):
         }
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
+
+    def edit_shield(self, shield_obj):
+        shield_obj.shield_type = self.makes['shield']
+        shield_obj.tag = shd_tag_energy()
+        starting_part = {
+            (1, 3): shd_part_absorb(),
+            (4, 6): shd_part_reflect()
+        }
+        d6 = Dice.from_string('1d6')
+        shield_obj.parts.append(roll_on_table(starting_part, d6.roll()))
 
 
 class Eridian(Manufacturer):
@@ -477,15 +583,13 @@ class Eridian(Manufacturer):
         }
         return
 
-        return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
-
 
 class Manufacturers:
     ANSHIN = Anshin()
     ATLAS = Atlas()
     BANDIT = Bandit()
     DAHL = Dahl()
-    ERIDIAN = Eridian()  # TODO: Rework
+    ERIDIAN = Eridian()
     HYPERION = Hyperion()
     JAKOBS = Jakobs()
     MALIWAN = Maliwan()

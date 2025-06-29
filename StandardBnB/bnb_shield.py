@@ -31,7 +31,7 @@ class Shield:
 
 
 
-    def generate(self, level: int = 1, input_rolls=False):
+    def generate(self, input_rolls=False, props=None):
         '''
         Roll d6 for guild
         Based on level and guild, select capacity and recharge rate
@@ -43,8 +43,9 @@ class Shield:
         - - How to deal with elements?
         '''
 
-        if 1 <= level <= 30:
-            self.level = level
+        if props is not None and 'item_level' in props:
+            if 1 <= props['item_level'] <= 30:
+                self.level = props['item_level']
 
         # Guild type
         d8 = Dice.from_string('1d8').roll(input_rolls)
