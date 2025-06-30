@@ -24,7 +24,7 @@ def generate_potion_card(potion_obj):
         card_img = draw_field_locations(card_img, potion_card_template)
 
     # Add potion name
-    item_name = f"{potion_obj.rarity} Health Potion"
+    item_name = potion_obj.name
     card_img = card_add_item_name(card_img, item_name)
 
     # Add Potion Image

@@ -4,14 +4,11 @@ Not all features are complete and expect things to be buggy from time to time.
 
 Features:
 - Generation of Gun Cards (Advanced BnB✅)
-- Generation of Shield Cards
-
-Extra:
+- Generation of Shield Cards (Advanced BnB✅)
 - Generation of Health Potion Cards
-- You can influence the properties of generated items by providing the right function arguments (VERY WIP, might not work as expected or even be correct).
+- Generation of Shield Potion Cards
 
-
-How to Use:
+# How to Use:
 
 Make sure the Python package requirements are installed:
 

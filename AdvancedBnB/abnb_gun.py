@@ -96,8 +96,8 @@ class Gun:
                 self.manufacturer = None
 
         print(f"Determining Gun Type...")
-        if props is not None and 'gun_type' in props:
-            self.gun_type = props['gun_type']
+        if props is not None and 'item_type' in props:
+            self.gun_type = props['item_type']
         else:
             roll = d12.roll(self.user_rolls)
             self.gun_type = self.manufacturer.make_random_gun(roll)
