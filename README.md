@@ -4,7 +4,7 @@
 This application is intended to automatically generate equipment cards for the 
 TTRPG "[*Bunkers & Badasses*](https://tinytinagames.com/)" by Nerdvana Games and 
 for the "*Advanced Bunkers & Badasses*" version of the game created by *Akkator006*
-(for more info, check the Discord!).
+(for more info on both, check the [Discord](https://discord.gg/RgtEaGYcWq)!).
 
 
 ### Features
