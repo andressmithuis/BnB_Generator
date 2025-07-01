@@ -2,9 +2,10 @@ import os.path
 import argparse
 
 from resource_loading import load_resources
-from util import Rarity
+from load_item_config import load_item_config
 
 from StandardBnB import HealthPotion, ShieldPotion
+
 
 if __name__ == '__main__':
     # --- CLI Argument Parser ---
@@ -45,20 +46,13 @@ if __name__ == '__main__':
 
         if args.use_abnb:
             from AdvancedBnB import Gun, Shield
-            from AdvancedBnB import Manufacturers, Guntypes
         else:
             from StandardBnB import Gun, Shield
-            from StandardBnB import Guilds, Guntypes
 
-        props = {
-            # 'level': 30,
-            # 'manufacturer': Manufacturers.ERIDIAN,
-            # 'item_type': Guntypes.RIFLE,
-            # 'rarity': Rarity.LEGENDARY,
-        }
+        props = load_item_config()
 
         if args.item_type == 'load_assets':
-            load_resources()
+            load_resources(args.games)
 
         elif args.item_type == 'gun':
             new_gun = Gun()

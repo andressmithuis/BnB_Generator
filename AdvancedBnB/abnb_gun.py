@@ -73,8 +73,8 @@ class Gun:
         d12 = Dice(1, 12)
 
         # Determine level and tier
-        if props is not None and 'level' in props:
-            self.level = props['level']
+        if props is not None and 'item_level' in props:
+            self.level = props['item_level']
         self.tier = get_item_tier(self.level)
 
         # Manufacturer and gun type
@@ -225,8 +225,10 @@ class Gun:
         # Calculate final stats
         self.calculate_stats()
 
-        # Pick random Gun Name
+        # Randomly choose a name
         self.randomize_name()
+        if props is not None and 'item_name' in props:
+            self.name = props['item_name']
 
 
     def apply_effects(self):
