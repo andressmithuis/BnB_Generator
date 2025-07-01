@@ -41,10 +41,10 @@ class Gun:
         self.forced_non_elemental = False
 
         self.asset = {'item_id': '', 'item_name': '', 'path_to_img': ''}
-        self.name = 'The Placeholder'
+        self.name = ''
         self.name_prefix = None
 
-    def generate(self, level: int = 1, input_rolls=False, starting=False, props=None):
+    def generate(self, input_rolls=False, starting=False, props=None):
         # Random gun - page 80
         # ---
         # Roll 2d8 to determine the type of gun (row) and manufacturer (col) - page 81
@@ -57,8 +57,10 @@ class Gun:
         #   - If Epic or Legendary: Optional: Add Red Text
 
         if starting is False:
-            if 0 < level <= 30:
-                self.level = level
+            if props is not None and 'item_level' in props:
+                level = props['item_level']
+                if 1 <= level <= 30:
+                    self.level = level
 
             # Gun Type / Guild Type
             rolls = Dice.from_string('2d8').roll_dice(user=input_rolls)
@@ -73,7 +75,6 @@ class Gun:
 
             print(f"Rolled a {rolls[0]}(1d8) and {rolls[1]}(1d8) -> Gun: {self.type}, Guild: {self.guild}")
         else:
-            self.level = 1
             self.type = 'favored'
             self.guild = 'choice'
             input_rolls = True
@@ -159,6 +160,9 @@ class Gun:
 
         # Randomly choose a name
         self.randomize_name()
+        if props is not None and 'item_name' in props:
+            self.name = props['item_name']
+
 
     def randomize_name(self):
         with open('assets.json') as file:

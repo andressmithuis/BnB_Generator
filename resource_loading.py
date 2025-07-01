@@ -14,6 +14,14 @@ from selenium.webdriver.chrome.options import Options
 
 from bs4 import BeautifulSoup
 
+game_alias_table = {
+    'bl1': 'borderlands-1',
+    'bl2': 'borderlands-2',
+    'bl3': 'borderlands-3',
+    'bl-tps': 'borderlands-tps',
+    'bl-wl': 'wonderlands'
+}
+
 class Driver:
     def __init__(self):
         opt = Options()
@@ -48,15 +56,15 @@ def get_item_image(driver: Driver, url):
     return img_url
 
 
-def _load_gun_images(driver: Driver):
-    print(f"Start Loading of Gun Resources...")
-
+def _load_gun_images(driver: Driver, game_selection):
     item_data = {}
 
-    games = ['borderlands-1', 'borderlands-2', 'borderlands-3', 'borderlands-tps', 'wonderlands']
+    selection = []
+    for game in game_selection:
+        selection.append(game_alias_table[game])
 
-    for game in ['borderlands-3']:
-
+    for game in selection:
+        print(f"Start Loading of Gun Resources ({game})...")
         url = f"https://www.lootlemon.com/db/{game}/weapons"
 
         weapons = get_item_list(driver, url)
@@ -120,14 +128,15 @@ def _load_gun_images(driver: Driver):
 
     return item_data
 
-def _load_shield_images(driver: Driver):
-    print(f"Start Loading of Shield Resources...")
+def _load_shield_images(driver: Driver, game_selection):
     item_data = {}
 
-    games = ['borderlands-1', 'borderlands-2', 'borderlands-3', 'borderlands-tps', 'wonderlands']
+    selection = []
+    for game in game_selection:
+        selection.append(game_alias_table[game])
 
-    for game in ['borderlands-3']:
-
+    for game in selection:
+        print(f"Start Loading of Shield Resources ({game})...")
         url = f"https://www.lootlemon.com/db/{game}/shields"
 
         shields = get_item_list(driver, url)
@@ -192,13 +201,33 @@ def _load_shield_images(driver: Driver):
 
     return item_data
 
-def load_resources():
+def load_resources(game_list, start_clean=False):
     driver = Driver()
 
     asset_data = {}
+    # Load previous data
+    if start_clean is False:
+        if os.path.isfile('assets.json'):
+            with open('assets.json', 'r') as file:
+                asset_data = json.load(file)
 
-    asset_data.update(_load_gun_images(driver))
-    asset_data.update(_load_shield_images(driver))
+    # Update Gun Assets
+    new_data = _load_gun_images(driver, game_list)
+    #new_data = {'weapons': {'pistol': [{'item_id': 'test', 'item_name': 'Test', 'path_to_img': 'img/path/to/file.png'}]}}
+    for weapon_type in ['pistol', 'smg', 'rifle', 'shotgun', 'launcher', 'sniper']:
+        data_set = asset_data['weapons'][weapon_type]
+        for weapon in new_data['weapons'][weapon_type]:
+            if weapon not in data_set:
+                data_set.append(weapon)
+        asset_data['weapons'][weapon_type] = data_set
+
+    # Update Shield Assets
+    new_data = _load_shield_images(driver, game_list)
+    data_set = asset_data['shields']
+    for item in new_data['shields']:
+        if item not in data_set:
+            data_set.append(item)
+    asset_data['shields'] = data_set
 
     # Save asset info in json file to be used in the generator
     with open('assets.json', 'w') as file:

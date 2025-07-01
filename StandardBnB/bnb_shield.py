@@ -27,6 +27,7 @@ class Shield:
         self.effects = []
 
         self.name_prefix = ''
+        self.name = ''
         self.asset = {'item_id': '', 'item_name': '', 'path_to_img': ''}
 
 
@@ -80,6 +81,8 @@ class Shield:
 
         # Randomly choose a name
         self.randomize_name()
+        if props is not None and 'item_name' in props:
+            self.name = props['item_name']
 
     def randomize_name(self):
         with open('assets.json') as file:
