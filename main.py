@@ -14,10 +14,11 @@ if __name__ == '__main__':
     # Subcommand: load_resources
     parser_load = cli_subparsers.add_parser('load', help='Initiate loading of resources')
     parser_load.add_argument(
-        'games',
+        '--games',
         nargs='+',
         choices=['bl1', 'bl2', 'bl3', 'bl-tps', 'bl-wl'],
-        help='Which games to pull resources from'
+        help='Which games to pull resources from',
+        default=['bl3'],
     )
     parser_load.add_argument('--reset', action='store_true', help='Removes any existing resources')
 
