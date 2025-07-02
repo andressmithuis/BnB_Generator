@@ -27,7 +27,7 @@ Overview of CLI commands:
 | Command      | Arguments        | Options                                                | Description                                                   |
 |--------------|------------------|--------------------------------------------------------|---------------------------------------------------------------|
 | ``load``     | (``--games``)    | ``bl1`` ``bl2`` ``bl3`` ``bl-tps`` ``bl-wl``           | Load item images from selected games (default=``bl3``)        |
-|              | (``--items``)    | ``weapons`` ``shields``                                | Load specific items (default=all)                             |
+|              | (``--items``)    | ``all`` ``weapons`` ``shields``                        | Load specific items (default=``all``)                         |
 |              | (``--reset``)    | -                                                      | Clears previsouly loaded resources.                           |
 | ``generate`` | \<item>          | ``gun`` ``shield`` ``health_potion`` ``shield_potion`` | Generate an equipment card (based on selection).              |
 |              | (``--use-abnb``) | -                                                      | Use the *Advanced Bunkers&Badasses* loot generation rulesets. |
@@ -69,7 +69,7 @@ Multiple options can be given when separated by a space.
 > ``python /path/to/directory/main.py load --games bl1 bl2``
 
 You can also load specific items only by providing the ``--items`` argument with the preferred
-category of items as argument options (``weapons``, ``shields``). Defaults to all if argument is not given.
+category of items as argument options (``all``, ``weapons``, ``shields``). Defaults to ``all`` if argument is not given.
 
 ## Loot Generation
 
