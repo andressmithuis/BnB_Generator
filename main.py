@@ -19,7 +19,14 @@ if __name__ == '__main__':
         nargs='+',
         choices=['bl1', 'bl2', 'bl3', 'bl-tps', 'bl-wl'],
         help='Which games to pull resources from',
-        default=['bl3'],
+        default=['bl3']
+    )
+    parser_load.add_argument(
+        '--items',
+        nargs='+',
+        choices=['all', 'weapons', 'shields'],
+        help='Which item category to pull',
+        default=['all']
     )
     parser_load.add_argument('--reset', action='store_true', help='Removes any existing resources')
 
@@ -31,7 +38,7 @@ if __name__ == '__main__':
     args = cli_parser.parse_args()
 
     if args.command == 'load':
-        load_resources(args.games, args.reset)
+        load_resources(args.games, args.items, args.reset)
 
     elif args.command == 'generate':
         # If the Assets are not loaded yet, exit
@@ -49,12 +56,10 @@ if __name__ == '__main__':
         else:
             from StandardBnB import Gun, Shield
 
+        # Load item_config.yaml file
         props = load_item_config()
 
-        if args.item_type == 'load_assets':
-            load_resources(args.games)
-
-        elif args.item_type == 'gun':
+        if args.item_type == 'gun':
             new_gun = Gun()
             new_gun.generate(props=props)
             print(new_gun)
