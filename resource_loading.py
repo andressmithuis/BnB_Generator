@@ -120,10 +120,12 @@ def load_item_images(driver: Driver, game_filter, item_filter):
                         f.write(resp.content)
 
                     try:
+                        # Convert avif to png
                         item_img = Image.open(f"img/tmp.avif")
                         filepath = f"{item_img_path}/{item_id}.png"
                         item_img.save(filepath, 'PNG', quality=100)
 
+                        # Add to item data
                         item_data.setdefault(item_filter, [])
 
                         if item_type in ['pistol', 'smg', 'rifle', 'shotgun', 'sniper', 'launcher']:
@@ -152,6 +154,10 @@ def load_item_images(driver: Driver, game_filter, item_filter):
                             print(f"Trying again...")
                 else:
                     print(f"ERROR - resp code: {resp.status_code}")
+
+        # Remove tmp avif image file
+        if os.path.isfile(f"img/tmp.avif"):
+            os.remove(f"img/tmp.avif")
 
     return item_data
 
