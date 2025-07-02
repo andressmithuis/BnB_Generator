@@ -26,7 +26,8 @@ Overview of CLI commands:
 
 | Command      | Arguments        | Options                                                | Description                                                   |
 |--------------|------------------|--------------------------------------------------------|---------------------------------------------------------------|
-| ``load``     | \<game(s)>       | ``bl1`` ``bl2`` ``bl3`` ``bl-tps`` ``bl-wl``           | Load item images from selected games.                         |
+| ``load``     | (``--games``)    | ``bl1`` ``bl2`` ``bl3`` ``bl-tps`` ``bl-wl``           | Load item images from selected games (default=``bl3``)        |
+|              | (``--items``)    | ``weapons`` ``shields``                                | Load specific items (default=all)                             |
 |              | (``--reset``)    | -                                                      | Clears previsouly loaded resources.                           |
 | ``generate`` | \<item>          | ``gun`` ``shield`` ``health_potion`` ``shield_potion`` | Generate an equipment card (based on selection).              |
 |              | (``--use-abnb``) | -                                                      | Use the *Advanced Bunkers&Badasses* loot generation rulesets. |
@@ -42,12 +43,15 @@ The application does not automatically come with equipment images and needs to d
 them from the different Borderlands Games (courtesy of *www.lootlemon.com*).
 This can be done with the ``load`` argument:
 
-``python /path/to/directoy/main.py load``
+``python /path/to/directory/main.py load``
 
 *(The download might take a couple of minutes)*
 
-You can also specify which game(s) will be used for the images. If no option is given, 
-it defaults to ``bl3`` (Borderlands 3).
+Whenever this command is run again, it will **ADD** the new equipment to the previously loaded
+equipment. You can start with a clean slate using the `--reset` argument.
+
+You can specify which game(s) will be used as a source for the images.
+Multiple options can be given when separated by a space.
 
 | Options    | Game                        |
 |------------|-----------------------------|
@@ -62,21 +66,12 @@ it defaults to ``bl3`` (Borderlands 3).
 > 
 > To load equipment from Borderlands 1 & 2:
 > 
-> ``python /path/to/directoy/main.py load bl1 bl2``
+> ``python /path/to/directory/main.py load --games bl1 bl2``
 
-Whenever this command is run again, it will **ADD** the new equipment to the previously loaded
-equipment. You can start with a clean slate using the `--reset` argument.
-
-> **EXAMPLE**
-> 
-> To remove previously loaded items and only load equipment from Borderlands 2:
->
-> ``python /path/to/directoy/main.py load bl2 --reset``
+You can also load specific items only by providing the ``--items`` argument with the preferred
+category of items as argument options (``weapons``, ``shields``). Defaults to all if argument is not given.
 
 ## Loot Generation
-
->Not all items are implemented yet, so refer to the *CLI Quick Reference* table at the top of
-this document to see what options are available.
 
 After the image resources have been loaded, you can generate loot using the ``generate`` command.
 You need to specify what item you want to generate a card for.
@@ -85,11 +80,11 @@ You need to specify what item you want to generate a card for.
 > 
 > Generate a Gun Card:
 > 
-> ``python /path/to/directoy/main.py generate gun``
+> ``python /path/to/directory/main.py generate gun``
 > 
 > Generate a Health Potion Card:
 > 
-> ``python /path/to/directoy/main.py generate health_potion``
+> ``python /path/to/directory/main.py generate health_potion``
 
 You can generate cards using the *Advanced Bunkers & Badasses* rulesets using 
 the ``--use-abnb`` argument
@@ -98,6 +93,6 @@ the ``--use-abnb`` argument
 > 
 > Generate a Shield Card for *Advanced Bunkers & Badasses*:
 > 
-> ``python /path/to/directoy/main.py generate shield --use-abnb``
+> ``python /path/to/directory/main.py generate shield --use-abnb``
 
 
