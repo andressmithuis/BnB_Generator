@@ -1,9 +1,11 @@
 from .abnb_element import FusionElement
 from .abnb_guntypes import Guntypes
-from .abnb_shield_parts import *
-from .abnb_shieldtypes import Shieldtypes
 from .abnb_weapon_parts import weapon_accessories_table
 from .abnb_weapon_traits import *
+from .abnb_shield_parts import *
+from .abnb_shieldtypes import Shieldtypes
+from .abnb_grenade_parts import *
+
 from util import roll_on_table
 
 class Manufacturer:
@@ -62,6 +64,12 @@ class Anshin(Manufacturer):
         shield_obj.shield_type = self.makes['shield']
         shield_obj.tag = shd_tag_energy()
         shield_obj.parts.append(shd_part_adaptive())
+
+    def edit_grenade(self, grenade_obj):
+        # Delivery Mechanism: Any
+        # Starting Part: Transfusion
+        grenade_obj.delivery_system = grenade_delivery_mechanism[Dice.from_string('1d6').roll()]
+        grenade_obj.parts.append(grn_payload_transfusion())
 
 
 class Atlas(Manufacturer):

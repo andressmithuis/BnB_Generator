@@ -1,8 +1,8 @@
-# use_abnb: True
+# use_abnb: False
 
 # item_name: 'My Awesome Thing!'
 # item_level: 1
 # rarity: 'Common'
 
-manufacturer: 'Anshin'
+# manufacturer: 'Anshin'
 # item_type: 'pistol'

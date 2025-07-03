@@ -63,22 +63,30 @@ def delete_directory(path):
 
 def load_item_images(driver: Driver, game_filter, item_filter):
     item_data = {}
-    if not item_filter in ['weapons', 'shields']:
+    if not item_filter in ['weapons', 'shields', 'grenades']:
         return item_data
 
     selection = []
     for game in game_filter:
         selection.append((game, game_alias_table[game]))
 
+    # Grenade URL exception
+    url = item_filter
+    if url == 'grenades':
+        url = 'grenade-mods'
+
     for game in selection:
         print(f"Start Loading of {game[1]} {item_filter.capitalize()}...")
-        url = f"https://www.lootlemon.com/db/{game[1]}/{item_filter}"
+        url = f"https://www.lootlemon.com/db/{game[1]}/{url}"
 
         items = get_item_list(driver, url)
 
         cnt = 1
         for item in items:
             item_name = item.get('data-name')
+            if item_name is None:  # Grenades Exception
+                item_name = item.get('data-named')
+
             #gun_rarity = item.get('data-rarity')
             #gun_manufacturer = item.get('data-manufacturer')
             item_type = item.get('data-type').split('-')[0]
@@ -171,12 +179,14 @@ def load_resources(game_list, item_list, start_clean=False):
 
     driver = Driver()
 
+    # Initialize asset_data data structure
     asset_data = {}
     for weapon_type in ['pistol', 'smg', 'rifle', 'shotgun', 'launcher', 'sniper']:
         asset_data.setdefault('weapons', {}).setdefault(weapon_type, [])
     asset_data.setdefault('shields', [])
+    asset_data.setdefault('grenades', [])
 
-    # Load previous data
+    # Load previous data (if exists)
     if os.path.isfile('assets.json'):
         with open('assets.json', 'r') as file:
             asset_data = json.load(file)
@@ -203,6 +213,16 @@ def load_resources(game_list, item_list, start_clean=False):
                 data_set.append(item)
 
         asset_data['shields'] = data_set
+
+    # Load Grenade Assets
+    if any(item in ['all', 'grenades'] for item in item_list):
+        new_data = load_item_images(driver, game_list, 'grenades')
+        data_set = asset_data['grenades']
+        for item in new_data['grenades']:
+            if item not in data_set:
+                data_set.append(item)
+
+        asset_data['grenades'] = data_set
 
     # Save asset info in json file to be used in the generator
     with open('assets.json', 'w') as file:
