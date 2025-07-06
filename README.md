@@ -3,22 +3,23 @@
 
 This application is intended to automatically generate equipment cards for the 
 TTRPG "[*Bunkers & Badasses*](https://tinytinagames.com/)" by Nerdvana Games and 
-for the "*Advanced Bunkers & Badasses*" version of the game created by *Akkator006*
+for the "[*Advanced Bunkers & Badasses*](https://akkator006.itch.io/advanced-bunkers-and-badasses)" 
+version of the game created by *Akkator006*
 (for more info on both, check the [Discord](https://discord.gg/RgtEaGYcWq)!).
 
 
 ### Features
 
 | Card Generation | Standard Bunkers&Badasses | Advanced Bunkers&Badasses |
-|-----------------|---------------------------|---------------------------|
-| Guns            | ✅                         | ✅                         |
-| Shields         | ✅                         | ✅                         |
-| Grenades        | ❌                         | ❌                         |
-| Relics          | ❌                         | ❌                         |
-| Class Mods      | (NA)                      | ❌                         |
-| Generic Potions | ❌                         | (NA)                      |
-| Health Potions  | ✅                         | (NA)                      |
-| Shield Potions  | ✅                         | (NA)                      |
+|-----------------|---------------------------|--------------------------|
+| Guns            | ✅                         | ✅                        |
+| Shields         | ✅                         | ✅                        |
+| Grenades        | ❌                         | 🚧                         |
+| Relics          | ❌                         | ❌                        |
+| Class Mods      | (NA)                      | ❌                        |
+| Generic Potions | ❌                         | (NA)                     |
+| Health Potions  | ✅                         | (NA)                     |
+| Shield Potions  | ✅                         | (NA)                     |
 
 ### CLI Quick Reference
 
