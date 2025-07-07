@@ -1,5 +1,5 @@
 # (Advanced) Bunkers & Badasses Loot Generator
-> **⚠** ***IN DEVELOPMENT*** **⚠**
+> **🚧** ***IN DEVELOPMENT*** **🚧**
 
 This application is intended to automatically generate equipment cards for the 
 TTRPG "[*Bunkers & Badasses*](https://tinytinagames.com/)" by Nerdvana Games and 
@@ -14,7 +14,7 @@ version of the game created by *Akkator006*
 |-----------------|---------------------------|--------------------------|
 | Guns            | ✅                         | ✅                        |
 | Shields         | ✅                         | ✅                        |
-| Grenades        | ❌                         | 🚧                         |
+| Grenades        | ❌                         | ✅                         |
 | Relics          | ❌                         | ❌                        |
 | Class Mods      | (NA)                      | ❌                        |
 | Generic Potions | ❌                         | (NA)                     |
