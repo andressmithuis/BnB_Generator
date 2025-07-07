@@ -1,9 +1,11 @@
 from .abnb_element import FusionElement
 from .abnb_guntypes import Guntypes
-from .abnb_shield_parts import *
-from .abnb_shieldtypes import Shieldtypes
 from .abnb_weapon_parts import weapon_accessories_table
 from .abnb_weapon_traits import *
+from .abnb_shield_parts import *
+from .abnb_shieldtypes import Shieldtypes
+from .abnb_grenade_parts import *
+
 from util import roll_on_table
 
 class Manufacturer:
@@ -63,6 +65,12 @@ class Anshin(Manufacturer):
         shield_obj.tag = shd_tag_energy()
         shield_obj.parts.append(shd_part_adaptive())
 
+    def edit_grenade(self, grenade_obj):
+        # Delivery Mechanism: Any
+        # Starting Part: Transfusion
+        grenade_obj.delivery_system = grenade_delivery_mechanism[Dice.from_string('1d6').roll()]
+        grenade_obj.parts.append(grn_payload_transfusion())
+
 
 class Atlas(Manufacturer):
     name = 'Atlas'
@@ -94,6 +102,13 @@ class Atlas(Manufacturer):
         shield_obj.tag = shd_tag_alloy()
         shield_obj.parts.append(shd_part_brimming())
         shield_obj.forced_non_elemental = True
+
+    def edit_grenade(self, grenade_obj):
+        # Delivery Mechanism: Any
+        # Starting Part: Link
+        grenade_obj.delivery_system = grenade_delivery_mechanism[Dice.from_string('1d6').roll()]
+        grenade_obj.parts.append(grn_payload_link())
+
 
 class Bandit(Manufacturer):
     name = 'Bandit'
@@ -132,6 +147,12 @@ class Bandit(Manufacturer):
         shield_obj.shield_type = self.makes['shield']
         shield_obj.tag = shd_tag_alloy()
         shield_obj.parts.append(shd_part_roid())
+
+    def edit_grenade(self, grenade_obj):
+        # Delivery Mechanism: Exploder
+        # Starting Part: MIRV
+        grenade_obj.delivery_system = grn_delivery_exploder()
+        grenade_obj.parts.append(grn_payload_mirv())
 
 
 class Dahl(Manufacturer):
@@ -209,6 +230,13 @@ class Dahl(Manufacturer):
         d6 = Dice.from_string('1d6')
         shield_obj.parts.append(roll_on_table(starting_part, d6.roll()))
 
+    def edit_grenade(self, grenade_obj):
+        # Delivery Mechanism: Any
+        # Starting Part: Jumping
+        grenade_obj.delivery_system = grenade_delivery_mechanism[Dice.from_string('1d6').roll()]
+        grenade_obj.parts.append(grn_payload_jumping())
+
+
 class Hyperion(Manufacturer):
     name = 'Hyperion'
     logo_file = 'Hyperion.png'
@@ -248,6 +276,13 @@ class Hyperion(Manufacturer):
         shield_obj.shield_type = self.makes['shield']
         shield_obj.tag = shd_tag_energy()
         shield_obj.parts.append(shd_part_amp())
+
+    def edit_grenade(self, grenade_obj):
+        # Delivery Mechanism: Longbow
+        # Starting Part: Singularity
+        grenade_obj.delivery_system = grn_delivery_longbow()
+        grenade_obj.parts.append(grn_payload_singularity())
+
 
 class Jakobs(Manufacturer):
     name = 'Jakobs'
@@ -290,6 +325,13 @@ class Jakobs(Manufacturer):
         shield_obj.parts.append(shd_part_health())
         shield_obj.forced_non_elemental = True
 
+    def edit_grenade(self, grenade_obj):
+        # Delivery Mechanism: Lobbed
+        # Starting Part: Force
+        grenade_obj.delivery_system = grn_delivery_lobbed()
+        grenade_obj.parts.append(grn_payload_force())
+
+
 class Maliwan(Manufacturer):
     name = 'Maliwan'
     logo_file = 'Maliwan.png'
@@ -330,6 +372,13 @@ class Maliwan(Manufacturer):
         shield_obj.roll_for_element()
         shield_obj.forced_elemental = False
         shield_obj.forced_non_elemental = True
+
+    def edit_grenade(self, grenade_obj):
+        # Delivery Mechanism: Any
+        # Starting Part: Elemental
+        grenade_obj.delivery_system = grenade_delivery_mechanism[Dice.from_string('1d6').roll()]
+        grenade_obj.parts.append(grn_payload_elemental())
+
 
 class Torgue(Manufacturer):
     name = 'Torgue'
@@ -413,6 +462,17 @@ class Torgue(Manufacturer):
         if not has_explosive:
             shield_obj.elements = [Explosive()]
 
+    def edit_grenade(self, grenade_obj):
+        # Delivery Mechanism: Any
+        # Starting Part: Nuke or Large
+        grenade_obj.delivery_system = grenade_delivery_mechanism[Dice.from_string('1d6').roll()]
+        starting_part = {
+            (1, 3): grn_payload_large(),
+            (4, 6): grn_payload_nuke()
+        }
+
+        grenade_obj.parts.append(roll_on_table(starting_part, Dice.from_string('1d6').roll()))
+
 
 class Pangolin(Manufacturer):
     name = 'Pangolin'
@@ -451,6 +511,12 @@ class Pangolin(Manufacturer):
         shield_obj.shield_type = self.makes['shield']
         shield_obj.tag = shd_tag_energy()
         shield_obj.parts.append(shd_part_turtle())
+
+    def edit_grenade(self, grenade_obj):
+        # Delivery Mechanism: Any
+        # Starting Part: Generator
+        grenade_obj.delivery_system = grenade_delivery_mechanism[Dice.from_string('1d6').roll()]
+        grenade_obj.parts.append(grn_payload_generator())
 
 
 class Tediore(Manufacturer):
@@ -491,6 +557,12 @@ class Tediore(Manufacturer):
         shield_obj.shield_type = self.makes['shield']
         shield_obj.tag = shd_tag_energy()
         shield_obj.parts.append(shd_part_recharge())
+
+    def edit_grenade(self, grenade_obj):
+        # Delivery Mechanism: Lobbed
+        # Starting Part: Sticky
+        grenade_obj.delivery_system = grn_delivery_lobbed
+        grenade_obj.parts.append(grn_payload_sticky())
 
 
 class Vladof(Manufacturer):
@@ -537,6 +609,21 @@ class Vladof(Manufacturer):
         d6 = Dice.from_string('1d6')
         shield_obj.parts.append(roll_on_table(starting_part, d6.roll()))
 
+    def edit_grenade(self, grenade_obj):
+        # Delivery Mechanism: Any
+        # Starting Part: Puddle
+        grenade_obj.delivery_system = grenade_delivery_mechanism[Dice.from_string('1d6').roll()]
+
+        starting_part = {
+            1: grn_payload_puddle_blight(),
+            2: grn_payload_puddle_chiller(),
+            3: grn_payload_puddle_corrupter(),
+            4: grn_payload_puddle_flamer(),
+            5: grn_payload_puddle_slagger(),
+            6: grn_payload_puddle_tesla(),
+        }
+        grenade_obj.parts.append(starting_part[Dice.from_string('1d6').roll()])
+
 
 class Eridian(Manufacturer):
     name = 'Eridian'
@@ -545,7 +632,6 @@ class Eridian(Manufacturer):
     def __init__(self):
         self.makes = {
             'weapons': [],
-            'grenades': [],
             'shields': [],
             'relics': []
         }
@@ -577,10 +663,6 @@ class Eridian(Manufacturer):
             trait.apply(gun)
 
     def pick_secondary_weapon_trait(self, user_roll=False):
-        table = {
-            (1, 3): self.weapon_traits['secondary'][0],
-            (4, 6): self.weapon_traits['secondary'][1],
-        }
         return
 
 
