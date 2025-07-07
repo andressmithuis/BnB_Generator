@@ -6,6 +6,7 @@ from .abnb_tables import *
 from .abnb_util import get_item_tier
 
 from .abnb_grenade_parts import grenade_base_stats
+from .cards.abnb_grenade_card import generate_grenade_card
 
 def mod_to_string(val_1, val_2):
     delta = val_1 - val_2
@@ -123,13 +124,17 @@ class Grenade:
         while self.n_parts < self.max_parts:
             print(f"Rolling for part {self.n_parts+1}/{self.max_parts}...")
             roll = d100.roll(self.user_rolls)
-            roll = min(roll, 20)
             part = roll_on_table(grenade_payload_table, roll)
             new_part = deepcopy(part)
+
+            # 'Mini MIRV' payload check: Change to 'MIRV' payload if not yet present. Else add as normal.
+            if new_part.name == 'Mini MIRV':
+                if not 'MIRV' in [part.name for part in self.parts]:
+                    new_part = grn_payload_mirv()
+
             self.parts.append(new_part)
             self.n_parts += 1
 
-        # TODO: WIP
         # Apply Shield Part Effects
         self.apply_effects()
 
@@ -138,7 +143,8 @@ class Grenade:
 
         # If Originally Manufactured by Eridian, apply Eridian Shield Effects
         # NOTE: Needs to have the final stats calculated
-        if self.eridian:
+        # TODO: WIP
+        if self.eridian or False:
             self.manufacturer = Manufacturers.ERIDIAN
             eridian_traits = [shd_trait_reverse_engineer(), shd_trait_symbiotic()]
             for trait in eridian_traits:
@@ -217,7 +223,7 @@ class Grenade:
         self.name = self.asset['item_name']
 
     def generate_card(self):
-        print(f"NO CARD GENERATION FUNCTION YET!")
+        generate_grenade_card(self)
 
     def  __repr__(self):
         str = ''
