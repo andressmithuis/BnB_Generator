@@ -113,7 +113,13 @@ class grn_payload_elemental(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        return f"Gains {n_parts}d6 Elemental Damage and +{20 * n_parts}% Elemental Effect Chance."
+        return f"Gains {n_parts}d6 Elemental Damage. Increases Elemental Effect Chance."
+
+    def apply(self, item):
+        n_parts = len([x for x in item.parts if x.name == self.name])
+
+        item.mod_stats.setdefault('mods', {}).setdefault('status_effect_chance', 0)
+        item.mod_stats['mods']['status_effect_chance'] += n_parts * 20
 
 
 class grn_payload_puddle_blight(Modifier):
