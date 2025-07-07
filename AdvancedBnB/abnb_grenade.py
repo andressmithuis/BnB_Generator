@@ -70,8 +70,6 @@ class Grenade:
         if props is not None and 'manufacturer' in props:
             self.manufacturer = props['manufacturer']
             if self.manufacturer == Manufacturers.ERIDIAN:
-                print("MANUFACTURER == ERIDIAN")
-                self.eridian = True
                 self.manufacturer = None
 
         while self.manufacturer is None:
@@ -79,18 +77,13 @@ class Grenade:
             self.manufacturer = manufacturer_table[roll]
             print(f"Rolled a {roll}! Grenade Manufacturer = {self.manufacturer}")
             if self.manufacturer == Manufacturers.ERIDIAN:
-                print(f"Rolled Eridian Manufacturer. Roll again for Manufacturer of Grenade Base.")
+                print(f"Rolled Eridian Manufacturer. Eridian Manufacturer does not make Grenades. Roll again.")
                 self.eridian = True
                 self.manufacturer = None
 
         # Apply Manufacturer Grenade Traits
         print(f"Applying Manufacturer Traits...")
         self.manufacturer.edit_grenade(self)
-
-        if False:
-            if props is not None and 'item_type' in props:
-                self.type = props['grenade_type']
-            print(f"Grenade Type = {self.type}")
 
         for part in self.parts:
             print(f"Starting Part: {part.name} - {part.effect}")
@@ -140,16 +133,6 @@ class Grenade:
 
         # Calculate final stats
         self.calculate_stats()
-
-        # If Originally Manufactured by Eridian, apply Eridian Shield Effects
-        # NOTE: Needs to have the final stats calculated
-        # TODO: WIP
-        if self.eridian or False:
-            self.manufacturer = Manufacturers.ERIDIAN
-            eridian_traits = [shd_trait_reverse_engineer(), shd_trait_symbiotic()]
-            for trait in eridian_traits:
-                self.parts.append(trait)
-                trait.apply(self)
 
         # Randomly choose a name
         self.randomize_name()
