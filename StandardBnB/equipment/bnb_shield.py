@@ -49,6 +49,9 @@ class Shield:
         d8 = Dice.from_string('1d8').roll(input_rolls)
         self.guild = shield_guild_table[d8]
 
+        if props is not None and 'manufacturer' in props:
+            self.guild = props['manufacturer']
+
         print(f"Rolled a {d8}(1d8) -> Guild: {self.guild}")
 
         # Guild Basestats

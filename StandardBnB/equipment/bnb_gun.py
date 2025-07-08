@@ -79,7 +79,8 @@ class Gun:
             self.guild = 'choice'
             input_rolls = True
 
-        self.type = 'favored'
+        if props is not None and 'manufacturer' in props:
+            self.guild = props['manufacturer']
 
         # Favored Gun / Guild Choice check
         if self.type == 'favored':
