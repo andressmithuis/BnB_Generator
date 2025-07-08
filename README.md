@@ -44,7 +44,7 @@ The application does not automatically come with equipment images and needs to d
 them from the different Borderlands Games (courtesy of *www.lootlemon.com*).
 This can be done with the ``load`` argument:
 
-``python /path/to/directory/main.py load``
+``python main.py load``
 
 *(The download might take a couple of minutes)*
 
@@ -67,7 +67,7 @@ Multiple options can be given when separated by a space.
 > 
 > To load equipment from Borderlands 1 & 2:
 > 
-> ``python /path/to/directory/main.py load --games bl1 bl2``
+> ``python main.py load --games bl1 bl2``
 
 You can also load specific items only by providing the ``--items`` argument with the preferred
 category of items as argument options (``all``, ``weapons``, ``shields``, etc.). Defaults to ``all`` if argument is not given.
@@ -81,11 +81,11 @@ You need to specify what item you want to generate a card for.
 > 
 > Generate a Gun Card:
 > 
-> ``python /path/to/directory/main.py generate gun``
+> ``python main.py generate gun``
 > 
 > Generate a Health Potion Card:
 > 
-> ``python /path/to/directory/main.py generate health_potion``
+> ``python main.py generate health_potion``
 
 You can generate cards using the *Advanced Bunkers & Badasses* rulesets using 
 the ``--use-abnb`` argument
@@ -94,6 +94,6 @@ the ``--use-abnb`` argument
 > 
 > Generate a Shield Card for *Advanced Bunkers & Badasses*:
 > 
-> ``python /path/to/directory/main.py generate shield --use-abnb``
+> ``python main.py generate shield --use-abnb``
 
 
