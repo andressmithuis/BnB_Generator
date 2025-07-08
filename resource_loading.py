@@ -63,20 +63,38 @@ def delete_directory(path):
 
 def load_item_images(driver: Driver, game_filter, item_filter):
     item_data = {}
-    if not item_filter in ['weapons', 'shields', 'grenades']:
+    if not item_filter in ['weapons', 'shields', 'grenades', 'relics']:
         return item_data
 
     selection = []
     for game in game_filter:
         selection.append((game, game_alias_table[game]))
 
-    # Grenade URL exception
-    url = item_filter
-    if url == 'grenades':
-        url = 'grenade-mods'
+
 
     for game in selection:
         print(f"Start Loading of {game[1]} {item_filter.capitalize()}...")
+
+        # URL exceptions
+        url = item_filter
+        if url == 'grenades':
+            url = 'grenade-mods'
+
+        if url == 'relics':
+            if game[0] == 'bl1':
+                print(f"Game {game[1]} does not have Relic type Equipment! Skipping...")
+                return None
+
+            url_alias = {
+                'bl2': 'relics',
+                'bl3': 'artifacts',
+                'bl-tps': 'oz-kits',
+                'bl-wl': 'rings-amulets'
+            }
+
+            url = url_alias[game[0]]
+
+
         url = f"https://www.lootlemon.com/db/{game[1]}/{url}"
 
         items = get_item_list(driver, url)
@@ -185,6 +203,7 @@ def load_resources(game_list, item_list, start_clean=False):
         asset_data.setdefault('weapons', {}).setdefault(weapon_type, [])
     asset_data.setdefault('shields', [])
     asset_data.setdefault('grenades', [])
+    asset_data.setdefault('relics', [])
 
     # Load previous data (if exists)
     if os.path.isfile('assets.json'):
@@ -223,6 +242,17 @@ def load_resources(game_list, item_list, start_clean=False):
                 data_set.append(item)
 
         asset_data['grenades'] = data_set
+
+    # Load Relic Assets
+    if any(item in ['all', 'relics'] for item in item_list):
+        new_data = load_item_images(driver, game_list, 'relics')
+        if new_data is not None:
+            data_set = asset_data['relics']
+            for item in new_data['relics']:
+                if item not in data_set:
+                    data_set.append(item)
+
+            asset_data['relics'] = data_set
 
     # Save asset info in json file to be used in the generator
     with open('assets.json', 'w') as file:

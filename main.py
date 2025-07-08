@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser_load.add_argument(
         '--items',
         nargs='+',
-        choices=['all', 'weapons', 'shields', 'grenades'],
+        choices=['all', 'weapons', 'shields', 'grenades', 'relics'],
         help='Which item category to pull',
         default=['all']
     )
