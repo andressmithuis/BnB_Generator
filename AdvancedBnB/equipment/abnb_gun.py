@@ -2,11 +2,15 @@ import json
 import random
 from copy import deepcopy
 
-from .abnb_tables import *
-from .abnb_util import get_item_tier
-from .abnb_guntypes import Guntypes
-from .abnb_weapon_parts import weapon_parts_table, weapon_accessories_table, weapon_sight_table
-from .cards.abnb_gun_card import generate_gun_card
+from AdvancedBnB.abnb_tables import Rarity, rarity_tables, weapon_part_count, elemental_table, fusion_table
+from AdvancedBnB.abnb_util import get_item_tier
+from AdvancedBnB.gun.abnb_gun_card import generate_gun_card
+from AdvancedBnB import Fusion, Explosive
+from AdvancedBnB.abnb_manufacturers import Manufacturers, manufacturer_table
+from util import Dice, roll_on_table
+
+from AdvancedBnB.gun.abnb_guntypes import Guntypes
+from AdvancedBnB.gun.abnb_weapon_parts import weapon_parts_table, weapon_accessories_table, weapon_sight_table
 
 def mod_to_string(val_1, val_2):
     delta = val_1 - val_2
@@ -367,7 +371,3 @@ class Gun:
                 str += f" - {k} {'+' if v > 0 else ''}{v} \n"
 
         return str
-
-
-
-

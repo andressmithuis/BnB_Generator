@@ -1,0 +1,1 @@
+from .abnb_shieldtypes import Shieldtypes

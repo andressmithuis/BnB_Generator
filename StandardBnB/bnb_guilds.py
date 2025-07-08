@@ -1,8 +1,8 @@
 from copy import deepcopy
 
-from .bnb_guntypes import Guntypes
-from .bnb_weapon_bonus import *
-from.bnb_shield_effects import *
+from StandardBnB.gun.bnb_guntypes import Guntypes
+from StandardBnB.gun.bnb_weapon_bonus import *
+from StandardBnB.shield.bnb_shield_effects import *
 from util import Rarity
 from util import Dice, roll_on_table
 

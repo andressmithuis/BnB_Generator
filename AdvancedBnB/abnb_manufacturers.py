@@ -1,10 +1,10 @@
 from .abnb_element import FusionElement
-from .abnb_guntypes import Guntypes
-from .abnb_weapon_parts import weapon_accessories_table
-from .abnb_weapon_traits import *
-from .abnb_shield_parts import *
-from .abnb_shieldtypes import Shieldtypes
-from .abnb_grenade_parts import *
+from .gun.abnb_guntypes import Guntypes
+from .gun.abnb_weapon_parts import weapon_accessories_table
+from .gun.abnb_weapon_traits import *
+from .shield.abnb_shield_parts import *
+from .shield.abnb_shieldtypes import Shieldtypes
+from .grenade.abnb_grenade_parts import *
 
 from util import roll_on_table
 
@@ -680,3 +680,18 @@ class Manufacturers:
     TORGUE = Torgue()
     VLADOF = Vladof()
 
+
+manufacturer_table = {
+    1: Manufacturers.ANSHIN,
+    2: Manufacturers.ATLAS,
+    3: Manufacturers.BANDIT,
+    4: Manufacturers.ERIDIAN,
+    5: Manufacturers.DAHL,
+    6: Manufacturers.HYPERION,
+    7: Manufacturers.JAKOBS,
+    8: Manufacturers.MALIWAN,
+    9: Manufacturers.PANGOLIN,
+    10: Manufacturers.TEDIORE,
+    11: Manufacturers.TORGUE,
+    12: Manufacturers.VLADOF
+}

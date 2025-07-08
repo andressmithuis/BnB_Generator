@@ -1,4 +1,4 @@
-from AdvancedBnB.abnb_guntypes import *
+from AdvancedBnB.gun.abnb_guntypes import *
 from util import Modifier
 
 # Weapon Parts

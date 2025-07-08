@@ -1,8 +1,7 @@
 from util import Rarity
 from .bnb_guilds import Guilds
-from .bnb_guntypes import Guntypes
+from StandardBnB.gun.bnb_guntypes import Guntypes
 from util.elements import *
-from util import Dice
 
 # Page 81
 gun_table = [

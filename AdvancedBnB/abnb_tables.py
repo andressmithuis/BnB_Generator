@@ -1,37 +1,7 @@
-import numpy as np
-
-from .abnb_weapon_parts import *
-from .abnb_manufacturers import *
 from .abnb_element import *
 from util import Rarity
 
-level_to_tiers = {
-    (1, 6): 1,
-    (7, 12): 2,
-    (13, 18): 3,
-    (19, 24): 4,
-    (25, 30): 5,
-    (31, 35): 6,
-    (36, 40): 7,
-    (41, 45): 8,
-    (46, 50): 9,
-    (51, np.inf): 10
-}
 
-manufacturer_table = {
-    1: Manufacturers.ANSHIN,
-    2: Manufacturers.ATLAS,
-    3: Manufacturers.BANDIT,
-    4: Manufacturers.ERIDIAN,
-    5: Manufacturers.DAHL,
-    6: Manufacturers.HYPERION,
-    7: Manufacturers.JAKOBS,
-    8: Manufacturers.MALIWAN,
-    9: Manufacturers.PANGOLIN,
-    10: Manufacturers.TEDIORE,
-    11: Manufacturers.TORGUE,
-    12: Manufacturers.VLADOF
-}
 
 rarity_tables = {
     'normal': {

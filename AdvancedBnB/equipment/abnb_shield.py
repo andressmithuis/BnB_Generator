@@ -2,10 +2,16 @@ import json
 import random
 from copy import deepcopy
 
-from .abnb_tables import *
-from .abnb_util import get_item_tier
-from .abnb_shield_parts import shield_parts_table, shd_part_resistant
-from .cards.abnb_shield_card import generate_shield_card
+from AdvancedBnB.abnb_tables import Rarity, rarity_tables, shield_part_count, elemental_table, fusion_table
+from AdvancedBnB.abnb_util import get_item_tier
+from AdvancedBnB.shield.abnb_shield_card import generate_shield_card
+from AdvancedBnB import Fusion, FusionElement, Explosive
+from AdvancedBnB.abnb_manufacturers import Manufacturers, manufacturer_table
+from util import Dice, roll_on_table
+
+from AdvancedBnB.shield.abnb_shieldtypes import Shieldtypes
+from AdvancedBnB.shield.abnb_shield_parts import shield_parts_table, shd_part_resistant, shd_trait_reverse_engineer, shd_trait_symbiotic
+
 
 def mod_to_string(val_1, val_2):
     delta = val_1 - val_2

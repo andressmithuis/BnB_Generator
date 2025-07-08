@@ -1,4 +1,4 @@
-from AdvancedBnB.abnb_shieldtypes import Shieldtypes
+from AdvancedBnB.shield.abnb_shieldtypes import Shieldtypes
 from util import Modifier
 
 class shd_part_empty(Modifier):

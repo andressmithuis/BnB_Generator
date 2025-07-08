@@ -3,7 +3,7 @@ import math
 from util import Modifier
 from util import Dice
 
-from .abnb_element import Explosive
+from AdvancedBnB.abnb_element import Explosive
 from util import Rarity
 
 # Anshin - Primary

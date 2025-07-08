@@ -1,6 +1,6 @@
 from util.rarity import Rarity
 from util.dice import Dice
-from .cards.bnb_potion_card import generate_potion_card
+from StandardBnB.potion.bnb_potion_card import generate_potion_card
 
 '''
 Health and Shield Gains:

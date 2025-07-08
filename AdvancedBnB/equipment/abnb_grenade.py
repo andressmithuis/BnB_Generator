@@ -2,11 +2,12 @@ import json
 import random
 from copy import deepcopy
 
-from .abnb_tables import *
-from .abnb_util import get_item_tier
-
-from .abnb_grenade_parts import grenade_base_stats
-from .cards.abnb_grenade_card import generate_grenade_card
+from AdvancedBnB.abnb_tables import *
+from AdvancedBnB.abnb_util import get_item_tier
+from AdvancedBnB.abnb_manufacturers import Manufacturers, manufacturer_table
+from AdvancedBnB.grenade.abnb_grenade_parts import grenade_base_stats, grenade_payload_table, grn_payload_mirv
+from AdvancedBnB.grenade.abnb_grenade_card import generate_grenade_card
+from util import Dice, roll_on_table
 
 def mod_to_string(val_1, val_2):
     delta = val_1 - val_2

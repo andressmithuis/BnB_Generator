@@ -1,5 +1,5 @@
-from util import Dice, roll_on_table
-from .bnb_weapon_bonus import *
+from util import roll_on_table
+from StandardBnB.gun.bnb_weapon_bonus import *
 
 
 class Guntype:

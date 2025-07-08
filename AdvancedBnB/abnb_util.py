@@ -1,5 +1,17 @@
-from .abnb_tables import level_to_tiers
+import numpy as np
 
+level_to_tiers = {
+    (1, 6): 1,
+    (7, 12): 2,
+    (13, 18): 3,
+    (19, 24): 4,
+    (25, 30): 5,
+    (31, 35): 6,
+    (36, 40): 7,
+    (41, 45): 8,
+    (46, 50): 9,
+    (51, np.inf): 10
+}
 
 def get_item_tier(level:int):
     """

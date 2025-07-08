@@ -3,9 +3,8 @@ import random
 from copy import deepcopy
 
 from util import Rarity, Dice, roll_on_table
-from .bnb_guilds import Guilds
-from .bnb_tables import shield_guild_table, rarity_table
-from .cards.bnb_shield_card import generate_shield_card
+from StandardBnB.bnb_tables import shield_guild_table, rarity_table
+from StandardBnB.shield.bnb_shield_card import generate_shield_card
 
 
 class Shield:
@@ -29,8 +28,6 @@ class Shield:
         self.name_prefix = ''
         self.name = ''
         self.asset = {'item_id': '', 'item_name': '', 'path_to_img': ''}
-
-
 
     def generate(self, input_rolls=False, props=None):
         '''
@@ -110,6 +107,3 @@ class Shield:
         str += "\n"
 
         return str
-
-
-

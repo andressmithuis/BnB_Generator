@@ -32,31 +32,31 @@ def load_item_config():
         if 'manufacturer' in yaml_config:
             manufacturer_alias = {
                 # Standard BnB Guilds
-                'ashen': StandardBnB.Guilds.ASHEN,
-                'alas': StandardBnB.Guilds.ALAS,
-                'skulldugger': StandardBnB.Guilds.SKULLDUGGER,
-                'dahlia': StandardBnB.Guilds.DAHLIA,
-                'blackpowder': StandardBnB.Guilds.BLACKPOWDER,
-                'malefactor': StandardBnB.Guilds.MALEFACTOR,
-                'hyperius': StandardBnB.Guilds.HYPERIUS,
-                'feriore': StandardBnB.Guilds.FERIORE,
-                'torgue_sbnb': StandardBnB.Guilds.TORGUE,
-                'stoker': StandardBnB.Guilds.STOKER,
-                'pangoblin': StandardBnB.Guilds.PANGOBLIN,
+                'ashen':        StandardBnB.Guilds.ASHEN,
+                'alas':         StandardBnB.Guilds.ALAS,
+                'skulldugger':  StandardBnB.Guilds.SKULLDUGGER,
+                'dahlia':       StandardBnB.Guilds.DAHLIA,
+                'blackpowder':  StandardBnB.Guilds.BLACKPOWDER,
+                'malefactor':   StandardBnB.Guilds.MALEFACTOR,
+                'hyperius':     StandardBnB.Guilds.HYPERIUS,
+                'feriore':      StandardBnB.Guilds.FERIORE,
+                'torgue_sbnb':  StandardBnB.Guilds.TORGUE,
+                'stoker':       StandardBnB.Guilds.STOKER,
+                'pangoblin':    StandardBnB.Guilds.PANGOBLIN,
 
                 # Advanced BnB Manufacturers
-                'anshin': AdvancedBnB.Manufacturers.ANSHIN,
-                'atlas': AdvancedBnB.Manufacturers.ATLAS,
-                'bandit': AdvancedBnB.Manufacturers.BANDIT,
-                'dahl': AdvancedBnB.Manufacturers.DAHL,
-                'eridian': AdvancedBnB.Manufacturers.ERIDIAN,
-                'hyperion': AdvancedBnB.Manufacturers.HYPERION,
-                'jakobs': AdvancedBnB.Manufacturers.JAKOBS,
-                'maliwan': AdvancedBnB.Manufacturers.MALIWAN,
-                'pangolin': AdvancedBnB.Manufacturers.PANGOLIN,
-                'tediore': AdvancedBnB.Manufacturers.TEDIORE,
-                'torgue_abnb': AdvancedBnB.Manufacturers.TORGUE,
-                'vladof': AdvancedBnB.Manufacturers.VLADOF,
+                'anshin':       AdvancedBnB.Manufacturers.ANSHIN,
+                'atlas':        AdvancedBnB.Manufacturers.ATLAS,
+                'bandit':       AdvancedBnB.Manufacturers.BANDIT,
+                'dahl':         AdvancedBnB.Manufacturers.DAHL,
+                'eridian':      AdvancedBnB.Manufacturers.ERIDIAN,
+                'hyperion':     AdvancedBnB.Manufacturers.HYPERION,
+                'jakobs':       AdvancedBnB.Manufacturers.JAKOBS,
+                'maliwan':      AdvancedBnB.Manufacturers.MALIWAN,
+                'pangolin':     AdvancedBnB.Manufacturers.PANGOLIN,
+                'tediore':      AdvancedBnB.Manufacturers.TEDIORE,
+                'torgue_abnb':  AdvancedBnB.Manufacturers.TORGUE,
+                'vladof':       AdvancedBnB.Manufacturers.VLADOF,
             }
 
             props['manufacturer'] = manufacturer_alias[yaml_config['manufacturer'].lower()]
@@ -94,12 +94,12 @@ def load_item_config():
         # Rarity
         if 'rarity' in yaml_config:
             rarity_alias = {
-                'common': Rarity.COMMON,
-                'uncommon': Rarity.UNCOMMON,
-                'rare': Rarity.RARE,
-                'epic': Rarity.EPIC,
-                'legendary': Rarity.LEGENDARY,
-                'pearlescent': Rarity.PEARLESCENT,
+                'common':       Rarity.COMMON,
+                'uncommon':     Rarity.UNCOMMON,
+                'rare':         Rarity.RARE,
+                'epic':         Rarity.EPIC,
+                'legendary':    Rarity.LEGENDARY,
+                'pearlescent':  Rarity.PEARLESCENT,
             }
 
             props['rarity'] = rarity_alias[yaml_config['rarity'].lower()]

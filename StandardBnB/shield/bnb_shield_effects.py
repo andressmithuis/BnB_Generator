@@ -1,6 +1,6 @@
-from util import Rarity, Dice, roll_on_table
-from util.modifier import Modifier
+from util import Modifier, Dice, roll_on_table
 from util.elements import *
+
 
 class effect_ashen_fast_recharge(Modifier):
     name = 'Ashen Guild Effect'

@@ -5,9 +5,9 @@ import json
 
 from util import Dice, roll_on_table
 
-from .bnb_tables import *
-from .bnb_guntypes import Guntypes
-from .cards.bnb_gun_card import generate_gun_card
+from StandardBnB.bnb_tables import *
+from StandardBnB.gun import Guntypes
+from StandardBnB.gun.bnb_gun_card import generate_gun_card
 from util.gun_prefixes import prefix_crappy
 
 class Gun:
