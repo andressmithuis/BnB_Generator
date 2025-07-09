@@ -1,6 +1,6 @@
 from .abnb_element import *
 from .abnb_manufacturers import Manufacturers
-from .equipment import Gun, Shield, Grenade
+from .equipment import Gun, Shield, Grenade, Relic
 
 from .gun import Guntypes
 from .shield import Shieldtypes

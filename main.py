@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     # Subcommand: generate_item
     parser_create = cli_subparsers.add_parser('generate', help='Which item to generate a card for')
-    parser_create.add_argument('item_type', choices=['gun', 'shield', 'grenade', 'health_potion', 'shield_potion'], help='Select what kind of item to generate a card for')
+    parser_create.add_argument('item_type', choices=['gun', 'shield', 'grenade', 'relic', 'health_potion', 'shield_potion'], help='Select what kind of item to generate a card for')
     parser_create.add_argument('--use-abnb', action='store_true', help='Enable Advanced Bunkers&Badasses')
 
     args = cli_parser.parse_args()
@@ -52,7 +52,7 @@ if __name__ == '__main__':
             exit(0)
 
         if args.use_abnb:
-            from AdvancedBnB import Gun, Shield, Grenade
+            from AdvancedBnB import Gun, Shield, Grenade, Relic
         else:
             from StandardBnB import Gun, Shield
 
@@ -71,6 +71,18 @@ if __name__ == '__main__':
             print(new_shield)
             new_shield.generate_card()
 
+        elif args.item_type == 'grenade':
+            new_grenade = Grenade()
+            new_grenade.generate(props=props)
+            print(new_grenade)
+            new_grenade.generate_card()
+
+        elif args.item_type == 'relic':
+            new_item = Relic()
+            new_item.generate(props=props)
+            print(new_item)
+            new_item.generate_card()
+
         elif args.item_type == 'health_potion':
             new_potion = HealthPotion(props=props)
             new_potion.generate_card()
@@ -79,8 +91,4 @@ if __name__ == '__main__':
             new_potion = ShieldPotion(props=props)
             new_potion.generate_card()
 
-        elif args.item_type == 'grenade':
-            new_grenade = Grenade()
-            new_grenade.generate(props=props)
-            print(new_grenade)
-            new_grenade.generate_card()
+
