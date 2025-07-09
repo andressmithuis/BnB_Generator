@@ -70,8 +70,6 @@ def load_item_images(driver: Driver, game_filter, item_filter):
     for game in game_filter:
         selection.append((game, game_alias_table[game]))
 
-
-
     for game in selection:
         print(f"Start Loading of {game[1]} {item_filter.capitalize()}...")
 
@@ -79,6 +77,9 @@ def load_item_images(driver: Driver, game_filter, item_filter):
         url = item_filter
         if url == 'grenades':
             url = 'grenade-mods'
+
+            if game[0] == 'bl-wl':
+                url = 'spells'
 
         if url == 'relics':
             if game[0] == 'bl1':
@@ -93,6 +94,12 @@ def load_item_images(driver: Driver, game_filter, item_filter):
             }
 
             url = url_alias[game[0]]
+
+        if url == 'class mods':
+            url = 'class-mods'
+
+            if game == 'bl-wl':
+                url = 'armor'
 
 
         url = f"https://www.lootlemon.com/db/{game[1]}/{url}"
@@ -188,10 +195,12 @@ def load_item_images(driver: Driver, game_filter, item_filter):
     return item_data
 
 def load_resources(game_list, item_list, start_clean=False):
+    t_start = time.time()
     if start_clean:
         # Remove all previously loaded files
         delete_directory('img/weapons')
         delete_directory('img/shields')
+        delete_directory('img/relics')
         if os.path.isfile('assets.json'):
             os.remove('assets.json')
 
@@ -257,3 +266,6 @@ def load_resources(game_list, item_list, start_clean=False):
     # Save asset info in json file to be used in the generator
     with open('assets.json', 'w') as file:
         json.dump(asset_data, file, indent=4)
+
+    t_end = time.time()
+    print(f"Resource loading done! Time taken = {round(t_end-t_start)}s.")
