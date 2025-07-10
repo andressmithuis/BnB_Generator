@@ -54,8 +54,6 @@ class Relic:
 
         print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Relic Rarity = {self.rarity}")
 
-        self.rarity = Rarity.PEARLESCENT
-
         # Determine Relic Type (Uncommon ~ Rare = Basic Relic, Epic+ = Advanced Relic)
         if self.rarity in [Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE]:
             self.type = basic_relics_table[Dice.from_string('1d10').roll()]

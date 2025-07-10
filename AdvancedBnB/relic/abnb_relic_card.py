@@ -57,7 +57,7 @@ def generate_relic_card(item_obj):
     item_rarity = f"{item_obj.rarity}".upper()
     card_front = card_add_tl_text(card_front, item_rarity)
 
-    item_type = f"{item_obj.type.name}".upper()
+    item_type = f"{item_obj.type.name} Relic".upper()
     card_front = card_add_tr_text(card_front, item_type)
 
     # Quick Reference
