@@ -204,6 +204,9 @@ def wrap_text(img, text_str, font, field):
         if line:
             lines.append(' '.join(line))
 
+    if len(lines) == 0:
+        lines.append('')
+
     return lines
 
 def get_max_font_size(img, text_list, field, font_file):

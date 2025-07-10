@@ -4,24 +4,15 @@ from util.cards.card_basics import *
 from util.cards.card_generation import *
 
 grenade_card_front_template = {
+    'fld_item_img': Field(0.24, 0.45, 0.30, 0.38, False),
     'fld_red_txt': Field(0.66, 0.68, 0.45, 0.08, False),
     
-    'fld_dice_img': Field(0.25, 0.50, 0, 0.22, True),
-    'fld_dice_cnt': Field(0.15, 0.575, 0, 0.12, True),
+    'fld_dice_img': Field(0.32, 0.63, 0, 0.16, True),
+    'fld_dice_cnt': Field(0.23, 0.66, 0, 0.12, True),
+
+    'fld_part_name': Field(0.50, 0.5, 0.18, 0.50, False),
+    'fld_part_effect': Field(0.76, 0.5, 0.32, 0.50, False),
 }
-
-grenade_card_back_template = {
-    'fld_type_bonus_txt': Field(0.28, 0.72, 0.2, 0.05, False),
-    'fld_type_bonus_effect': Field(0.535, 0.82, 0.71, 0.14, False),
-
-    'fld_part_name': Field(0.17, 0.25, 0.18, 0.030, False),
-    'fld_part_effect': Field(0.41, 0.25, 0.3, 0.030, False),
-
-    'fld_mod_effects': []
-}
-
-for i in range(14):
-    grenade_card_back_template['fld_mod_effects'].append(Field(0.82, 0.25 + i * 0.033, 0.18, 0.030, False))
 
 def generate_grenade_card(item_obj):
     # Take card template (blank card) based on rarity
@@ -30,28 +21,21 @@ def generate_grenade_card(item_obj):
     assert os.path.isfile(path), f"ERROR - Path to blank gun card file is not correct: <{path}>"
     card_front = Image.open(path)
 
-    path = f"./img/blank_cards/empty_card_blank_{str}.webp"
-    assert os.path.isfile(path), f"ERROR - Path to blank gun card file is not correct: <{path}>"
-    card_back = Image.open(path)
-
     if False:
         card_front = draw_field_locations(card_front, basic_card_template)
         card_front = draw_field_locations(card_front, grenade_card_front_template)
-        card_back = draw_field_locations(card_back, grenade_card_back_template)
 
     # Add Grenade Image
     img_to_insert = Image.open(item_obj.asset['path_to_img'])
-    card_front = card_add_item_image(card_front, img_to_insert)
+    card_front = card_add_item_image(card_front, img_to_insert, alternate_field=grenade_card_front_template['fld_item_img'])
 
     # Add Manufacturer logo
     symbol = Image.open(f"img/guild_logo/AdvancedBnB/{item_obj.manufacturer.logo_file}")
     card_front = card_add_tl_logo(card_front, symbol)
-    card_back = card_add_tl_logo(card_back, symbol)
 
     # Add Grenade type symbol
     symbol = Image.open(f"img/gun_symbol/grenade.png")
     card_front = card_add_tr_logo(card_front, symbol)
-    card_back = card_add_tr_logo(card_back, symbol)
 
     # Add Element symbols
     card_front = card_add_element(card_front, item_obj)
@@ -59,16 +43,13 @@ def generate_grenade_card(item_obj):
     # Add Grenade name
     item_name = f"{item_obj.name_prefix + ' ' if item_obj.name_prefix != '' else ''}{item_obj.name}"
     card_front = card_add_item_name(card_front, item_name)
-    card_back = card_add_item_name(card_back, item_name)
 
     # Add Rarity and Shield Type
     item_rarity = f"{item_obj.rarity}".upper()
     card_front = card_add_tl_text(card_front, item_rarity)
-    card_back = card_add_tl_text(card_back, item_rarity)
 
     item_type = f"{item_obj.delivery_system.name} Grenade".upper()
     card_front = card_add_tr_text(card_front, item_type)
-    card_back = card_add_tr_text(card_back, item_type)
 
     # Add Dice Symbol
     card_field = grenade_card_front_template['fld_dice_img']
@@ -78,7 +59,6 @@ def generate_grenade_card(item_obj):
     # Add Dice Texts
     card_field = grenade_card_front_template['fld_dice_cnt']
     card_front = draw_text_to_field(card_front, card_field, f"{item_obj.dmg_dice.count}x", 'rexlia rg.otf', color=(255, 255, 255), font_size=60)
-
 
     # Quick Reference
     quick_ref = []
@@ -121,10 +101,7 @@ def generate_grenade_card(item_obj):
         new_header += ':'
 
         header_col.append(new_header)
-
-        ef_str = split_text_on_length(f"{part.to_text(item_obj)}", 65)
-        for ef in ef_str:
-            effect_col.append(ef)
+        effect_col.append(f"{part.to_text(item_obj)}")
 
         while len(header_col) < len(effect_col):
             header_col.append('')
@@ -132,73 +109,13 @@ def generate_grenade_card(item_obj):
     header_col.append('')
     effect_col.append('')
 
-    # Printing column content to card
-    fonts = {
-        'header': 'rexlia rg.otf',
-        'name': 'Avenir-Next-LT-Pro-Demi-Condensed_5186.ttf',
-        'effect': 'avenir-next-condensed-medium.otf'
-    }
-
+    col_content = []
     for i in range(len(header_col)):
-        y_offset = 0.462 / max([len(header_col), 12])
-        name_field = deepcopy(grenade_card_back_template['fld_part_name'])
-        effect_field = deepcopy(grenade_card_back_template['fld_part_effect'])
-        name_field.y += i * y_offset
-        effect_field.y += i * y_offset
+        col_content.append((header_col[i], effect_col[i]))
 
-        font = fonts['name']
-        if i in header_idx:
-            font = fonts['header']
+    card_front = card_add_column_text(card_front, col_content, alt_col1_field=grenade_card_front_template['fld_part_name'], alt_col2_field=grenade_card_front_template['fld_part_effect'], header_idx=header_idx)
 
-        card_back = draw_text_to_field(card_back, name_field, header_col[i],font, align='left', font_size=22)
-        card_back = draw_text_to_field(card_back, effect_field, effect_col[i], fonts['effect'], align='left',font_size=22)
+    # Save Result
+    card_front.show()
 
-
-    # Mods & Checks
-    card_field = grenade_card_back_template['fld_mod_effects'][0]
-    card_back = draw_text_to_field(card_back, card_field, f"--Mods & Checks--", 'rexlia rg.otf', align='left', font_size=22)
-
-    if 'mods' in item_obj.mod_stats:
-        mods = item_obj.mod_stats['mods']
-        idx = 0
-        for k, v in mods.items():
-            if v != 0:
-                w_parts = k.split('_')
-                for i in range(len(w_parts)):
-                    w = w_parts[i]
-                    w = f"{w[0].upper()}{w[1:]}"
-
-                    if w in ['Dmg', 'Ads', 'Acc', 'Mod']:
-                        w = w.upper()
-
-                    w_parts[i] = w
-                k = ' '.join(w_parts)
-                card_field = grenade_card_back_template['fld_mod_effects'][1 + idx]
-                card_back = draw_text_to_field(card_back, card_field, f"{k} {'+' if v > 0 else ''}{v}",'avenir-next-condensed-medium.otf', align='left', font_size=22)
-
-                idx += 1
-
-    # Merge front and back of card
-    card_joined = card_merge_sideways(card_front, card_back)
-    card_joined.show()
-
-    card_joined.save('test.bmp', 'BMP', quality=100)
-
-def split_text_on_length(text: str, length:int):
-    ret = ['']
-
-    words = text.split(' ')
-    for w in words:
-        if w == '<nl>':
-            ret.append('')
-            continue
-
-        if ret[-1] == '':
-            ret[-1] = w
-        elif len(ret[-1]) + len(w) >= length:
-            ret.append(w)
-        else:
-            ret[-1] += f" {w}"
-
-    return ret
-
+    card_front.save('test.bmp', 'BMP', quality=100)

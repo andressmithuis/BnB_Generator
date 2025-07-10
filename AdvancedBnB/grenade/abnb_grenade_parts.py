@@ -115,13 +115,7 @@ class grn_payload_elemental(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        return f"Gains {n_parts}d6 Elemental Damage. Increases Elemental Effect Chance."
-
-    def apply(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-
-        item.mod_stats.setdefault('mods', {}).setdefault('status_effect_chance', 0)
-        item.mod_stats['mods']['status_effect_chance'] += n_parts * 20
+        return f"Gains {n_parts}d6 Elemental Damage. +{n_parts * 20}% Elemental Effect Chance."
 
 
 class grn_payload_puddle_blight(Modifier):
@@ -250,16 +244,12 @@ class grn_payload_generator(Modifier):
 
 class grn_payload_large(Modifier):
     name = 'Large'
-    effect = 'The Grenade gains +1/P Splash.'
+    effect = 'The Grenade gains +1/P Splash Radius.'
 
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        return f"The Grenade gains +{n_parts} Splash."
-
-    def apply(self, item):
-        item.mod_stats.setdefault('mods', {}).setdefault('splash', 0)
-        item.mod_stats['mods']['splash'] = 1
+        return f"The Grenade gains +{n_parts} Splash Radius."
 
 
 class grn_payload_mirv(Modifier):

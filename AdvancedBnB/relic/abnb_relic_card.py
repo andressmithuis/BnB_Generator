@@ -61,14 +61,6 @@ def generate_relic_card(item_obj):
     card_front = card_add_tr_text(card_front, item_type)
 
     # Quick Reference
-    quick_ref = []
-    for part in item_obj.parts:
-        if part.situational:
-            if part.name not in [x.name for x in quick_ref]:
-                quick_ref.append(part)
-
-    card_front = card_add_quick_ref(card_front, quick_ref, item_obj)
-
     # Collect part count / deduplication of parts
     dedup_list = []
     for part in item_obj.parts:
