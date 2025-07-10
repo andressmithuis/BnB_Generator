@@ -66,7 +66,7 @@ def generate_grenade_card(item_obj):
     card_front = card_add_tl_text(card_front, item_rarity)
     card_back = card_add_tl_text(card_back, item_rarity)
 
-    item_type = f"{item_obj.delivery_system.name}".upper()
+    item_type = f"{item_obj.delivery_system.name} Grenade".upper()
     card_front = card_add_tr_text(card_front, item_type)
     card_back = card_add_tr_text(card_back, item_type)
 

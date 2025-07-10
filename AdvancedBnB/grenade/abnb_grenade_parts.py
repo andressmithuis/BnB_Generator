@@ -1,3 +1,5 @@
+import numpy as np
+
 from util import Modifier
 
 # Delivery Mechanisms
@@ -313,7 +315,10 @@ class grn_payload_nuke(Modifier):
         dice_count = item.base_stats['dmg_dice'].count
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        item.mod_stats['dmg_dice'].count += round(n_parts * 0.5 * dice_count)
+        bonus = n_parts * 0.5 * dice_count
+        bonus = int(np.floor(bonus + 0.5))
+
+        item.mod_stats['dmg_dice'].count += bonus
 
 
 class grn_payload_divider(Modifier):

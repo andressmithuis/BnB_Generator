@@ -1,5 +1,12 @@
 from PIL import Image, ImageFont, ImageDraw, ImageFile, ImageOps
+import numpy as np
 
+# Fixes 'Banker's Rounding Errors (i.e. round(2.5) = 2)
+def round(value, decimals=0):
+    if value >= 0:
+        return int(np.floor(value + 0.5))
+
+    return int(np.ceil(value - 0.5))
 
 class Field:
     def __init__(self, x, y, w, h, sq):
@@ -13,7 +20,7 @@ class Field:
     def get_origin(self, img: ImageFile):
         img_w, img_h = img.size
 
-        return round(self.x * img_w, 0), round(self.y * img_h, 0)
+        return round(self.x * img_w), round(self.y * img_h)
 
     def get_bbox(self, img: ImageFile):
         img_w, img_h = img.size
@@ -34,7 +41,7 @@ class Field:
         br_y = (self.y * img_h) + (_h / 2)
 
         # Return top-left, bottom-right coordinates
-        return (int(round(tl_x, 0)), int(round(tl_y, 0))), (int(round(br_x, 0)), int(round(br_y,0)))
+        return (int(round(tl_x)), int(round(tl_y))), (int(round(br_x)), int(round(br_y)))
 
 
 def split_text_on_length(text: str, length:int):
@@ -164,7 +171,7 @@ def draw_image_to_field(base_img: ImageFile, insert_img: ImageFile, field: Field
 
     # Calculate Top-Left corner position of the newly resized image
     origin_x, origin_y = field.get_origin(base_img)
-    p1 = (int(origin_x - round((img_w / 2), 0)), int(origin_y - round((img_h / 2), 0)))
+    p1 = (int(origin_x - round((img_w / 2))), int(origin_y - round((img_h / 2))))
 
     base_img.paste(insert_img, box=p1, mask=insert_img.split()[3])
 
