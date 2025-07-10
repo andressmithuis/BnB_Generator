@@ -12,7 +12,13 @@ class relic_part_gun_damage(Modifier):
         n_parts = len([x for x in item.parts if x == self])
         tier = item.tier
 
-        return f"+{gun_parts[tier]['gun_damage'] * n_parts} Damage Dice for {self.applies_to} type Guns."
+        ret_str = f"+{gun_parts[tier]['gun_damage'] * n_parts} Damage Dice for "
+        if self.applies_to in ['Pistol', 'Submachine Gun', 'Combat Rifle', 'Shotgun', 'Sniper Rifle', 'Rocket Launcher']:
+            ret_str += f"{self.applies_to}s."
+        else:
+            ret_str += f"{self.applies_to} Guns."
+
+        return ret_str
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and other.applies_to == self.applies_to
@@ -27,7 +33,9 @@ class relic_part_gun_accuracy(Modifier):
         n_parts = len([x for x in item.parts if x == self])
         tier = item.tier
 
-        return f"+{gun_parts[tier]['gun_accuracy'] * n_parts} {self.applies_to} Gun ACC MOD."
+        ret_str = f"+{gun_parts[tier]['gun_accuracy'] * n_parts} {self.applies_to} ACC MOD."
+
+        return ret_str
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and other.applies_to == self.applies_to
@@ -72,7 +80,13 @@ class relic_part_gun_magsize(Modifier):
         n_parts = len([x for x in item.parts if x == self])
         tier = item.tier
 
-        return f"+{gun_parts[tier]['mag_size'] * n_parts} {self.applies_to} Gun Mag Size."
+        ret_str = f"+{gun_parts[tier]['mag_size'] * n_parts} "
+        if self.applies_to in ['Pistol', 'Submachine Gun', 'Combat Rifle', 'Shotgun', 'Sniper Rifle', 'Rocket Launcher']:
+            ret_str += f"{self.applies_to} Mag Size."
+        else:
+            ret_str += f"{self.applies_to} Gun Mag Size."
+
+        return ret_str
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and other.applies_to == self.applies_to
@@ -110,7 +124,7 @@ class relic_part_elemental_effect(Modifier):
 
 
 class relic_part_elemental_puddle(Modifier):
-    name = 'Elemental Puddle Chance'
+    name = 'Elemental Puddle'
     effect = 'Increases Elemental Puddle Chance.'
     applies_to = '<Unknown>'
 
