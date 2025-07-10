@@ -4,7 +4,7 @@ from util.cards.card_basics import *
 from util.cards.card_generation import *
 
 grenade_card_front_template = {
-    'fld_item_img': Field(0.24, 0.45, 0.30, 0.38, False),
+    'fld_item_img': Field(0.24, 0.45, 0.30, 0.36, False),
     'fld_red_txt': Field(0.66, 0.68, 0.45, 0.08, False),
     
     'fld_dice_img': Field(0.32, 0.63, 0, 0.16, True),
@@ -27,7 +27,7 @@ def generate_grenade_card(item_obj):
 
     # Add Grenade Image
     img_to_insert = Image.open(item_obj.asset['path_to_img'])
-    card_front = card_add_item_image(card_front, img_to_insert, alternate_field=grenade_card_front_template['fld_item_img'])
+    card_front = card_add_item_image(card_front, img_to_insert, alt_field=grenade_card_front_template['fld_item_img'])
 
     # Add Manufacturer logo
     symbol = Image.open(f"img/guild_logo/AdvancedBnB/{item_obj.manufacturer.logo_file}")
@@ -61,15 +61,7 @@ def generate_grenade_card(item_obj):
     card_front = draw_text_to_field(card_front, card_field, f"{item_obj.dmg_dice.count}x", 'rexlia rg.otf', color=(255, 255, 255), font_size=60)
 
     # Quick Reference
-    quick_ref = []
-    quick_ref.append(item_obj.delivery_system)
-
-    for part in item_obj.parts:
-        if part.situational:
-            if part.name not in [x.name for x in quick_ref]:
-                quick_ref.append(part)
-
-    card_front = card_add_quick_ref(card_front, quick_ref, item_obj)
+    card_front = card_add_quick_ref(card_front, [item_obj.delivery_system], item_obj)
 
     # Grenade Payloads / Delivery Mechanism
     # Collect part count / deduplication of parts
@@ -77,7 +69,7 @@ def generate_grenade_card(item_obj):
     for part in item_obj.parts:
         part_added = False
         for dedup_part in dedup_list:
-            if part.name == dedup_part['part'].name:
+            if part == dedup_part['part']:
                 dedup_part['count'] += 1
                 part_added = True
                 break
@@ -91,6 +83,8 @@ def generate_grenade_card(item_obj):
     header_idx = [0]
 
     header_col.append(f"--Grenade Payloads--")
+    header_col.append('')
+    effect_col.append('')
     effect_col.append('')
 
     for i in range(len(dedup_list)):
@@ -113,7 +107,13 @@ def generate_grenade_card(item_obj):
     for i in range(len(header_col)):
         col_content.append((header_col[i], effect_col[i]))
 
-    card_front = card_add_column_text(card_front, col_content, alt_col1_field=grenade_card_front_template['fld_part_name'], alt_col2_field=grenade_card_front_template['fld_part_effect'], header_idx=header_idx)
+    card_front = card_add_column_text(
+        card_front,
+        col_content,
+        alt_col1_field=grenade_card_front_template['fld_part_name'],
+        alt_col2_field=grenade_card_front_template['fld_part_effect'],
+        header_idx=header_idx
+    )
 
     # Save Result
     card_front.show()

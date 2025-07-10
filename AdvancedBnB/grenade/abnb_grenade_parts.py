@@ -125,7 +125,7 @@ class grn_payload_puddle_blight(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        effect_str = f"Creates Radiation Puddles in Adjacent Spaces for 2 turns."
+        effect_str = f"Creates Radiation Puddles in Adjacent Squares for 2 turns."
         if n_parts >= 2:
             effect_str += f" Gain +{n_parts-1} Elemental Damage Die and +{(n_parts-1) * 10}% Irradiation Chance."
 
@@ -139,7 +139,7 @@ class grn_payload_puddle_chiller(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        effect_str = f"Creates Cryo Puddles in Adjacent Spaces for 2 turns."
+        effect_str = f"Creates Cryo Puddles in Adjacent Squares for 2 turns."
         if n_parts >= 2:
             effect_str += f" Gain +{n_parts-1} Elemental Damage Die and +{(n_parts-1) * 10}% Slow Chance."
 
@@ -153,7 +153,7 @@ class grn_payload_puddle_corrupter(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        effect_str = f"Creates Corrosive Puddles in Adjacent Spaces for 2 turns."
+        effect_str = f"Creates Corrosive Puddles in Adjacent Squares for 2 turns."
         if n_parts >= 2:
             effect_str += f" Gain +{n_parts-1} Elemental Damage Die and +{(n_parts-1) * 10}% Melt Chance."
 
@@ -167,7 +167,7 @@ class grn_payload_puddle_flamer(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        effect_str = f"Creates Incendiary Puddles in Adjacent Spaces for 2 turns."
+        effect_str = f"Creates Incendiary Puddles in Adjacent Squares for 2 turns."
         if n_parts >= 2:
             effect_str += f" Gain +{n_parts-1} Elemental Damage Die and +{(n_parts-1) * 10}% Burn Chance."
 
@@ -181,7 +181,7 @@ class grn_payload_puddle_slagger(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        effect_str = f"Creates Slag Puddles in Adjacent Spaces for 2 turns."
+        effect_str = f"Creates Slag Puddles in Adjacent Squares for 2 turns."
         if n_parts >= 2:
             effect_str += f" Gain +{n_parts-1} Elemental Damage Die and +{(n_parts-1) * 10}% Slag Chance."
 
@@ -195,7 +195,7 @@ class grn_payload_puddle_tesla(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        effect_str = f"Creates Shock Puddles in Adjacent Spaces for 2 turns."
+        effect_str = f"Creates Shock Puddles in Adjacent Squares for 2 turns."
         if n_parts >= 2:
             effect_str += f" Gain +{n_parts-1} Elemental Damage Die and +{(n_parts-1) * 10}% Electrocute Chance."
 
@@ -209,7 +209,7 @@ class grn_payload_link(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        return f"For each enemy Damaged by the Explosion, deals an extra {n_parts}d4 Damage to all enemies."
+        return f"For each enemy Damaged by the Explosion, deals an extra {n_parts}d4 Damage to all those Enemies."
 
 
 class grn_payload_money(Modifier):

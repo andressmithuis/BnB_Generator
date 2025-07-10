@@ -32,10 +32,10 @@ card_fonts = {
 }
 
 # Item Name, Image
-def card_add_item_image(card_img, item_img, alternate_field=None):
+def card_add_item_image(card_img, item_img, alt_field=None):
     card_field = basic_card_template['fld_item_img']
-    if alternate_field is not None:
-        card_field = alternate_field
+    if alt_field is not None:
+        card_field = alt_field
     return draw_image_to_field(card_img, item_img, card_field)
 
 def card_add_item_name(card_img, name):

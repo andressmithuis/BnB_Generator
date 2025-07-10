@@ -561,7 +561,7 @@ class Tediore(Manufacturer):
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Lobbed
         # Starting Part: Sticky
-        grenade_obj.delivery_system = grn_delivery_lobbed
+        grenade_obj.delivery_system = grn_delivery_lobbed()
         grenade_obj.parts.append(grn_payload_sticky())
 
 

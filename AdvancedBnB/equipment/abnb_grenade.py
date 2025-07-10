@@ -224,7 +224,7 @@ class Grenade:
         str += f"\n\n"
 
         # Print Grenade Parts
-        str += f"Parts [{self.max_parts}]:\n"
+        str += f"Parts [{self.max_parts+1}]:\n"
         for part in self.parts:
             str += f" - {part.name}: {part}\n"
         str += f"\n"
