@@ -163,42 +163,39 @@ class relic_part_max_health(Modifier):
     name = 'Max Health'
     effect = 'Increased Max Health.'
 
-    def apply(self, item):
+    def to_text(self, item):
         n_parts = len([x for x in item.parts if x == self])
         tier = item.tier
 
         bonus = health_parts[tier]['max_health'] * n_parts
 
-        item.mod_stats.setdefault('mods', {}).setdefault('max_health', 0)
-        item.mod_stats['mods']['max_health'] += bonus
+        return f"+{bonus} Max Health."
 
 
 class relic_part_health_regen(Modifier):
     name = 'Health Regen'
     effect = 'Increased Health Regen.'
 
-    def apply(self, item):
+    def to_text(self, item):
         n_parts = len([x for x in item.parts if x == self])
         tier = item.tier
 
         bonus = health_parts[tier]['health_regen'] * n_parts
 
-        item.mod_stats.setdefault('mods', {}).setdefault('health_regen', 0)
-        item.mod_stats['mods']['health_regen'] += bonus
+        return f"+{bonus} Health Regen."
 
 
 class relic_part_ffyl_duration(Modifier):
     name = 'FFYL Duration'
     effect = 'Increased FFYL Duration.'
 
-    def apply(self, item):
+    def to_text(self, item):
         n_parts = len([x for x in item.parts if x == self])
         tier = item.tier
 
         bonus = health_parts[tier]['ffyl_duration'] * n_parts
 
-        item.mod_stats.setdefault('mods', {}).setdefault('ffyl_duration', 0)
-        item.mod_stats['mods']['ffyl_duration'] += bonus
+        return f"+{bonus} Extra turns in Fight For Your Life."
 
 
 class relic_part_revive_healing(Modifier):
@@ -217,28 +214,26 @@ class relic_part_shield_capacity(Modifier):
     name = 'Shield Capacity'
     effect = 'Increased Shield Capacity.'
 
-    def apply(self, item):
+    def to_text(self, item):
         n_parts = len([x for x in item.parts if x == self])
         tier = item.tier
 
         bonus = defensive_parts[tier]['shield_capacity'] * n_parts
 
-        item.mod_stats.setdefault('mods', {}).setdefault('shield_capacity', 0)
-        item.mod_stats['mods']['shield_capacity'] += bonus
+        return f"+{bonus} Shield Capacity."
 
 
 class relic_part_shield_recharge(Modifier):
     name = 'Shield Recharge'
     effect = 'Increased Shield Recharge Rate.'
 
-    def apply(self, item):
+    def to_text(self, item):
         n_parts = len([x for x in item.parts if x == self])
         tier = item.tier
 
         bonus = defensive_parts[tier]['shield_recharge'] * n_parts
 
-        item.mod_stats.setdefault('mods', {}).setdefault('shield_recharge', 0)
-        item.mod_stats['mods']['shield_recharge'] += bonus
+        return f"+{bonus} Shield Recharge Rate."
 
 
 class relic_part_elemental_resistance(Modifier):
@@ -275,28 +270,26 @@ class relic_part_melee_attacks(Modifier):
     name = 'Melee Attacks'
     effect = 'Extra Melee Attacks.'
 
-    def apply(self, item):
+    def to_text(self, item):
         n_parts = len([x for x in item.parts if x == self])
         tier = item.tier
 
         bonus = melee_parts[tier]['melee_attacks'] * n_parts
 
-        item.mod_stats.setdefault('mods', {}).setdefault('extra_melee_attack', 0)
-        item.mod_stats['mods']['extra_melee_attack'] += bonus
+        return f"+{bonus} Extra Melee Attacks."
 
 
 class relic_part_move_speed(Modifier):
     name = 'Movement Speed'
     effect = 'Extra Movement.'
 
-    def apply(self, item):
+    def to_text(self, item):
         n_parts = len([x for x in item.parts if x == self])
         tier = item.tier
 
         bonus = melee_parts[tier]['move_speed'] * n_parts
 
-        item.mod_stats.setdefault('mods', {}).setdefault('extra_movement', 0)
-        item.mod_stats['mods']['extra_movement'] += bonus
+        return f"+{bonus} Extra Movement."
 
 
 # --- Ammo Parts ---

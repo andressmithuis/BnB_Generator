@@ -39,6 +39,15 @@ grenade_part_count = {
     Rarity.PEARLESCENT:    5
 }
 
+relic_part_count = {
+    Rarity.COMMON:          1,
+    Rarity.UNCOMMON:        2,
+    Rarity.RARE:            3,
+    Rarity.EPIC:            4,
+    Rarity.LEGENDARY:       5,
+    Rarity.PEARLESCENT:     6
+}
+
 elemental_table = {
     ( 1,  4):   { Rarity.COMMON: None, Rarity.UNCOMMON: None, Rarity.RARE: None,                 Rarity.EPIC: None,                             Rarity.LEGENDARY: None,                            Rarity.PEARLESCENT: None},
     ( 5,  8):   { Rarity.COMMON: None, Rarity.UNCOMMON: None, Rarity.RARE: None,                 Rarity.EPIC: Incendiary(),              Rarity.LEGENDARY: Incendiary(),             Rarity.PEARLESCENT: Incendiary(1)},

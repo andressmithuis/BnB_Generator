@@ -3,9 +3,10 @@ import random
 
 from AdvancedBnB.abnb_tables import *
 from AdvancedBnB.abnb_util import get_item_tier
-from util import Dice
+from util import Dice, roll_on_table
 
-from AdvancedBnB.relic import Relictypes
+from AdvancedBnB.relic import Relictypes, basic_relics_table, advanced_relics_table, generate_relic_card
+
 
 def mod_to_string(val_1, val_2):
     delta = val_1 - val_2
@@ -25,8 +26,11 @@ class Relic:
         self.type = None
         self.manufacturer = None
 
+        self.elements = []
+
         self.mod_stats = {}
 
+        self.max_parts = 0
         self.parts = []
 
         self.user_rolls = False
@@ -39,17 +43,6 @@ class Relic:
             self.level = props['item_level']
         self.tier = get_item_tier(self.level)
 
-        # Determine Relic Type
-        # TODO: Roll a d10 for type
-        self.type = Relictypes.STRENGTH
-
-        # Manufacturer
-        print(f"Determining Relic Manufacturer...")
-        self.manufacturer = self.type.pick_manufacturer()
-
-        if props is not None and 'manufacturer' in props:
-            self.manufacturer = props['manufacturer']
-
         # Rarity and element
         print(f"Determining Relic Rarity...")
         d4_roll = Dice.from_string('1d4').roll(self.user_rolls)
@@ -61,9 +54,25 @@ class Relic:
 
         print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Relic Rarity = {self.rarity}")
 
+        self.rarity = Rarity.PEARLESCENT
+
+        # Determine Relic Type (Uncommon ~ Rare = Basic Relic, Epic+ = Advanced Relic)
+        if self.rarity in [Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE]:
+            self.type = basic_relics_table[Dice.from_string('1d10').roll()]
+        else:
+            self.type = roll_on_table(advanced_relics_table, Dice.from_string('1d10').roll())
+
+        # Manufacturer
+        print(f"Determining Relic Manufacturer...")
+        self.manufacturer = self.type.pick_manufacturer()
+
+        if props is not None and 'manufacturer' in props:
+            self.manufacturer = props['manufacturer']
+
         # Roll for Relic parts
         print(f"Determining Relic Parts...")
-        self.parts = self.type.roll_parts(self)
+        self.max_parts = relic_part_count[self.rarity]
+        self.parts = self.type.roll_parts(self.tier, self.max_parts)
 
         # Apply Relic Part Effects
         self.apply_effects()
@@ -88,12 +97,11 @@ class Relic:
         with open('assets.json') as file:
             asset_data = json.load(file)
 
-        self.asset = random.choice(asset_data['grenades'])
+        self.asset = random.choice(asset_data['relics'])
         self.name = self.asset['item_name']
 
     def generate_card(self):
-        #generate_grenade_card(self)
-        pass
+        generate_relic_card(self)
 
     def  __repr__(self):
         str = ''
@@ -104,7 +112,7 @@ class Relic:
         str += f"\n\n"
 
         # Print Relic Parts
-        str += f"Parts:\n"
+        str += f"Parts[{self.max_parts}]:\n"
         for part in self.parts:
             str += f" - {part.name}: {part.to_text(self)}\n"
         str += f"\n"
