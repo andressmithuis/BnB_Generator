@@ -79,7 +79,7 @@ class cm_battery(ClassModtype):
     legendary_effect.name = 'Power Grid'
     legendary_effect.effect = 'Your Decoys gain a copy of your Shield.'
 
-    legendary_skills = ['Grim', 'Defence Matrix', 'Battery Static', 'Overclocked Capacitor', 'Running on all Cylinders']
+    legendary_skills = ['Grim', 'Defence Matrix', 'Discharge', 'Battery Static', 'Overclocked Capacitor']
 
 
 

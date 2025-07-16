@@ -16,7 +16,7 @@ version of the game created by *Akkator006*
 | Shields         | ✅                         | ✅                        |
 | Grenades        | ❌                         | ✅                         |
 | Relics          | ❌                         | ✅                        |
-| Class Mods      | (NA)                      | ❌                        |
+| Class Mods      | (NA)                      | 🚧                        |
 | Generic Potions | ❌                         | (NA)                     |
 | Health Potions  | ✅                         | (NA)                     |
 | Shield Potions  | ✅                         | (NA)                     |
@@ -25,13 +25,13 @@ version of the game created by *Akkator006*
 
 Overview of CLI commands:
 
-| Command      | Arguments        | Options                                                                      | Description                                                   |
-|--------------|------------------|------------------------------------------------------------------------------|---------------------------------------------------------------|
-| ``load``     | (``--games``)    | ``bl1`` ``bl2`` ``bl3`` ``bl-tps`` ``bl-wl``                                 | Load item images from selected games (default=``bl3``)        |
-|              | (``--items``)    | ``all`` ``weapons`` ``shields`` ``grenades`` ``relics``                      | Load specific items (default=``all``)                         |
-|              | (``--reset``)    | -                                                                            | Clears previsouly loaded resources.                           |
-| ``generate`` | \<item>          | ``gun`` ``shield`` ``grenade`` ``relic`` ``health_potion`` ``shield_potion`` | Generate an equipment card (based on selection).              |
-|              | (``--use-abnb``) | -                                                                            | Use the *Advanced Bunkers&Badasses* loot generation rulesets. |
+| Command      | Arguments        | Options                                                                                    | Description                                                   |
+|--------------|------------------|--------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| ``load``     | (``--games``)    | ``bl1`` ``bl2`` ``bl3`` ``bl-tps`` ``bl-wl``                                               | Load item images from selected games (default=``bl3``)        |
+|              | (``--items``)    | ``all`` ``weapons`` ``shields`` ``grenades`` ``relics`` ``class-mods``                     | Load specific items (default=``all``)                         |
+|              | (``--reset``)    | -                                                                                          | Clears previsouly loaded resources.                           |
+| ``generate`` | \<item>          | ``gun`` ``shield`` ``grenade`` ``relic`` ``class-mod`` ``health_potion`` ``shield_potion`` | Generate an equipment card (based on selection).              |
+|              | (``--use-abnb``) | -                                                                                          | Use the *Advanced Bunkers&Badasses* loot generation rulesets. |
 
 
 ## Set-Up
