@@ -2,7 +2,7 @@ import json
 import random
 from copy import deepcopy
 
-from util import Rarity, Dice, roll_on_table
+from util import Rarity, Dice, lookup_in_table
 from StandardBnB.bnb_tables import shield_guild_table, rarity_table
 from StandardBnB.shield.bnb_shield_card import generate_shield_card
 
@@ -72,7 +72,7 @@ class Shield:
         # TODO: check if needed
         if False:
             roll = Dice.from_string('1d100').roll(input_rolls)
-            self.element = roll_on_table(elemental_table, roll)[d6]
+            self.element = lookup_in_table(elemental_table, roll)[d6]
             print(f"Rolled a {roll}(1d100) -> Element: {self.element.to_str()}")
 
         # Calculate Final Stats

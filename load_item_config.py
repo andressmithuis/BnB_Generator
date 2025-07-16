@@ -20,13 +20,9 @@ def load_item_config():
 
 
     if yaml_config is not None:
-        # Item Name
-        if 'item_name' in yaml_config:
-            props['item_name'] = yaml_config['item_name']
-
-        # Item Level
-        if 'item_level' in yaml_config:
-            props['item_level'] = yaml_config['item_level']
+        for property in ['item_name', 'item_level', 'class_mod_classes']:
+            if property in yaml_config:
+                props[property] = yaml_config[property]
 
         # Manufacturer/Guild
         if 'manufacturer' in yaml_config:
@@ -103,5 +99,7 @@ def load_item_config():
             }
 
             props['rarity'] = rarity_alias[yaml_config['rarity'].lower()]
+
+
 
     return props

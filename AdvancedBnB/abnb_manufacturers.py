@@ -6,7 +6,7 @@ from .shield.abnb_shield_parts import *
 from .shield.abnb_shieldtypes import Shieldtypes
 from .grenade.abnb_grenade_parts import *
 
-from util import roll_on_table
+from util import lookup_in_table
 
 class Manufacturer:
     name = ''
@@ -16,7 +16,7 @@ class Manufacturer:
 
     def roll_for_secondary_weapon_trait(self, table, user_roll=False):
         roll = Dice(1, 6).roll(user_roll)
-        trait = roll_on_table(table, roll)
+        trait = lookup_in_table(table, roll)
         print(f"Rolled a {roll}! Gun Trait <{trait.name}> added.")
 
         return trait
@@ -50,7 +50,7 @@ class Anshin(Manufacturer):
             (9, 12): self.makes['weapons'][2]   # Sniper
         }
 
-        return roll_on_table(table, dice_roll)
+        return lookup_in_table(table, dice_roll)
 
     def pick_secondary_weapon_trait(self, user_roll=False):
         table = {
@@ -95,7 +95,7 @@ class Atlas(Manufacturer):
             (9, 12): self.makes['weapons'][2]   # Rocket Launcher
         }
 
-        return roll_on_table(table, dice_roll)
+        return lookup_in_table(table, dice_roll)
 
     def edit_shield(self, shield_obj):
         shield_obj.shield_type = self.makes['shield']
@@ -135,12 +135,12 @@ class Bandit(Manufacturer):
             (9, 10): self.makes['weapons'][4]   # SMG
         }
 
-        return roll_on_table(table, dice_roll)
+        return lookup_in_table(table, dice_roll)
 
     def gun_part_exception(self, gun):
         # Bandit weapons always spawn with a Bayonet Accessory. This does NOT count towards number of Gun Parts
         if gun.manufacturer == self:
-            part = roll_on_table(weapon_accessories_table, 1)
+            part = lookup_in_table(weapon_accessories_table, 1)
             gun.parts.append(part)
 
     def edit_shield(self, shield_obj):
@@ -179,7 +179,7 @@ class Dahl(Manufacturer):
             (10, 12): self.makes['weapons'][3]   # Smg
         }
 
-        return roll_on_table(table, dice_roll)
+        return lookup_in_table(table, dice_roll)
 
     def pick_secondary_weapon_trait(self, user_roll=False):
         table = {
@@ -228,7 +228,7 @@ class Dahl(Manufacturer):
             (4, 6): shd_part_charge_shield()
         }
         d6 = Dice.from_string('1d6')
-        shield_obj.parts.append(roll_on_table(starting_part, d6.roll()))
+        shield_obj.parts.append(lookup_in_table(starting_part, d6.roll()))
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Any
@@ -261,7 +261,7 @@ class Hyperion(Manufacturer):
             (10, 12): self.makes['weapons'][3]  # Sniper
         }
 
-        return roll_on_table(table, dice_roll)
+        return lookup_in_table(table, dice_roll)
 
     def pick_secondary_weapon_trait(self, user_roll=False):
         table = {
@@ -308,7 +308,7 @@ class Jakobs(Manufacturer):
             (10, 12): self.makes['weapons'][3]  # Sniper
         }
 
-        return roll_on_table(table, dice_roll)
+        return lookup_in_table(table, dice_roll)
 
     def pick_secondary_weapon_trait(self, user_roll=False):
         table = {
@@ -356,7 +356,7 @@ class Maliwan(Manufacturer):
             (10, 12): self.makes['weapons'][3]  # Rocket Launcher
         }
 
-        return roll_on_table(table, dice_roll)
+        return lookup_in_table(table, dice_roll)
 
     def edit_shield(self, shield_obj):
         shield_obj.shield_type = self.makes['shield']
@@ -366,7 +366,7 @@ class Maliwan(Manufacturer):
             (4, 6): shd_part_nova()
         }
         d6 = Dice.from_string('1d6')
-        shield_obj.parts.append(roll_on_table(starting_part, d6.roll()))
+        shield_obj.parts.append(lookup_in_table(starting_part, d6.roll()))
         # Force an Element because of the Spike or Nova part, but make sure no more elements can be rolled after
         shield_obj.forced_elemental = True
         shield_obj.roll_for_element()
@@ -404,7 +404,7 @@ class Torgue(Manufacturer):
             (10, 12): self.makes['weapons'][3]  # Rocket Launcher
         }
 
-        return roll_on_table(table, dice_roll)
+        return lookup_in_table(table, dice_roll)
 
     def pick_secondary_weapon_trait(self, user_roll=False):
         table = {
@@ -441,7 +441,7 @@ class Torgue(Manufacturer):
             (4, 6): shd_part_nova()
         }
         d6 = Dice.from_string('1d6')
-        shield_obj.parts.append(roll_on_table(starting_part, d6.roll()))
+        shield_obj.parts.append(lookup_in_table(starting_part, d6.roll()))
         # Force Explosive Element
         shield_obj.forced_elemental = True
         shield_obj.roll_for_element()
@@ -471,7 +471,7 @@ class Torgue(Manufacturer):
             (4, 6): grn_payload_nuke()
         }
 
-        grenade_obj.parts.append(roll_on_table(starting_part, Dice.from_string('1d6').roll()))
+        grenade_obj.parts.append(lookup_in_table(starting_part, Dice.from_string('1d6').roll()))
 
 
 class Pangolin(Manufacturer):
@@ -497,7 +497,7 @@ class Pangolin(Manufacturer):
             (9, 12): self.makes['weapons'][2],   # Shotgun
         }
 
-        return roll_on_table(table, dice_roll)
+        return lookup_in_table(table, dice_roll)
 
     def pick_secondary_weapon_trait(self, user_roll=False):
         table = {
@@ -543,7 +543,7 @@ class Tediore(Manufacturer):
             (10, 12): self.makes['weapons'][3]  # Rocket Launcher
         }
 
-        return roll_on_table(table, dice_roll)
+        return lookup_in_table(table, dice_roll)
 
     def pick_secondary_weapon_trait(self, user_roll=False):
         table = {
@@ -589,7 +589,7 @@ class Vladof(Manufacturer):
             (10, 12): self.makes['weapons'][3]  # Rocket Launcher
         }
 
-        return roll_on_table(table, dice_roll)
+        return lookup_in_table(table, dice_roll)
 
     def pick_secondary_weapon_trait(self, user_roll=False):
         table = {
@@ -607,7 +607,7 @@ class Vladof(Manufacturer):
             (4, 6): shd_part_reflect()
         }
         d6 = Dice.from_string('1d6')
-        shield_obj.parts.append(roll_on_table(starting_part, d6.roll()))
+        shield_obj.parts.append(lookup_in_table(starting_part, d6.roll()))
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Any

@@ -3,7 +3,7 @@ import random
 
 from AdvancedBnB.abnb_tables import *
 from AdvancedBnB.abnb_util import get_item_tier
-from util import Dice, roll_on_table
+from util import Dice, lookup_in_table
 
 from AdvancedBnB.relic import Relictypes, basic_relics_table, advanced_relics_table, generate_relic_card
 
@@ -58,7 +58,7 @@ class Relic:
         if self.rarity in [Rarity.COMMON, Rarity.UNCOMMON, Rarity.RARE]:
             self.type = basic_relics_table[Dice.from_string('1d10').roll()]
         else:
-            self.type = roll_on_table(advanced_relics_table, Dice.from_string('1d10').roll())
+            self.type = lookup_in_table(advanced_relics_table, Dice.from_string('1d10').roll())
 
         # Manufacturer
         print(f"Determining Relic Manufacturer...")

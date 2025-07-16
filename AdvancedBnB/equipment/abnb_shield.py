@@ -7,7 +7,7 @@ from AdvancedBnB.abnb_util import get_item_tier
 from AdvancedBnB.shield.abnb_shield_card import generate_shield_card
 from AdvancedBnB import Fusion, FusionElement, Explosive
 from AdvancedBnB.abnb_manufacturers import Manufacturers, manufacturer_table
-from util import Dice, roll_on_table
+from util import Dice, lookup_in_table
 
 from AdvancedBnB.shield.abnb_shieldtypes import Shieldtypes
 from AdvancedBnB.shield.abnb_shield_parts import shield_parts_table, shd_part_resistant, shd_trait_reverse_engineer, shd_trait_symbiotic
@@ -130,7 +130,7 @@ class Shield:
         while self.n_parts < self.max_parts:
             print(f"Rolling for part {self.n_parts+1}/{self.max_parts}...")
             roll = d100.roll(self.user_rolls)
-            part = roll_on_table(shield_parts_table, roll)
+            part = lookup_in_table(shield_parts_table, roll)
             new_part = deepcopy(part)
 
             # Elemental part exceptions (Resistant, Nova, Spike)
@@ -181,7 +181,7 @@ class Shield:
 
         while self.elemental_roll['n_rolls'] > 0:
             dice_roll = min([d100.roll() + self.elemental_roll['roll_bonus'], 100])
-            el_roll = roll_on_table(elemental_table, dice_roll)[self.rarity]
+            el_roll = lookup_in_table(elemental_table, dice_roll)[self.rarity]
 
             # Maliwan can't be explosive, unless its part of a Fusion
             if self.manufacturer == Manufacturers.MALIWAN:

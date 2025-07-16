@@ -3,7 +3,7 @@ from copy import deepcopy
 
 import json
 
-from util import Dice, roll_on_table
+from util import Dice, lookup_in_table
 
 from StandardBnB.bnb_tables import *
 from StandardBnB.gun import Guntypes
@@ -135,7 +135,7 @@ class Gun:
 
             print(f"Element roll result: {d100_res} ({d100} [Roll] + {self.element_roll_bonus} [Bonus])")
 
-            elements = roll_on_table(elemental_table, d100_res)[self.rarity]
+            elements = lookup_in_table(elemental_table, d100_res)[self.rarity]
             for el in elements:
                 self.elements.append(el)
 

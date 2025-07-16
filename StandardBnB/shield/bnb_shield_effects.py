@@ -1,4 +1,4 @@
-from util import Modifier, Dice, roll_on_table
+from util import Modifier, Dice, lookup_in_table
 from util.elements import *
 
 
@@ -45,7 +45,7 @@ class effect_alas_shield_effect(Modifier):
         item.elements.append(Shock())
 
     def to_text(self, shield):
-        dice = roll_on_table(self.resistance_dice, shield.level)
+        dice = lookup_in_table(self.resistance_dice, shield.level)
 
         str = f"{dice} Shock Resistance."
         return str
@@ -61,7 +61,7 @@ class effect_alas_shield_effect_2(Modifier):
     }
 
     def to_text(self, shield):
-        effects = roll_on_table(self.properties, shield.level)
+        effects = lookup_in_table(self.properties, shield.level)
 
         str = f"On incoming Attack: Roll a d100. On {effects['threshold']}+, take {effects['damage']} Damage."
         return str
@@ -80,7 +80,7 @@ class effect_dahlia_shield_effect(Modifier):
         item.elements.append(Corrosive())
 
     def to_text(self, shield):
-        dice = roll_on_table(self.resistance_dice, shield.level)
+        dice = lookup_in_table(self.resistance_dice, shield.level)
 
         str = f"{dice} Corrosive Resistance."
         return str
@@ -99,7 +99,7 @@ class effect_dahlia_shield_effect_2(Modifier):
             item.elements.append(Shock())
 
     def to_text(self, shield):
-        return roll_on_table(self.effect_text, shield.level)
+        return lookup_in_table(self.effect_text, shield.level)
 
 
 class effect_feriore_shield_effect(Modifier):
@@ -113,7 +113,7 @@ class effect_feriore_shield_effect(Modifier):
     }
 
     def to_text(self, shield):
-        dice = roll_on_table(self.regen_dice, shield.level)
+        dice = lookup_in_table(self.regen_dice, shield.level)
 
         str = f"{dice} Health Regen per Shield Recharge."
         return str
@@ -129,7 +129,7 @@ class effect_feriore_shield_effect_2(Modifier):
     }
 
     def to_text(self, shield):
-        return roll_on_table(self.effect_text, shield.level)
+        return lookup_in_table(self.effect_text, shield.level)
 
 
 class effect_malefactor_shield_effect(Modifier):
@@ -146,7 +146,7 @@ class effect_malefactor_shield_effect(Modifier):
         item.elements.append(Shock())
 
     def to_text(self, shield):
-        dice = roll_on_table(self.dmg_dice, shield.level)
+        dice = lookup_in_table(self.dmg_dice, shield.level)
 
         str = f"On Shield Depletion: {dice} Shock Damage to adjacent Targets."
         return str
@@ -166,7 +166,7 @@ class effect_malefactor_shield_effect_2(Modifier):
             item.elements.append(Incendiary())
 
     def to_text(self, shield):
-        return roll_on_table(self.effect_text, shield.level)
+        return lookup_in_table(self.effect_text, shield.level)
 
 
 class effect_pangoblin_shield_effect(Modifier):
@@ -184,7 +184,7 @@ class effect_pangoblin_shield_effect_2(Modifier):
     }
 
     def to_text(self, shield):
-        return roll_on_table(self.effect_text, shield.level)
+        return lookup_in_table(self.effect_text, shield.level)
 
 
 class effect_stoker_shield_effect(Modifier):
@@ -201,7 +201,7 @@ class effect_stoker_shield_effect(Modifier):
         item.elements.append(Incendiary())
 
     def to_text(self, shield):
-        dice = roll_on_table(self.dmg_dice, shield.level)
+        dice = lookup_in_table(self.dmg_dice, shield.level)
 
         str = f"On Shield Depletion: {dice} Incendiary Damage to adjacent Targets."
         return str
@@ -225,7 +225,7 @@ class effect_stoker_shield_effect_2(Modifier):
             item.elements.append(Corrosive())
 
     def to_text(self, shield):
-        return roll_on_table(self.effect_text, shield.level)
+        return lookup_in_table(self.effect_text, shield.level)
 
 
 class effect_torgue_shield_effect(Modifier):
@@ -239,7 +239,7 @@ class effect_torgue_shield_effect(Modifier):
     }
 
     def apply(self, item):
-        bonus = roll_on_table(self.health_bonus, item.level)
+        bonus = lookup_in_table(self.health_bonus, item.level)
         item.mod_stats.setdefault('mods', {}).setdefault('max_health', 0)
         item.mod_stats['mods']['max_health'] += bonus
 
@@ -261,4 +261,4 @@ class effect_torgue_shield_effect_2(Modifier):
             item.elements.append(Explosive())
 
     def to_text(self, shield):
-        return roll_on_table(self.effect_text, shield.level)
+        return lookup_in_table(self.effect_text, shield.level)

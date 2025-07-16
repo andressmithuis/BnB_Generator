@@ -209,7 +209,7 @@ class relic_part_ffyl_duration(Modifier):
 
         bonus = health_parts[tier]['ffyl_duration'] * n_parts
 
-        return f"+{bonus} Extra turns in Fight For Your Life."
+        return f"+{bonus} Extra Turns when in Fight For Your Life."
 
 
 class relic_part_revive_healing(Modifier):
@@ -220,7 +220,7 @@ class relic_part_revive_healing(Modifier):
         n_parts = len([x for x in item.parts if x == self])
         tier = item.tier
 
-        return f"+{health_parts[tier]['revive_health'] * n_parts} Health gained on Revive."
+        return f"+{health_parts[tier]['revive_health'] * n_parts} Health gained when you are Revived."
 
 
 # --- Defensive Parts ---

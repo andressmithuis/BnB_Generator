@@ -3,7 +3,7 @@ from copy import deepcopy
 from AdvancedBnB import Manufacturers, Incendiary, Shock, Corrosive, Explosive, Slag, Cryo, Radiation
 from AdvancedBnB.abnb_manufacturers import manufacturer_table
 from AdvancedBnB.gun import Guntypes
-from util import Rarity, Dice, roll_on_table
+from util import Rarity, Dice, lookup_in_table
 
 from .abnb_relic_parts import *
 
@@ -68,7 +68,7 @@ class Relic:
                 break
 
             # Determine used dice based on size of pool
-            dice = roll_on_table(dice_table, len(part_pool))
+            dice = lookup_in_table(dice_table, len(part_pool))
 
             # Roll part from pool
             roll = 100
@@ -157,7 +157,7 @@ class RelicElemental(Relic):
         }
 
         # Roll for Manufacturer Type
-        return roll_on_table(manufacturer_table, Dice.from_string('1d12').roll())
+        return lookup_in_table(manufacturer_table, Dice.from_string('1d12').roll())
 
     def create_part_pool(self, tier):
         #Roll for Element Type
@@ -274,7 +274,7 @@ class RelicStrength(Relic):
         }
 
         # Roll for Manufacturer Type
-        return roll_on_table(manufacturer_table, Dice.from_string('1d12').roll())
+        return lookup_in_table(manufacturer_table, Dice.from_string('1d12').roll())
 
     def create_part_pool(self, tier):
         # Add (copy) parts to pool (list)

@@ -5,6 +5,7 @@ __pycache__/
 /img/shields/*
 /img/grenades/*
 /img/relics/*
+/img/class mods/*
 /img/tmp.avif
 
 item_config.yaml

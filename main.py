@@ -1,6 +1,7 @@
 import os.path
 import argparse
 
+from AdvancedBnB.equipment.abnb_class_mod import ClassMod
 from resource_loading import load_resources
 from load_item_config import load_item_config
 
@@ -24,7 +25,7 @@ if __name__ == '__main__':
     parser_load.add_argument(
         '--items',
         nargs='+',
-        choices=['all', 'weapons', 'shields', 'grenades', 'relics'],
+        choices=['all', 'weapons', 'shields', 'grenades', 'relics', 'class-mods'],
         help='Which item category to pull',
         default=['all']
     )
@@ -32,7 +33,7 @@ if __name__ == '__main__':
 
     # Subcommand: generate_item
     parser_create = cli_subparsers.add_parser('generate', help='Which item to generate a card for')
-    parser_create.add_argument('item_type', choices=['gun', 'shield', 'grenade', 'relic', 'health_potion', 'shield_potion'], help='Select what kind of item to generate a card for')
+    parser_create.add_argument('item_type', choices=['gun', 'shield', 'grenade', 'relic', 'class-mod', 'health_potion', 'shield_potion'], help='Select what kind of item to generate a card for')
     parser_create.add_argument('--use-abnb', action='store_true', help='Enable Advanced Bunkers&Badasses')
 
     args = cli_parser.parse_args()
@@ -79,6 +80,12 @@ if __name__ == '__main__':
 
         elif args.item_type == 'relic':
             new_item = Relic()
+            new_item.generate(props=props)
+            print(new_item)
+            new_item.generate_card()
+
+        elif args.item_type == 'class-mod':
+            new_item = ClassMod()
             new_item.generate(props=props)
             print(new_item)
             new_item.generate_card()
