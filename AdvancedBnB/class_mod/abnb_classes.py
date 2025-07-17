@@ -27,6 +27,8 @@ class_mods_per_class = {
     'Assassin': {
         1: cm_aimbot(),
         2: cm_battery(),
-        (3, 20): cm_battery(),
+        3: cm_flash(),
+        4: cm_infiltrator(),
+        (5, 20): cm_infiltrator(),
     }
 }
