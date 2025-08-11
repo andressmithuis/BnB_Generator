@@ -9,8 +9,9 @@ from AdvancedBnB import Fusion, Explosive
 from AdvancedBnB.abnb_manufacturers import Manufacturers, manufacturer_table
 from util import Dice, lookup_in_table
 
-from AdvancedBnB.gun.abnb_guntypes import Guntypes
+
 from AdvancedBnB.gun.abnb_weapon_parts import weapon_parts_table, weapon_accessories_table, weapon_sight_table
+from AdvancedBnB.gun.abnb_guntypes import Guntypes
 
 def mod_to_string(val_1, val_2):
     delta = val_1 - val_2
@@ -233,7 +234,6 @@ class Gun:
         self.randomize_name()
         if props is not None and 'item_name' in props:
             self.name = props['item_name']
-
 
     def apply_effects(self):
         # Apply Traits
