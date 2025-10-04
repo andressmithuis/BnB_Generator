@@ -2,10 +2,9 @@ import json
 import random
 from copy import deepcopy
 
-from util import Rarity, Dice, roll_on_table
-from .bnb_guilds import Guilds
-from .bnb_tables import shield_guild_table, rarity_table
-from .cards.bnb_shield_card import generate_shield_card
+from util import Rarity, Dice, lookup_in_table
+from StandardBnB.bnb_tables import shield_guild_table, rarity_table
+from StandardBnB.shield.bnb_shield_card import generate_shield_card
 
 
 class Shield:
@@ -30,8 +29,6 @@ class Shield:
         self.name = ''
         self.asset = {'item_id': '', 'item_name': '', 'path_to_img': ''}
 
-
-
     def generate(self, input_rolls=False, props=None):
         '''
         Roll d6 for guild
@@ -51,6 +48,9 @@ class Shield:
         # Guild type
         d8 = Dice.from_string('1d8').roll(input_rolls)
         self.guild = shield_guild_table[d8]
+
+        if props is not None and 'manufacturer' in props:
+            self.guild = props['manufacturer']
 
         print(f"Rolled a {d8}(1d8) -> Guild: {self.guild}")
 
@@ -72,7 +72,7 @@ class Shield:
         # TODO: check if needed
         if False:
             roll = Dice.from_string('1d100').roll(input_rolls)
-            self.element = roll_on_table(elemental_table, roll)[d6]
+            self.element = lookup_in_table(elemental_table, roll)[d6]
             print(f"Rolled a {roll}(1d100) -> Element: {self.element.to_str()}")
 
         # Calculate Final Stats
@@ -110,6 +110,3 @@ class Shield:
         str += "\n"
 
         return str
-
-
-

@@ -2,11 +2,16 @@ import json
 import random
 from copy import deepcopy
 
-from .abnb_tables import *
-from .abnb_util import get_item_tier
-from .abnb_guntypes import Guntypes
-from .abnb_weapon_parts import weapon_parts_table, weapon_accessories_table, weapon_sight_table
-from .cards.abnb_gun_card import generate_gun_card
+from AdvancedBnB.abnb_tables import Rarity, rarity_tables, weapon_part_count, elemental_table, fusion_table
+from AdvancedBnB.abnb_util import get_item_tier
+from AdvancedBnB.gun.abnb_gun_card import generate_gun_card
+from AdvancedBnB import Fusion, Explosive
+from AdvancedBnB.abnb_manufacturers import Manufacturers, manufacturer_table
+from util import Dice, lookup_in_table
+
+
+from AdvancedBnB.gun.abnb_weapon_parts import weapon_parts_table, weapon_accessories_table, weapon_sight_table
+from AdvancedBnB.gun.abnb_guntypes import Guntypes
 
 def mod_to_string(val_1, val_2):
     delta = val_1 - val_2
@@ -156,7 +161,7 @@ class Gun:
         while self.n_parts < self.max_parts:
             print(f"Rolling for part {self.n_parts+1}/{self.max_parts}...")
             roll = d100.roll(self.user_rolls)
-            part = roll_on_table(weapon_parts_table, roll)
+            part = lookup_in_table(weapon_parts_table, roll)
 
             if part == 'sight':
                 print(f"Rolled a {roll}! You may roll for a Gun Scope!")
@@ -183,7 +188,7 @@ class Gun:
 
         while self.elemental_roll['n_rolls'] > 0:
             dice_roll = min([d100.roll() + self.elemental_roll['roll_bonus'], 100])
-            el_roll = roll_on_table(elemental_table, dice_roll)[self.rarity]
+            el_roll = lookup_in_table(elemental_table, dice_roll)[self.rarity]
 
             # Maliwan can't be explosive, unless its part of a Fusion
             if self.manufacturer == Manufacturers.MALIWAN:
@@ -230,7 +235,6 @@ class Gun:
         if props is not None and 'item_name' in props:
             self.name = props['item_name']
 
-
     def apply_effects(self):
         # Apply Traits
         for trait in self.traits:
@@ -266,7 +270,7 @@ class Gun:
         retries_left = 50
         while retries_left > 0:
             roll = d100.roll(self.user_rolls)
-            part = roll_on_table(weapon_accessories_table, roll)
+            part = lookup_in_table(weapon_accessories_table, roll)
             if part not in self.parts:
                 print(f"Rolled a {roll}! Adding Gun Accessory <{part.name}>!")
                 break
@@ -286,7 +290,7 @@ class Gun:
         retries_left = 50
         while retries_left > 0:
             roll = d100.roll(self.user_rolls)
-            part = roll_on_table(weapon_sight_table, roll)
+            part = lookup_in_table(weapon_sight_table, roll)
             if self.gun_type in part.weapon_types:
                 if part not in self.parts:
                     print(f"Rolled a {roll}! Adding Gun Scope <{part.name}>!")
@@ -367,7 +371,3 @@ class Gun:
                 str += f" - {k} {'+' if v > 0 else ''}{v} \n"
 
         return str
-
-
-
-

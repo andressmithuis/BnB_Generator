@@ -2,11 +2,12 @@ import json
 import random
 from copy import deepcopy
 
-from .abnb_tables import *
-from .abnb_util import get_item_tier
-
-from .abnb_grenade_parts import grenade_base_stats
-from .cards.abnb_grenade_card import generate_grenade_card
+from AdvancedBnB.abnb_tables import *
+from AdvancedBnB.abnb_util import get_item_tier
+from AdvancedBnB.abnb_manufacturers import Manufacturers, manufacturer_table
+from AdvancedBnB.grenade.abnb_grenade_parts import grenade_base_stats, grenade_payload_table, grn_payload_mirv
+from AdvancedBnB.grenade.abnb_grenade_card import generate_grenade_card
+from util import Dice, lookup_in_table
 
 def mod_to_string(val_1, val_2):
     delta = val_1 - val_2
@@ -117,7 +118,7 @@ class Grenade:
         while self.n_parts < self.max_parts:
             print(f"Rolling for part {self.n_parts+1}/{self.max_parts}...")
             roll = d100.roll(self.user_rolls)
-            part = roll_on_table(grenade_payload_table, roll)
+            part = lookup_in_table(grenade_payload_table, roll)
             new_part = deepcopy(part)
 
             # 'Mini MIRV' payload check: Change to 'MIRV' payload if not yet present. Else add as normal.
@@ -152,7 +153,7 @@ class Grenade:
 
         while self.elemental_roll['n_rolls'] > 0:
             dice_roll = min([d100.roll() + self.elemental_roll['roll_bonus'], 100])
-            el_roll = roll_on_table(elemental_table, dice_roll)[self.rarity]
+            el_roll = lookup_in_table(elemental_table, dice_roll)[self.rarity]
 
             # Maliwan can't be explosive, unless its part of a Fusion
             if self.manufacturer == Manufacturers.MALIWAN:
@@ -223,7 +224,7 @@ class Grenade:
         str += f"\n\n"
 
         # Print Grenade Parts
-        str += f"Parts [{self.max_parts}]:\n"
+        str += f"Parts [{self.max_parts+1}]:\n"
         for part in self.parts:
             str += f" - {part.name}: {part}\n"
         str += f"\n"

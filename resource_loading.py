@@ -63,20 +63,45 @@ def delete_directory(path):
 
 def load_item_images(driver: Driver, game_filter, item_filter):
     item_data = {}
-    if not item_filter in ['weapons', 'shields', 'grenades']:
+    if not item_filter in ['weapons', 'shields', 'grenades', 'relics', 'class mods']:
         return item_data
 
     selection = []
     for game in game_filter:
         selection.append((game, game_alias_table[game]))
 
-    # Grenade URL exception
-    url = item_filter
-    if url == 'grenades':
-        url = 'grenade-mods'
-
     for game in selection:
         print(f"Start Loading of {game[1]} {item_filter.capitalize()}...")
+
+        # URL exceptions
+        url = item_filter
+        if url == 'grenades':
+            url = 'grenade-mods'
+
+            if game[0] == 'bl-wl':
+                url = 'spells'
+
+        if url == 'relics':
+            if game[0] == 'bl1':
+                print(f"Game {game[1]} does not have Relic type Equipment! Skipping...")
+                return None
+
+            url_alias = {
+                'bl2': 'relics',
+                'bl3': 'artifacts',
+                'bl-tps': 'oz-kits',
+                'bl-wl': 'rings-amulets'
+            }
+
+            url = url_alias[game[0]]
+
+        if url == 'class mods':
+            url = 'class-mods'
+
+            if game == 'bl-wl':
+                url = 'armor'
+
+
         url = f"https://www.lootlemon.com/db/{game[1]}/{url}"
 
         items = get_item_list(driver, url)
@@ -87,9 +112,11 @@ def load_item_images(driver: Driver, game_filter, item_filter):
             if item_name is None:  # Grenades Exception
                 item_name = item.get('data-named')
 
-            #gun_rarity = item.get('data-rarity')
-            #gun_manufacturer = item.get('data-manufacturer')
-            item_type = item.get('data-type').split('-')[0]
+            #item_rarity = item.get('data-rarity')
+            #item_manufacturer = item.get('data-manufacturer')
+            item_type = item.get('data-type')
+            if item_type is not None:
+                item_type = item_type.split('-')[0]
             page_link = item.find('a').get('href')  # Extract Weapon page url for high-res image
 
             # Consolidate or skip certain types of weapons
@@ -170,10 +197,13 @@ def load_item_images(driver: Driver, game_filter, item_filter):
     return item_data
 
 def load_resources(game_list, item_list, start_clean=False):
+    t_start = time.time()
     if start_clean:
         # Remove all previously loaded files
         delete_directory('img/weapons')
         delete_directory('img/shields')
+        delete_directory('img/relics')
+        delete_directory('img/class mods')
         if os.path.isfile('assets.json'):
             os.remove('assets.json')
 
@@ -185,6 +215,8 @@ def load_resources(game_list, item_list, start_clean=False):
         asset_data.setdefault('weapons', {}).setdefault(weapon_type, [])
     asset_data.setdefault('shields', [])
     asset_data.setdefault('grenades', [])
+    asset_data.setdefault('relics', [])
+    asset_data.setdefault('class mods', [])
 
     # Load previous data (if exists)
     if os.path.isfile('assets.json'):
@@ -224,6 +256,31 @@ def load_resources(game_list, item_list, start_clean=False):
 
         asset_data['grenades'] = data_set
 
+    # Load Relic Assets
+    if any(item in ['all', 'relics'] for item in item_list):
+        new_data = load_item_images(driver, game_list, 'relics')
+        if new_data is not None:
+            data_set = asset_data['relics']
+            for item in new_data['relics']:
+                if item not in data_set:
+                    data_set.append(item)
+
+            asset_data['relics'] = data_set
+
+    # Load Class Mod Assets
+    if any(item in ['all', 'class-mods'] for item in item_list):
+        new_data = load_item_images(driver, game_list, 'class mods')
+        if new_data is not None:
+            data_set = asset_data['class mods']
+            for item in new_data['class mods']:
+                if item not in data_set:
+                    data_set.append(item)
+
+            asset_data['class mods'] = data_set
+
     # Save asset info in json file to be used in the generator
     with open('assets.json', 'w') as file:
         json.dump(asset_data, file, indent=4)
+
+    t_end = time.time()
+    print(f"Resource loading done! Time taken = {round(t_end-t_start)}s.")

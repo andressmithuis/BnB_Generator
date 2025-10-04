@@ -13,4 +13,7 @@ class Modifier:
         return f"{self}"
 
     def __str__(self):
-        return f"{self.__class__.effect}"
+        return f"{self.effect}"
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__)

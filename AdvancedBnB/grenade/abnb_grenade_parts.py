@@ -1,3 +1,5 @@
+import numpy as np
+
 from util import Modifier
 
 # Delivery Mechanisms
@@ -113,13 +115,7 @@ class grn_payload_elemental(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        return f"Gains {n_parts}d6 Elemental Damage. Increases Elemental Effect Chance."
-
-    def apply(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-
-        item.mod_stats.setdefault('mods', {}).setdefault('status_effect_chance', 0)
-        item.mod_stats['mods']['status_effect_chance'] += n_parts * 20
+        return f"Gains {n_parts}d6 Elemental Damage. +{n_parts * 20}% Elemental Effect Chance."
 
 
 class grn_payload_puddle_blight(Modifier):
@@ -129,7 +125,7 @@ class grn_payload_puddle_blight(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        effect_str = f"Creates Radiation Puddles in Adjacent Spaces for 2 turns."
+        effect_str = f"Creates Radiation Puddles in Adjacent Squares for 2 turns."
         if n_parts >= 2:
             effect_str += f" Gain +{n_parts-1} Elemental Damage Die and +{(n_parts-1) * 10}% Irradiation Chance."
 
@@ -143,7 +139,7 @@ class grn_payload_puddle_chiller(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        effect_str = f"Creates Cryo Puddles in Adjacent Spaces for 2 turns."
+        effect_str = f"Creates Cryo Puddles in Adjacent Squares for 2 turns."
         if n_parts >= 2:
             effect_str += f" Gain +{n_parts-1} Elemental Damage Die and +{(n_parts-1) * 10}% Slow Chance."
 
@@ -157,7 +153,7 @@ class grn_payload_puddle_corrupter(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        effect_str = f"Creates Corrosive Puddles in Adjacent Spaces for 2 turns."
+        effect_str = f"Creates Corrosive Puddles in Adjacent Squares for 2 turns."
         if n_parts >= 2:
             effect_str += f" Gain +{n_parts-1} Elemental Damage Die and +{(n_parts-1) * 10}% Melt Chance."
 
@@ -171,7 +167,7 @@ class grn_payload_puddle_flamer(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        effect_str = f"Creates Incendiary Puddles in Adjacent Spaces for 2 turns."
+        effect_str = f"Creates Incendiary Puddles in Adjacent Squares for 2 turns."
         if n_parts >= 2:
             effect_str += f" Gain +{n_parts-1} Elemental Damage Die and +{(n_parts-1) * 10}% Burn Chance."
 
@@ -185,7 +181,7 @@ class grn_payload_puddle_slagger(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        effect_str = f"Creates Slag Puddles in Adjacent Spaces for 2 turns."
+        effect_str = f"Creates Slag Puddles in Adjacent Squares for 2 turns."
         if n_parts >= 2:
             effect_str += f" Gain +{n_parts-1} Elemental Damage Die and +{(n_parts-1) * 10}% Slag Chance."
 
@@ -199,7 +195,7 @@ class grn_payload_puddle_tesla(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        effect_str = f"Creates Shock Puddles in Adjacent Spaces for 2 turns."
+        effect_str = f"Creates Shock Puddles in Adjacent Squares for 2 turns."
         if n_parts >= 2:
             effect_str += f" Gain +{n_parts-1} Elemental Damage Die and +{(n_parts-1) * 10}% Electrocute Chance."
 
@@ -213,7 +209,7 @@ class grn_payload_link(Modifier):
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        return f"For each enemy Damaged by the Explosion, deals an extra {n_parts}d4 Damage to all enemies."
+        return f"For each enemy Damaged by the Explosion, deals an extra {n_parts}d4 Damage to all those Enemies."
 
 
 class grn_payload_money(Modifier):
@@ -248,16 +244,12 @@ class grn_payload_generator(Modifier):
 
 class grn_payload_large(Modifier):
     name = 'Large'
-    effect = 'The Grenade gains +1/P Splash.'
+    effect = 'The Grenade gains +1/P Splash Radius.'
 
     def to_text(self, item):
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        return f"The Grenade gains +{n_parts} Splash."
-
-    def apply(self, item):
-        item.mod_stats.setdefault('mods', {}).setdefault('splash', 0)
-        item.mod_stats['mods']['splash'] = 1
+        return f"The Grenade gains +{n_parts} Splash Radius."
 
 
 class grn_payload_mirv(Modifier):
@@ -313,7 +305,10 @@ class grn_payload_nuke(Modifier):
         dice_count = item.base_stats['dmg_dice'].count
         n_parts = len([x for x in item.parts if x.name == self.name])
 
-        item.mod_stats['dmg_dice'].count += round(n_parts * 0.5 * dice_count)
+        bonus = n_parts * 0.5 * dice_count
+        bonus = int(np.floor(bonus + 0.5))
+
+        item.mod_stats['dmg_dice'].count += bonus
 
 
 class grn_payload_divider(Modifier):

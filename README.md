@@ -15,8 +15,8 @@ version of the game created by *Akkator006*
 | Guns            | ✅                         | ✅                        |
 | Shields         | ✅                         | ✅                        |
 | Grenades        | ❌                         | ✅                         |
-| Relics          | ❌                         | ❌                        |
-| Class Mods      | (NA)                      | ❌                        |
+| Relics          | ❌                         | ✅                        |
+| Class Mods      | (NA)                      | 🚧                        |
 | Generic Potions | ❌                         | (NA)                     |
 | Health Potions  | ✅                         | (NA)                     |
 | Shield Potions  | ✅                         | (NA)                     |
@@ -25,13 +25,13 @@ version of the game created by *Akkator006*
 
 Overview of CLI commands:
 
-| Command      | Arguments        | Options                                                | Description                                                   |
-|--------------|------------------|--------------------------------------------------------|---------------------------------------------------------------|
-| ``load``     | (``--games``)    | ``bl1`` ``bl2`` ``bl3`` ``bl-tps`` ``bl-wl``           | Load item images from selected games (default=``bl3``)        |
-|              | (``--items``)    | ``all`` ``weapons`` ``shields``                        | Load specific items (default=``all``)                         |
-|              | (``--reset``)    | -                                                      | Clears previsouly loaded resources.                           |
-| ``generate`` | \<item>          | ``gun`` ``shield`` ``health_potion`` ``shield_potion`` | Generate an equipment card (based on selection).              |
-|              | (``--use-abnb``) | -                                                      | Use the *Advanced Bunkers&Badasses* loot generation rulesets. |
+| Command      | Arguments        | Options                                                                                    | Description                                                   |
+|--------------|------------------|--------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| ``load``     | (``--games``)    | ``bl1`` ``bl2`` ``bl3`` ``bl-tps`` ``bl-wl``                                               | Load item images from selected games (default=``bl3``)        |
+|              | (``--items``)    | ``all`` ``weapons`` ``shields`` ``grenades`` ``relics`` ``class-mods``                     | Load specific items (default=``all``)                         |
+|              | (``--reset``)    | -                                                                                          | Clears previsouly loaded resources.                           |
+| ``generate`` | \<item>          | ``gun`` ``shield`` ``grenade`` ``relic`` ``class-mod`` ``health_potion`` ``shield_potion`` | Generate an equipment card (based on selection).              |
+|              | (``--use-abnb``) | -                                                                                          | Use the *Advanced Bunkers&Badasses* loot generation rulesets. |
 
 
 ## Set-Up
@@ -44,7 +44,7 @@ The application does not automatically come with equipment images and needs to d
 them from the different Borderlands Games (courtesy of *www.lootlemon.com*).
 This can be done with the ``load`` argument:
 
-``python /path/to/directory/main.py load``
+``python main.py load``
 
 *(The download might take a couple of minutes)*
 
@@ -67,10 +67,10 @@ Multiple options can be given when separated by a space.
 > 
 > To load equipment from Borderlands 1 & 2:
 > 
-> ``python /path/to/directory/main.py load --games bl1 bl2``
+> ``python main.py load --games bl1 bl2``
 
 You can also load specific items only by providing the ``--items`` argument with the preferred
-category of items as argument options (``all``, ``weapons``, ``shields``). Defaults to ``all`` if argument is not given.
+category of items as argument options (``all``, ``weapons``, ``shields``, etc.). Defaults to ``all`` if argument is not given.
 
 ## Loot Generation
 
@@ -81,11 +81,11 @@ You need to specify what item you want to generate a card for.
 > 
 > Generate a Gun Card:
 > 
-> ``python /path/to/directory/main.py generate gun``
+> ``python main.py generate gun``
 > 
 > Generate a Health Potion Card:
 > 
-> ``python /path/to/directory/main.py generate health_potion``
+> ``python main.py generate health_potion``
 
 You can generate cards using the *Advanced Bunkers & Badasses* rulesets using 
 the ``--use-abnb`` argument
@@ -94,6 +94,6 @@ the ``--use-abnb`` argument
 > 
 > Generate a Shield Card for *Advanced Bunkers & Badasses*:
 > 
-> ``python /path/to/directory/main.py generate shield --use-abnb``
+> ``python main.py generate shield --use-abnb``
 
 

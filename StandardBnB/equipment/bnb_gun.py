@@ -3,11 +3,11 @@ from copy import deepcopy
 
 import json
 
-from util import Dice, roll_on_table
+from util import Dice, lookup_in_table
 
-from .bnb_tables import *
-from .bnb_guntypes import Guntypes
-from .cards.bnb_gun_card import generate_gun_card
+from StandardBnB.bnb_tables import *
+from StandardBnB.gun import Guntypes
+from StandardBnB.gun.bnb_gun_card import generate_gun_card
 from util.gun_prefixes import prefix_crappy
 
 class Gun:
@@ -79,7 +79,8 @@ class Gun:
             self.guild = 'choice'
             input_rolls = True
 
-        self.type = 'favored'
+        if props is not None and 'manufacturer' in props:
+            self.guild = props['manufacturer']
 
         # Favored Gun / Guild Choice check
         if self.type == 'favored':
@@ -134,7 +135,7 @@ class Gun:
 
             print(f"Element roll result: {d100_res} ({d100} [Roll] + {self.element_roll_bonus} [Bonus])")
 
-            elements = roll_on_table(elemental_table, d100_res)[self.rarity]
+            elements = lookup_in_table(elemental_table, d100_res)[self.rarity]
             for el in elements:
                 self.elements.append(el)
 

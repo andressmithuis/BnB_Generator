@@ -1,5 +1,5 @@
-from util import Dice, roll_on_table
-from .bnb_weapon_bonus import *
+from util import lookup_in_table
+from StandardBnB.gun.bnb_weapon_bonus import *
 
 
 class Guntype:
@@ -26,7 +26,7 @@ class Rifle(Guntype):
             (25, 30): {'hit_dice': Dice.from_string('1d10'), 'hits_crits': {'2-7': {'hits': 1, 'crits': 1}, '8-15': {'hits': 2, 'crits': 1}, '16+': {'hits': 2, 'crits': 3}}, 'range': 6},
         }
 
-        return roll_on_table(base_stats, item_level)
+        return lookup_in_table(base_stats, item_level)
 
 
 class Pistol(Guntype):
@@ -45,7 +45,7 @@ class Pistol(Guntype):
             (25, 30): {'hit_dice': Dice.from_string('2d8'), 'hits_crits': {'2-7': {'hits': 2, 'crits': 0}, '8-15': {'hits': 2, 'crits': 1}, '16+': {'hits': 2, 'crits': 2}}, 'range': 5},
         }
 
-        return roll_on_table(base_stats, item_level)
+        return lookup_in_table(base_stats, item_level)
 
 
 class Smg(Guntype):
@@ -64,7 +64,7 @@ class Smg(Guntype):
             (25, 30): {'hit_dice': Dice.from_string('1d10'), 'hits_crits': {'2-7': {'hits': 2, 'crits': 2}, '8-15': {'hits': 3, 'crits': 2}, '16+': {'hits': 5, 'crits': 2}}, 'range': 5},
         }
 
-        return roll_on_table(base_stats, item_level)
+        return lookup_in_table(base_stats, item_level)
 
 
 class Shotgun(Guntype):
@@ -83,7 +83,7 @@ class Shotgun(Guntype):
             (25, 30): {'hit_dice': Dice.from_string('1d12'), 'hits_crits': {'2-7': {'hits': 1, 'crits': 1}, '8-15': {'hits': 2, 'crits': 1}, '16+': {'hits': 2, 'crits': 2}}, 'range': 4},
         }
 
-        return roll_on_table(base_stats, item_level)
+        return lookup_in_table(base_stats, item_level)
 
 
 class Sniper(Guntype):
@@ -102,7 +102,7 @@ class Sniper(Guntype):
             (25, 30): {'hit_dice': Dice.from_string('1d12'), 'hits_crits': {'2-7': {'hits': 1, 'crits': 0}, '8-15': {'hits': 1, 'crits': 1}, '16+': {'hits': 2, 'crits': 2}}, 'range': 8},
         }
 
-        return roll_on_table(base_stats, item_level)
+        return lookup_in_table(base_stats, item_level)
 
 
 class Launcher(Guntype):
@@ -121,7 +121,7 @@ class Launcher(Guntype):
             (25, 30): {'hit_dice': Dice.from_string('1d20'), 'hits_crits': {'2-7': {'hits': 1, 'crits': 1}, '8-15': {'hits': 1, 'crits': 1}, '16+': {'hits': 2, 'crits': 1}}, 'range': 4},
         }
 
-        return roll_on_table(base_stats, item_level)
+        return lookup_in_table(base_stats, item_level)
 
 
 class Guntypes:

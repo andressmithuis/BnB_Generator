@@ -32,8 +32,10 @@ card_fonts = {
 }
 
 # Item Name, Image
-def card_add_item_image(card_img, item_img):
+def card_add_item_image(card_img, item_img, alt_field=None):
     card_field = basic_card_template['fld_item_img']
+    if alt_field is not None:
+        card_field = alt_field
     return draw_image_to_field(card_img, item_img, card_field)
 
 def card_add_item_name(card_img, name):
@@ -120,10 +122,19 @@ def card_add_element(card_img, item_obj):
     return card_img
 
 # Quick Reference Info
-def card_add_quick_ref(card_img, item_parts, item_obj):
+def card_add_quick_ref(card_img, item_parts, item_obj, alt_name_field=None, alt_effect_field=None):
+    name_field_ref = basic_card_template['fld_quickref_name']
+    effect_field_ref = basic_card_template['fld_quickref_effect']
+
+    if alt_name_field is not None:
+        name_field_ref = alt_name_field
+
+    if alt_effect_field is not None:
+        effect_field_ref = alt_effect_field
+
     # Quick Reference n Rows and Font Size
     font_file = card_fonts['default']
-    fnt_size = get_max_font_size(card_img, [x.to_text(item_obj) for x in item_parts], basic_card_template['fld_quickref_effect'], font_file)
+    fnt_size = get_max_font_size(card_img, [x.to_text(item_obj) for x in item_parts], effect_field_ref, font_file)
     font = ImageFont.truetype(f"fonts/{font_file}", fnt_size)
 
     name_col = []
@@ -131,7 +142,7 @@ def card_add_quick_ref(card_img, item_parts, item_obj):
     for part in item_parts:
         name_col.append(f"{part.name}:")
 
-        ef_text = wrap_text(card_img, part.to_text(item_obj), font, basic_card_template['fld_quickref_effect'])
+        ef_text = wrap_text(card_img, part.to_text(item_obj), font, effect_field_ref)
         for line in ef_text:
             effect_col.append(line)
 
@@ -142,15 +153,68 @@ def card_add_quick_ref(card_img, item_parts, item_obj):
     tst_bbox = font.getbbox("Ay")
     y_offset = (tst_bbox[3] - tst_bbox[1]) / 2 / card_img.size[1]
 
-    row_h = basic_card_template['fld_quickref_name'].h / max(len(name_col), 6)
+    row_h = name_field_ref.h / max(len(name_col), 6)
     for i in range(len(name_col)):
-        name_field = deepcopy(basic_card_template['fld_quickref_name'])
-        effect_field = deepcopy(basic_card_template['fld_quickref_effect'])
+        name_field = deepcopy(name_field_ref)
+        effect_field = deepcopy(effect_field_ref)
         name_field.y = name_field.y - (name_field.h / 2) + (row_h * i) + y_offset
         effect_field.y = effect_field.y - (effect_field.h / 2) + (row_h * i) + y_offset
 
         card_img = draw_text_to_field(card_img, name_field, name_col[i],card_fonts['bold'], align='left', font_size=fnt_size)
         card_img = draw_text_to_field(card_img, effect_field, effect_col[i], card_fonts['default'],align='left', font_size=fnt_size)
+
+    return card_img
+
+# 2 Columns parts overview (autoscale)
+def card_add_column_text(card_img, columns_content, header_idx=None, alt_col1_field=None, alt_col2_field=None):
+    col1_field_ref = basic_card_template['fld_quickref_name']
+    col2_field_ref = basic_card_template['fld_quickref_effect']
+
+    if header_idx is None:
+        header_idx = []
+
+    if alt_col1_field is not None:
+        col1_field_ref = alt_col1_field
+
+    if alt_col2_field is not None:
+        col2_field_ref = alt_col2_field
+
+    # Column n Rows and Font Size
+    # TODO: Assumes col2 has lengthier text. Check both columns?
+    font_file = card_fonts['default']
+    fnt_size = get_max_font_size(card_img, [x[1] for x in columns_content], col2_field_ref, font_file)
+    font = ImageFont.truetype(f"fonts/{font_file}", fnt_size)
+
+    col1_content = []
+    col2_content = []
+    for tup in columns_content:
+        col1_content.append(tup[0])
+
+        ef_text = wrap_text(card_img, tup[1], font, col2_field_ref)
+        for line in ef_text:
+            col2_content.append(line)
+
+        while len(col1_content) < len(col2_content):
+            col1_content.append('')
+
+    # Print Text to Card
+    tst_bbox = font.getbbox("Ay")
+    y_offset = (tst_bbox[3] - tst_bbox[1]) / 2 / card_img.size[1]
+
+    row_h = col1_field_ref.h / max(len(col1_content), 18)
+    for i in range(len(col1_content)):
+        name_field = deepcopy(col1_field_ref)
+        effect_field = deepcopy(col2_field_ref)
+        name_field.y = name_field.y - (name_field.h / 2) + (row_h * i) + y_offset
+        effect_field.y = effect_field.y - (effect_field.h / 2) + (row_h * i) + y_offset
+
+        if i in header_idx:
+            header_fnt_size = get_max_font_size(card_img, [col1_content[i]], name_field, card_fonts['header'])
+            card_img = draw_text_to_field(card_img, name_field, col1_content[i], card_fonts['header'], align='left', font_size=header_fnt_size)
+        else:
+            card_img = draw_text_to_field(card_img, name_field, col1_content[i], card_fonts['bold'], align='left', font_size=fnt_size)
+
+        card_img = draw_text_to_field(card_img, effect_field, col2_content[i], card_fonts['default'],align='left', font_size=fnt_size)
 
     return card_img
 

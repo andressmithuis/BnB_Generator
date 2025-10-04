@@ -1,10 +1,10 @@
 from copy import deepcopy
 
-from .bnb_guntypes import Guntypes
-from .bnb_weapon_bonus import *
-from.bnb_shield_effects import *
+from StandardBnB.gun.bnb_guntypes import Guntypes
+from StandardBnB.gun.bnb_weapon_bonus import *
+from StandardBnB.shield.bnb_shield_effects import *
 from util import Rarity
-from util import Dice, roll_on_table
+from util import Dice, lookup_in_table
 
 
 class Guild:
@@ -31,7 +31,7 @@ class Ashen(Guild):
             (25, 30):   {'capacity': 60, 'charge_rate': 10, 'effect': effect_ashen_shield_effect_2()}
         }
 
-        table_result = roll_on_table(shield_table, shield.level)
+        table_result = lookup_in_table(shield_table, shield.level)
 
         shield.base_stats['capacity'] = table_result['capacity']
         shield.base_stats['charge_rate'] = table_result['charge_rate']
@@ -80,7 +80,7 @@ class Alas(Guild):
             (25, 30):   {'capacity': 0, 'charge_rate': 0, 'effect': effect_alas_shield_effect_2()}
         }
 
-        table_result = roll_on_table(shield_table, shield.level)
+        table_result = lookup_in_table(shield_table, shield.level)
 
         shield.base_stats['capacity'] = table_result['capacity']
         shield.base_stats['charge_rate'] = table_result['charge_rate']
@@ -159,7 +159,7 @@ class Dahlia(Guild):
             (25, 30):   {'capacity': 80, 'charge_rate': 15, 'effect': effect_dahlia_shield_effect_2()}
         }
 
-        table_result = roll_on_table(shield_table, shield.level)
+        table_result = lookup_in_table(shield_table, shield.level)
 
         shield.base_stats['capacity'] = table_result['capacity']
         shield.base_stats['charge_rate'] = table_result['charge_rate']
@@ -243,7 +243,7 @@ class Malefactor(Guild):
             (25, 30):   {'capacity': 80, 'charge_rate': 15, 'effect': effect_malefactor_shield_effect_2()}
         }
 
-        table_result = roll_on_table(shield_table, shield.level)
+        table_result = lookup_in_table(shield_table, shield.level)
 
         shield.base_stats['capacity'] = table_result['capacity']
         shield.base_stats['charge_rate'] = table_result['charge_rate']
@@ -319,7 +319,7 @@ class Feriore(Guild):
             (25, 30):   {'capacity': 60, 'charge_rate': 20, 'effect': effect_feriore_shield_effect_2()}
         }
 
-        table_result = roll_on_table(shield_table, shield.level)
+        table_result = lookup_in_table(shield_table, shield.level)
 
         shield.base_stats['capacity'] = table_result['capacity']
         shield.base_stats['charge_rate'] = table_result['charge_rate']
@@ -367,7 +367,7 @@ class Torgue(Guild):
             (25, 30):   {'capacity': 80, 'charge_rate': 15, 'effect': effect_torgue_shield_effect_2()}
         }
 
-        table_result = roll_on_table(shield_table, shield.level)
+        table_result = lookup_in_table(shield_table, shield.level)
 
         shield.base_stats['capacity'] = table_result['capacity']
         shield.base_stats['charge_rate'] = table_result['charge_rate']
@@ -418,7 +418,7 @@ class Stoker(Guild):
             (25, 30):   {'capacity': 80, 'charge_rate': 15, 'effect': effect_stoker_shield_effect_2()}
         }
 
-        table_result = roll_on_table(shield_table, shield.level)
+        table_result = lookup_in_table(shield_table, shield.level)
 
         shield.base_stats['capacity'] = table_result['capacity']
         shield.base_stats['charge_rate'] = table_result['charge_rate']
@@ -449,7 +449,7 @@ class Pangoblin(Guild):
             (25, 30):   {'capacity': 60, 'charge_rate': 10, 'effect': effect_pangoblin_shield_effect_2()}
         }
 
-        table_result = roll_on_table(shield_table, shield.level)
+        table_result = lookup_in_table(shield_table, shield.level)
 
         shield.base_stats['capacity'] = table_result['capacity']
         shield.base_stats['charge_rate'] = table_result['charge_rate']

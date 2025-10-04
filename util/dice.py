@@ -47,10 +47,36 @@ class Dice:
 
         return Dice(count, sides)
 
+    @staticmethod
+    def best_dice_for_table(table):
+        dice_table = {
+            (1, 4): '1d4',
+            (5, 6): '1d6',
+            (7, 8): '1d8',
+            (9, 10): '1d10',
+            (11, 12): '1d12',
+        }
 
-def roll_on_table(table, dice_roll):
-    for (lo, hi), row in table.items():
-        if lo <= dice_roll <= hi:
-            return row
+        best_dice = lookup_in_table(dice_table, len(table))
+        if best_dice is None:
+            best_dice = '1d20'
 
-    raise ValueError(f"Roll {dice_roll} not present in given table!")
+        return Dice.from_string(best_dice)
+
+
+
+def lookup_in_table(table: dict, dice_roll: int):
+    for index, row in table.items():
+        # Handle if table rows have value ranges
+        if isinstance(index, tuple):
+            (lo, hi) = index
+            if lo <= dice_roll <= hi:
+                return row
+
+        # Assume table has single value items
+        else:
+            if index == dice_roll:
+                return row
+
+    print(f"Roll {dice_roll} not present in given table!")
+    return None
