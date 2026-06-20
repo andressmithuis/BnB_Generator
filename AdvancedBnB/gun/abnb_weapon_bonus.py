@@ -1,54 +1,79 @@
 import math
 
-from util import Modifier
+from util import EquipmentProperty, Modifier, mod_template
+from .abnb_weapon_modifiers import mod_splash
 
-class BonusPistol(Modifier):
+
+class WeaponBonus(EquipmentProperty):
+    pass
+
+class BonusPistol(WeaponBonus):
     name = 'Pistol Bonus'
     effect = 'You gain +2 on Swap Checks when swapping to or from a Pistol.'
 
-    def apply(self, gun):
-        gun.mod_stats.setdefault('mods', {}).setdefault('swap_check', 0)
-        gun.mod_stats['mods']['swap_check'] += 2
+    def reload_modifiers(self):
+        new_mod = mod_template(self.name, self.effect)
+        new_mod.situational = True
+        self.replace_modifiers([new_mod])
 
-class BonusSmg(Modifier):
+
+class BonusSmg(WeaponBonus):
     name = 'Smg Bonus'
     effect = 'Smg has no Type Bonus.'
 
-class BonusRifle(Modifier):
+
+class BonusRifle(WeaponBonus):
     name = 'Combat Rifle Bonus'
     effect = f"Combat Rifles always spawn with an Accessory Part. This Part doesn't count towards the maximum numer of Parts for this Gun."
 
-class BonusSniper_scope(Modifier):
+
+class BonusSniper_scope(WeaponBonus):
     name = 'Sniper Rifle Bonus'
     effect = f"Sniper Rifle always spawn with a Scope Part. This Part counts against the maximum number of Parts for this Gun."
 
-class BonusSniper_accuracy(Modifier):
+
+class BonusSniper_accuracy(WeaponBonus):
     name = 'Sniper Rifle Bonus'
     effect = f"When Attacking a Target over half the Sniper Rifles' Range (rounded up), gain an ACC Bonus equal to half it's Tier (rounded up)."
-    situational = True
 
-    def to_text(self, gun):
-        range_prop = math.ceil(gun.range / 2)
-        acc_bonus = math.ceil(gun.tier / 2)
+    def reload_modifiers(self):
+        self.replace_modifiers([wp_bonus_sniper(self.linked_equipment.range, self.linked_equipment.tier)])
 
-        return f"When Attacking a Target over {range_prop} Range, +{acc_bonus} ACC MOD."
 
-class BonusShotgun(Modifier):
+class BonusShotgun(WeaponBonus):
     name = 'Shotgun Bonus'
     effect = f"When Attacking a Target within half the Shotguns' Range (rounded down), gain a DMG Bonus equal to it's Tier."
     situational = True
 
-    def to_text(self, gun):
-        range_prop = math.floor(gun.range / 2)
+    def reload_modifiers(self):
+        self.replace_modifiers([wp_bonus_shotgun(self.linked_equipment.range, self.linked_equipment.tier)])
 
-        return f"When Attacking a Target within {range_prop} Range: +{gun.tier} DMG MOD."
 
-class BonusLauncher(Modifier):
+class BonusLauncher(WeaponBonus):
     name = 'Rocket Launcher Bonus'
     effect = f"Splash."
 
-    def apply(self, gun):
-        gun.mod_stats.setdefault('mods', {}).setdefault('splash', 0)
-        gun.mod_stats['mods']['splash'] = 1
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_splash()])
 
 
+# --- Gun Bonus specififc Modifiers ---
+class wp_bonus_sniper(Modifier):
+    name = 'Sniper Rifle Bonus'
+    effect = "When Attacking a Target over half the Sniper Rifles' Range (rounded up), gain an ACC Bonus equal to half it's Tier (rounded up)."
+    situational = True
+
+    def __init__(self, range, tier):
+        range_prop = math.ceil(range/ 2)
+        acc_bonus = math.ceil(tier / 2)
+        self.effect = f"When Attacking a Target over {range_prop} Range, +{acc_bonus} ACC MOD."
+
+
+class wp_bonus_shotgun(Modifier):
+    name = 'Shotgun Bonus'
+    effect = f"When Attacking a Target within half the Shotguns' Range (rounded down), gain a DMG Bonus equal to it's Tier."
+    situational = True
+
+    def __init__(self, range, tier):
+        range_prop = math.floor(range / 2)
+        self.effect = f"When Attacking a Target within {range_prop} Range: +{tier} DMG MOD."

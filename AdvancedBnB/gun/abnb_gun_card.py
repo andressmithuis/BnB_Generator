@@ -3,6 +3,8 @@ import os
 import numpy as np
 from PIL import Image, ImageOps
 
+from AdvancedBnB.gun.abnb_weapon_traits import WeaponTrait
+from AdvancedBnB.gun.abnb_weapon_parts import WeaponPart
 from util.cards.card_generation import Field, draw_image_to_field, draw_text_to_field, draw_field_locations
 from util.cards.card_basics import *
 
@@ -137,17 +139,9 @@ def generate_gun_card(gun_obj):
 
     # Quick Reference
     quick_ref = []
-    for trait in gun_obj.traits:
-        if trait.situational:
-            quick_ref.append(trait)
-
-    for part in gun_obj.parts:
-        if part.situational:
-            quick_ref.append(part)
-
-    for bonus in gun_obj.gun_type.weapon_bonus:
-        if bonus.situational:
-            quick_ref.append(bonus)
+    for modifier in gun_obj.equipment_modifiers:
+        if modifier.situational:
+            quick_ref.append(modifier)
 
     card_front = card_add_quick_ref(card_front, quick_ref, gun_obj)
 
@@ -159,16 +153,17 @@ def generate_gun_card(gun_obj):
     header_col.append(f"--Gun Parts--")
     effect_col.append('')
 
-    for i in range(len(gun_obj.parts)):
-        part = gun_obj.parts[i]
-        header_col.append(f"{part.name}:")
+    for i in range(len(gun_obj.equipment_properties)):
+        part = gun_obj.equipment_properties[i]
+        if isinstance(part, WeaponPart):
+            header_col.append(f"{part.name}:")
 
-        ef_str = split_text_on_length(f"{part.effect}", 65)
-        for ef in ef_str:
-            effect_col.append(ef)
+            ef_str = split_text_on_length(f"{part.effect}", 65)
+            for ef in ef_str:
+                effect_col.append(ef)
 
-        while len(header_col) < len(effect_col):
-            header_col.append('')
+            while len(header_col) < len(effect_col):
+                header_col.append('')
 
     effect_col.append('')
     header_col.append('')
@@ -178,16 +173,17 @@ def generate_gun_card(gun_obj):
     header_col.append(f"--Gun Traits--")
     effect_col.append('')
 
-    for i in range(len(gun_obj.traits)):
-        part = gun_obj.traits[i]
-        header_col.append(f"{part.name}:")
+    for i in range(len(gun_obj.equipment_properties)):
+        trait = gun_obj.equipment_properties[i]
+        if isinstance(trait, WeaponTrait):
+            header_col.append(f"{trait.name}:")
 
-        ef_str = split_text_on_length(f"{part.effect}", 65)
-        for ef in ef_str:
-            effect_col.append(ef)
+            ef_str = split_text_on_length(f"{trait.effect}", 65)
+            for ef in ef_str:
+                effect_col.append(ef)
 
-        while len(header_col) < len(effect_col):
-            header_col.append('')
+            while len(header_col) < len(effect_col):
+                header_col.append('')
 
     # Printing column content to card
     fonts = {
@@ -213,25 +209,12 @@ def generate_gun_card(gun_obj):
     card_field = gun_card_back_template['fld_mod_effects'][0]
     card_back = draw_text_to_field(card_back, card_field, f"--Mods & Checks--", 'rexlia rg.otf', align='left', font_size=22)
 
-    mods = gun_obj.mod_stats['mods']
     idx = 0
-    for k, v in mods.items():
-        if v != 0:
-            w_parts = k.split('_')
-            for i in range(len(w_parts)):
-                w = w_parts[i]
-                w = f"{w[0].upper()}{w[1:]}"
-
-                if w in ['Dmg', 'Ads', 'Acc', 'Mod']:
-                    w = w.upper()
-
-                w_parts[i] = w
-            k = ' '.join(w_parts)
+    for modifier in gun_obj.equipment_modifiers:
+        if modifier.situational is False and modifier.hidden is False:
             card_field = gun_card_back_template['fld_mod_effects'][1 + idx]
-            card_back = draw_text_to_field(card_back, card_field, f"{k} {'+' if v > 0 else ''}{v}",'avenir-next-condensed-medium.otf', align='left', font_size=22)
-
+            card_back = draw_text_to_field(card_back, card_field, f"{modifier.effect}", 'avenir-next-condensed-medium.otf', align='left', font_size=22)
             idx += 1
-
 
     # Gun Type Bonus
     card_field = gun_card_back_template['fld_type_bonus_txt']
@@ -239,7 +222,7 @@ def generate_gun_card(gun_obj):
 
     card_field = gun_card_back_template['fld_type_bonus_effect']
 
-    bonus_txt = ' <nl> '.join([b.to_text(gun_obj) for b in gun_obj.gun_type.weapon_bonus])
+    bonus_txt = ' <nl> '.join([b.effect for b in gun_obj.gun_type.weapon_bonus])
     lines = split_text_on_length(bonus_txt, 75)
     while len(lines) < 4:
         lines.append('')

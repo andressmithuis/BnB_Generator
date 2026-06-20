@@ -1,19 +1,13 @@
 class Modifier:
     name = '<Item Modifier>'
     effect = '<Changes the Stats of an Item.>'
-    situational = False
+    situational = False  # Effects need a specific situation to occur before taking effect (effects don't get applied and modifier has a special section on the card).
+    additive = False  # Same property effects can be summed up
+    hidden = False  # Used to hide this modifier in the 'Mods & Checks' table on the card.
 
-    def apply(self, item):
-        return
 
-    def finalize(self, item):
-        return
-
-    def to_text(self, item):
-        return f"{self}"
-
-    def __str__(self):
-        return f"{self.effect}"
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__)
+# --- Common Modifiers ---
+class mod_template(Modifier):
+    def __init__(self, name, effect):
+        self.name = name
+        self.effect = effect

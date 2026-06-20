@@ -141,7 +141,7 @@ class Bandit(Manufacturer):
         # Bandit weapons always spawn with a Bayonet Accessory. This does NOT count towards number of Gun Parts
         if gun.manufacturer == self:
             part = lookup_in_table(weapon_accessories_table, 1)
-            gun.parts.append(part)
+            gun.add_property(part)
 
     def edit_shield(self, shield_obj):
         shield_obj.shield_type = self.makes['shield']
@@ -202,7 +202,7 @@ class Dahl(Manufacturer):
                 if gun.n_scopes >= gun.max_scopes:
                     break
                 part = gun.pick_weapon_scope()
-                gun.parts.append(part)
+                gun.add_property(part)
                 gun.n_scopes += 1
                 gun.n_parts += 1
 
@@ -210,14 +210,14 @@ class Dahl(Manufacturer):
             if 'accessories' in bonus:
                 for _ in range(bonus['accessories']):
                     part = gun.pick_weapon_accessory()
-                    gun.parts.append(part)
+                    gun.add_property(part)
 
             # Add Fire Modes
             for _ in range(bonus['fire_modes']):
                 while True:
                     trait = self.pick_secondary_weapon_trait(gun.user_rolls)
-                    if trait not in gun.traits:
-                        gun.traits.append(trait)
+                    if trait not in gun.equipment_properties:
+                        gun.add_property(trait)
                         break
 
     def edit_shield(self, shield_obj):

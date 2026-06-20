@@ -81,7 +81,7 @@ class Rifle(Guntype):
         # Combat Rifle Spawns with one accessory. This does NOT count towards number of Gun Parts.
         if gun.gun_type == self:
             part = gun.pick_weapon_accessory()
-            gun.parts.append(part)
+            gun.add_property(part)
 
 class Shotgun(Guntype):
     name = 'Shotgun'
@@ -114,7 +114,7 @@ class Sniper(Guntype):
         # Sniper Rifle spawns with a Scope. This DOES count towards the maximum equipped number of parts
         if gun.gun_type == self:
             part = gun.pick_weapon_scope()
-            gun.parts.append(part)
+            gun.add_property(part)
             gun.n_scopes += 1
             gun.n_parts += 1
 

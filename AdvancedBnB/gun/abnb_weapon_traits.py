@@ -1,30 +1,30 @@
 import math
 
-from util import Modifier
-from util import Dice
+from util import EquipmentProperty, mod_template
 
 from AdvancedBnB.abnb_element import Explosive
-from util import Rarity
+from AdvancedBnB.gun.abnb_weapon_modifiers import *
+
+
+class WeaponTrait(EquipmentProperty):
+    pass
 
 # Anshin - Primary
-class trait_do_no_harm(Modifier):
+class trait_do_no_harm(WeaponTrait):
     name = 'Do No Harm'
     effect = '-1 Hit on Glancing, Solid & Penetrating Attacks (to a minimum of 1)'
 
-    def apply(self, gun):
-        for atk in ['glance', 'solid', 'penetrate']:
-            if gun.mod_stats['hits_crits'][atk]['hits'] > 1:
-                gun.mod_stats['hits_crits'][atk]['hits'] -= 1
+    def reload_modifiers(self):
+        return [mod_burst(-1)]
 
-class trait_caseless_ammunition(Modifier):
+
+class trait_caseless_ammunition(WeaponTrait):
     name = 'Caseless Ammunition'
     effect = '+1 Mag Size, +1 on Reload Checks'
 
-    # TODO: How to integrate Reload Checks?
-    def apply(self, gun):
-        gun.mod_stats['mag_size'] += 1
-        gun.mod_stats.setdefault('mods', {}).setdefault('reload_check', 0)
-        gun.mod_stats['mods']['reload_check'] += 1
+    def reload_modifiers(self):
+        return [mod_mag_size(1), mod_reload_check(1)]
+
 
 # Anshin - Secondary
 healing = {
@@ -36,125 +36,104 @@ healing = {
     Rarity.PEARLESCENT: 12
 }
 
-class trait_medic(Modifier):
+class trait_medic(WeaponTrait):
     name = 'Medic'
     effect = 'When you Target an Ally, they regain Health.'
-    situational = True
 
-    def to_text(self, gun):
-        amount = healing[gun.rarity]
-
-        return f"When you Target an Ally, they regain Health ({amount}/Hit, {amount*2}/Crit)."
+    def reload_modifiers(self):
+        amount = healing[self.linked_equipment.rarity]
+        self.replace_modifiers([prop_medic(amount)])
 
 
-class trait_vampire(Modifier):
+class trait_vampire(WeaponTrait):
     name = 'Vampire'
     effect = 'When you Damage an Enemy, you regain Health.'
-    situational = True
 
-    def to_text(self, gun):
-        amount = healing[gun.rarity]
-
-        return f"When you Damage an Enemy, you regain Health ({amount}/Hit, {amount * 2}/Crit)."
+    def reload_modifiers(self):
+        amount = healing[self.linked_equipment.rarity]
+        self.replace_modifiers([prop_vampire(amount)])
 
 # Atlas - Primary
 high_quality = {
-    Rarity.COMMON: {'dmg_mod': 1},
-    Rarity.UNCOMMON: {'dmg_mod': 2, 'reload_check': 1},
-    Rarity.RARE: {'dmg_mod': 3, 'acc_mod': 1, 'reload_check': 1},
-    Rarity.EPIC: {'dmg_mod': 4, 'acc_mod': 1, 'reload_check': 2},
-    Rarity.LEGENDARY: {'dmg_mod': 5, 'acc_mod': 1, 'reload_check': 2},
-    Rarity.PEARLESCENT: {'dmg_mod': 6, 'acc_mod': 2, 'reload_check': 3},
+    Rarity.COMMON: [mod_dmg_mod(1)],
+    Rarity.UNCOMMON: [mod_dmg_mod(2), mod_reload_check(1)],
+    Rarity.RARE: [mod_dmg_mod(3), mod_acc_mod(1), mod_reload_check(1)],
+    Rarity.EPIC: [mod_dmg_mod(4), mod_acc_mod(1), mod_reload_check(2)],
+    Rarity.LEGENDARY: [mod_dmg_mod(5), mod_acc_mod(1), mod_reload_check(2)],
+    Rarity.PEARLESCENT: [mod_dmg_mod(6), mod_acc_mod(2), mod_reload_check(3)],
 }
 
-class trait_high_quality(Modifier):
+class trait_high_quality(WeaponTrait):
     name = 'High Quality'
     effect = 'Improved Parts on Average.'
 
-    def apply(self, gun):
-        for k, v in high_quality[gun.rarity].items():
-            gun.mod_stats.setdefault('mods', {}).setdefault(k, 0)
-            gun.mod_stats['mods'][k] += v
+    def reload_modifiers(self):
+        new_properties = high_quality[self.linked_equipment.rarity]
+        self.replace_modifiers(new_properties)
 
-    def to_text(self, gun):
-        bonus = high_quality[gun.rarity]
 
-        str = f"Improved Parts on Average: +{bonus['dmg_mod']} DMG MOD"
-        if 'acc_mod' in bonus:
-            str += f", +{bonus['acc_mod']} ACC MOD"
-        if 'reload_check' in bonus:
-            str += f", +{bonus['reload_check']} Reload Check"
-        str += '.'
-
-        return str
-
-class trait_heavy_mags(Modifier):
+class trait_heavy_mags(WeaponTrait):
     name = 'Heavy Mags'
     effect = '+1 Mag Size, -1 Movement.'
 
-    def apply(self, gun):
-        gun.mod_stats['mag_size'] += 1
-        gun.mod_stats.setdefault('mods', {}).setdefault('movement', 0)
-        gun.mod_stats['mods']['movement'] -= 1
+    def reload_modifiers(self):
+        new_properties = [mod_mag_size(1), prop_movement_mod(-1)]
+        self.replace_modifiers(new_properties)
 
-class trait_lock_on(Modifier):
+
+class trait_lock_on(WeaponTrait):
     name = 'Lock On'
     effect = 'In place of a Ranged Attack, fire a Homing Dart at a target. For the next 2 Turns, Attacks with this weapon against that target will treat an Accuracy Roll of 7 or lower (after Mods) as a Solid Attack.'
-    situational = True
 
-class trait_non_elemental(Modifier):
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([new_modifier])
+
+
+class trait_non_elemental(WeaponTrait):
     name = 'Non Elemental'
-    effect = f"This Gun can't be Elemental."
+    effect = f"This Equipment can't be Elemental."
 
-    def apply(self, gun):
-        gun.forced_non_elemental = True
+    def reload_modifiers(self):
+        self.replace_modifiers([prop_non_elemental()])
+
 
 # Bandit - Primary
-class trait_big_mags(Modifier):
+class trait_big_mags(WeaponTrait):
     name = 'Big Mags'
     effect = '+3 Mag Size, +2 Fumble Range.'
 
-    def apply(self, gun):
-        gun.mod_stats['mag_size'] += 3
-        gun.mod_stats.setdefault('mods', {}).setdefault('fumble_range', 0)
-        gun.mod_stats['mods']['fumble_range'] += 2
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_mag_size(3),
+            mod_fumble_range(2)
+        ])
 
-class trait_pointy(Modifier):
+class trait_pointy(WeaponTrait):
     name = 'Pointy'
     effect = "Always has the Bayonet Accessory. This part doesn't count towards the maximum number of Gun Parts."
 
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.hidden = True
+        self.replace_modifiers([
+            new_modifier
+        ])
 
-overheat = {
-    Rarity.COMMON: '1d4',
-    Rarity.UNCOMMON: '1d6',
-    Rarity.RARE: '1d8',
-    Rarity.EPIC: '1d10',
-    Rarity.LEGENDARY: '1d12',
-    Rarity.PEARLESCENT: '2d8'
-}
-class trait_overheat(Modifier):
+
+class trait_overheat(WeaponTrait):
     name = 'Overheat'
     effect = "When Reloading: You and Adjacent Targets take Elemental Damage (Same Element as the Gun, Incendiary if Non Elemental)."
-    situational = True
 
-    def to_text(self, gun):
-        dice_multi = 1
-        if gun.tier >= 4:
-            dice_multi = 2
-        if gun.tier >= 7:
-            dice_multi = 3
-        if gun.tier >= 10:
-            dice_multi = 4
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_overheat(self.linked_equipment.tier, self.linked_equipment.rarity)
+        ])
 
-        dmg_die = Dice.from_string(overheat[gun.rarity])
-        dmg_die.count *= dice_multi
-
-        str = f"When Reloading: You and Adjacent Targets take {dmg_die} Elemental Damage (Same Element as the Gun, Incendiary if Non Elemental)."
-
-        return str
 
 # Dahl - Primary
-class trait_steady_aim(Modifier):
+class trait_steady_aim(WeaponTrait):
     name = 'Steady Aim'
     effect = "While ADS: Burst +1."
     situational = True
@@ -168,7 +147,7 @@ tacticool = {
     Rarity.PEARLESCENT: {'fire_modes': 2, 'scopes': 2, 'accessories': 3},
 }
 
-class trait_Tacticool(Modifier):
+class trait_Tacticool(WeaponTrait):
     name = 'Tacti-cool'
     effect = "Gains extra Gun Parts."
 
@@ -182,21 +161,21 @@ class trait_Tacticool(Modifier):
 
         return str
 
-class trait_reconfigure(Modifier):
+class trait_reconfigure(WeaponTrait):
     name = 'Reconfigure'
     effect = "Swap between Fire Modes and/or Scopes. SPD 10 Check."
     situational = True
 
 # Dahl - Fire Modes
-class trait_fm_single_fire(Modifier):
+class trait_fm_single_fire(WeaponTrait):
     name = '(Fire Mode) Single Fire'
     effect = "+1 Range, +1 ACC MOD."
 
-class trait_fm_burst_fire(Modifier):
+class trait_fm_burst_fire(WeaponTrait):
     name = '(Fire Mode) Burst Fire'
     effect = "+1 Burst, -3 ACC MOD, Consumes 2 Ammo."
 
-class trait_fm_full_auto(Modifier):
+class trait_fm_full_auto(WeaponTrait):
     name = '(Fire Mode) Full Auto'
     effect = "+2 Burst, -8 ACC MOD, Consumes 3 Ammo."
 
@@ -209,7 +188,7 @@ recoil_control = {
     Rarity.LEGENDARY: {'acc_mod': 5, 'dmg_mod': -2},
     Rarity.PEARLESCENT: {'acc_mod': 6, 'dmg_mod': -2},
 }
-class trait_recoil_control(Modifier):
+class trait_recoil_control(WeaponTrait):
     name = 'Recoil Control'
     effect = 'Increased Accuracy.'
 
@@ -225,6 +204,7 @@ class trait_recoil_control(Modifier):
         bonus = recoil_control[gun.rarity]
 
         str = f"+{bonus['acc_mod']} ACC MOD, -2 DMG MOD."
+        return str
 
 # TODO: Move to Tables (circular import issue)
 shield_stats_balanced = {
@@ -239,7 +219,7 @@ shield_stats_balanced = {
     9: {'capacity': 150, 'charge_rate': 50},
     10: {'capacity': 165, 'charge_rate': 55},
 }
-class trait_gun_shield(Modifier):
+class trait_gun_shield(WeaponTrait):
     name = 'Gun Shield'
     effect = 'While ADS: Gun provides an Extra Energy Shield. Capacity is half of a Balanced Shield. Recharges After every Encounter.'
     situational = True
@@ -252,15 +232,15 @@ class trait_gun_shield(Modifier):
         return str
 
 # Hyperion - Gun Shield Parts
-class trait_shield_amp(Modifier):
+class trait_shield_amp(WeaponTrait):
     name = '(Amped) Gun Shield'
     effect = 'While Gun Shield is Full: Next Ranged Attack +1 Hit. Gun Shield takes 10 DMG.'
 
-class trait_shield_genesis(Modifier):
+class trait_shield_genesis(WeaponTrait):
     name = '(Genesis) Gun Shield'
     effect = 'When taking Ranged DMG: Roll a d100. On 90+, DMG=0 and gain 1 Ammo.'
 
-class trait_shield_redirect(Modifier):
+class trait_shield_redirect(WeaponTrait):
     name = '(Redirect) Gun Shield'
     effect = 'When taking Ranged DMG: Roll a d100. On 90+, DMG instead is Reflected back to the Attacker.'
 
@@ -274,7 +254,7 @@ head_hunter = {
     Rarity.PEARLESCENT: {'acc_mod': 2, 'crit_dmg': 12},
 }
 
-class trait_head_hunter(Modifier):
+class trait_head_hunter(WeaponTrait):
     name = 'Head Hunter'
     effect = "Increased Crit DMG and ACC MOD."
 
@@ -293,7 +273,7 @@ class trait_head_hunter(Modifier):
 
 # For Non-Elemental trait See trait_non_elemental
 
-class trait_cumbersome(Modifier):
+class trait_cumbersome(WeaponTrait):
     name = 'Cumbersome'
     effect = '-1 Mag Size'
 
@@ -302,24 +282,24 @@ class trait_cumbersome(Modifier):
             gun.mod_stats['mag_size'] -= 1
 
 # Jakobs - Secondary
-class trait_fan_the_hammer(Modifier):
+class trait_fan_the_hammer(WeaponTrait):
     name = 'Fan the Hammer'
     effect = "You can use your SPD MOD instead of ACC MOD for Accuracy rolls. If you do, gain an extra Attack that has -3 Accuracy."
     situational = True
 
-class trait_ricochet(Modifier):
+class trait_ricochet(WeaponTrait):
     name = 'Ricochet'
     effect = "Crits also deal DMG to one Adjacent Enemy."
     situational = True
 
-class trait_percise(Modifier):
+class trait_percise(WeaponTrait):
     name = 'Percise'
     effect = "On Penetrating and Lethal Attacks: +1 Crit."
     situational = True
 
 # Maliwan - Primary
 
-class trait_elemental(Modifier):
+class trait_elemental(WeaponTrait):
     name = 'Elemental'
     effect = 'Always Elemental (Non-Explosive).'
 
@@ -327,7 +307,7 @@ class trait_elemental(Modifier):
         #TODO: Make sure Explosive Element is left out
         gun.forced_elemental = True
 
-class trait_proliferation(Modifier):
+class trait_proliferation(WeaponTrait):
     name = 'Proliferation'
     effect = 'Improved Elemental Scaling. Increase Gun generation Elemental rolls and when applying Elemental Status Effects.'
     situational = True
@@ -357,7 +337,7 @@ class trait_proliferation(Modifier):
         else:
             self.situational = False
 
-class trait_mode_switch(Modifier):
+class trait_mode_switch(WeaponTrait):
     name = 'Mode Switch'
     effect = 'Rare and higher Rarity can swap between 2 elements. SPD 10 Check.'
     situational = True
@@ -372,7 +352,7 @@ class trait_mode_switch(Modifier):
         return f"Can swap between 2 Elements. SPD 10 Check."
 
 # Torgue - Primary
-class trait_boom(Modifier):
+class trait_boom(WeaponTrait):
     name = 'Boom!'
     effect = 'Always Explosive, only Explosive, at the cost of Accuracy.'
 
@@ -412,13 +392,13 @@ class trait_boom(Modifier):
             str += f" -{bonus['acc_mod']} ACC MOD."
 
 
-class trait_splasher(Modifier):
+class trait_splasher(WeaponTrait):
     name = 'Splasher!'
     effect = 'Deals Full Splash Damage.'
     situational = True
 
 
-class trait_explosions(Modifier):
+class trait_explosions(WeaponTrait):
     name = 'Explosions!?'
     effect = 'Splash Range +1.'
 
@@ -427,7 +407,7 @@ class trait_explosions(Modifier):
         gun.mod_stats['mods']['splash_range'] += 1
 
 
-class trait_concussive(Modifier):
+class trait_concussive(WeaponTrait):
     name = 'Concussive!'
     effect = '+25% Knock Back.'
 
@@ -449,7 +429,7 @@ battery = {
     Rarity.PEARLESCENT: 12
 }
 
-class trait_charge(Modifier):
+class trait_charge(WeaponTrait):
     name = 'Charge'
     effect = 'When you Target an Ally, they regain Shields.'
     situational = True
@@ -459,7 +439,7 @@ class trait_charge(Modifier):
 
         return f"When you Target an Ally, they regain Shields ({amount}/Hit, {amount * 2}/Crit)."
 
-class trait_drain(Modifier):
+class trait_drain(WeaponTrait):
     name = 'Drain'
     effect = 'When you Damage an Enemy, you regain Shields.'
     situational = True
@@ -470,7 +450,7 @@ class trait_drain(Modifier):
         return f"When you Damage an Enemy, you regain Shields ({amount}/Hit, {amount * 2}/Crit)."
 
 # Tediore - Primary
-class trait_fire_and_forget(Modifier):
+class trait_fire_and_forget(WeaponTrait):
     name = 'Fire & Forget'
     effect = 'When you Reload this Gun, you Throw it away instead and deal Damage.'
     situational = True
@@ -492,7 +472,7 @@ class trait_fire_and_forget(Modifier):
         return str
 
 
-class trait_compact(Modifier):
+class trait_compact(WeaponTrait):
     name = 'Compact'
     effect = '-2 Mag Size (minimum of 1), +4 on Reload and Swap Checks.'
 
@@ -509,20 +489,20 @@ class trait_compact(Modifier):
 
 
 # Tediore - Secondary
-class trait_turret(Modifier):
+class trait_turret(WeaponTrait):
     name = 'Turret'
     effect = 'When Thrown: the Gun turns into a Turret for 2 turns. Once per turn the Turret shoots the closest Enemy.'
     situational = True
 
 
-class trait_bomb(Modifier):
+class trait_bomb(WeaponTrait):
     name = 'Bomb'
     effect = 'When Thrown: the Gun turns into a Grenade dealing Splash Damage in the same Element as the Gun (Explosive if Non Elemental).'
     situational = True
 
 
 # Vladof - Primary
-class trait_wall_of_lead(Modifier):
+class trait_wall_of_lead(WeaponTrait):
     name = 'Wall of Lead'
     effect = 'Extra Attacks at the cost of Accuracy.'
 
@@ -543,7 +523,7 @@ class trait_wall_of_lead(Modifier):
             gun.mod_stats['mods'][k] += v
 
 
-class trait_extended_mags(Modifier):
+class trait_extended_mags(WeaponTrait):
     name = 'Extended Mags'
     effect = '+2 Mag Size.'
 
@@ -551,14 +531,14 @@ class trait_extended_mags(Modifier):
         gun.mod_stats['mag_size'] += 2
 
 
-class trait_endless_fire(Modifier):
+class trait_endless_fire(WeaponTrait):
     name = 'Endless Fire'
     effect = "On an Accuracy Roll of 5, 10, 15 or 20 (before Mods): this Attack doesn't consume Ammo."
     situational = True
 
 
 # Vladof - Secondary
-class trait_grenade_launcher(Modifier):
+class trait_grenade_launcher(WeaponTrait):
     name = 'Grenade Launcher'
     effect = '(1/Encounter) Shoot a 1d8/Tier Explosive Grenade at a point within 5 squares.'
     situational = True
@@ -570,7 +550,7 @@ class trait_grenade_launcher(Modifier):
         return f"(1/Encounter): Shoot a {dmg_dice} Explosive Grenade at a point within 5 squares."
 
 
-class trait_taser(Modifier):
+class trait_taser(WeaponTrait):
     name = 'Taser'
     effect = '(1/Encounter) When used: Each Enemy within a 3 square Cone takes 1d4/Tier Shock Damage and is Dazed.'
     situational = True
@@ -582,18 +562,18 @@ class trait_taser(Modifier):
         return f"(1/Encounter) When used: Each Enemy within a 3 square Cone takes {dmg_dice} Shock Damage and is Dazed."
 
 
-class trait_bipod(Modifier):
+class trait_bipod(WeaponTrait):
     name = 'Bipod'
     effect = 'While Active: +2 ACC MOD on Ranged Attacks, -1 Movement. You can (de)activate the Bipod once on your turn.'
     situational = True
 
 
 # Eridian - Primary
-class trait_reverse_engineer(Modifier):
+class trait_reverse_engineer(WeaponTrait):
     name = 'Reverse Engineer'
     effect = 'This Alien Gun is made using a Gun from another Manufacturer as a base.'
 
-class trait_alien_ammo(Modifier):
+class trait_alien_ammo(WeaponTrait):
     name = 'Alien Ammo'
     effect = 'Consumes 2 Ammo per Attack, +2 Mag Size.'
 
@@ -604,7 +584,7 @@ class trait_alien_ammo(Modifier):
         gun.mod_stats['mods']['ammo_per_attack'] += 1
 
 # Eridian - Gun Type Traits
-class trait_dart(Modifier):
+class trait_dart(WeaponTrait):
     name = 'Dart'
     effect = '+2 Range, Ignores Cover.'
     situational = True
@@ -616,7 +596,7 @@ class trait_dart(Modifier):
         return 'Ignores Cover'
 
 
-class trait_plasma_caster(Modifier):
+class trait_plasma_caster(WeaponTrait):
     name = 'Plasma Caster'
     effect = '+1 Range, +2 Burst.'
 
@@ -627,7 +607,7 @@ class trait_plasma_caster(Modifier):
             gun.mod_stats['hits_crits'][atk]['hits'] += 2
 
 
-class trait_splat(Modifier):
+class trait_splat(WeaponTrait):
     name = 'Splat'
     effect = '-1 Range, Splash, +1 Burst.'
 
@@ -641,7 +621,7 @@ class trait_splat(Modifier):
         gun.mod_stats['mods']['splash'] = 1
 
 
-class trait_blaster(Modifier):
+class trait_blaster(WeaponTrait):
     name = 'Blaster'
     effect = '+1 Range, +2 Burst, +3 Mag Size.'
 
@@ -654,7 +634,7 @@ class trait_blaster(Modifier):
         gun.mod_stats['mag_size'] += 3
 
 
-class trait_railer(Modifier):
+class trait_railer(WeaponTrait):
     name = 'Railer'
     effect = '+2 Range, +1 Burst, Pierces 1 Enemy or Object.'
     situational = True
@@ -669,7 +649,7 @@ class trait_railer(Modifier):
         return f"Pierces 1 Enemy or Object."
 
 
-class trait_plasma_cannon(Modifier):
+class trait_plasma_cannon(WeaponTrait):
     name = 'Plasma Cannon'
     effect = '+1 Range, +1 Burst, +1 Splash Radius.'
 

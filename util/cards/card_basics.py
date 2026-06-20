@@ -134,7 +134,7 @@ def card_add_quick_ref(card_img, item_parts, item_obj, alt_name_field=None, alt_
 
     # Quick Reference n Rows and Font Size
     font_file = card_fonts['default']
-    fnt_size = get_max_font_size(card_img, [x.to_text(item_obj) for x in item_parts], effect_field_ref, font_file)
+    fnt_size = get_max_font_size(card_img, [x.effect for x in item_parts], effect_field_ref, font_file)
     font = ImageFont.truetype(f"fonts/{font_file}", fnt_size)
 
     name_col = []
@@ -142,7 +142,7 @@ def card_add_quick_ref(card_img, item_parts, item_obj, alt_name_field=None, alt_
     for part in item_parts:
         name_col.append(f"{part.name}:")
 
-        ef_text = wrap_text(card_img, part.to_text(item_obj), font, effect_field_ref)
+        ef_text = wrap_text(card_img, part.effect, font, effect_field_ref)
         for line in ef_text:
             effect_col.append(line)
 

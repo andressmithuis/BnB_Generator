@@ -7,10 +7,11 @@ from AdvancedBnB.abnb_util import get_item_tier
 from AdvancedBnB.gun.abnb_gun_card import generate_gun_card
 from AdvancedBnB import Fusion, Explosive
 from AdvancedBnB.abnb_manufacturers import Manufacturers, manufacturer_table
-from util import Dice, lookup_in_table
+from util import Equipment, Dice, lookup_in_table
 
-
-from AdvancedBnB.gun.abnb_weapon_parts import weapon_parts_table, weapon_accessories_table, weapon_sight_table
+from AdvancedBnB.gun.abnb_weapon_traits import WeaponTrait
+from AdvancedBnB.gun.abnb_weapon_parts import weapon_parts_table, weapon_accessories_table, weapon_sight_table, \
+    WeaponPart
 from AdvancedBnB.gun.abnb_guntypes import Guntypes
 
 def mod_to_string(val_1, val_2):
@@ -20,17 +21,18 @@ def mod_to_string(val_1, val_2):
 
     return ''
 
-class Gun:
+class Gun(Equipment):
     def __init__(self):
+        super().__init__()
+
         self.name = ''
         self.name_prefix = ''
         self.level = 1
         self.tier = 1
-        self.rarity = Rarity.COMMON
 
         self.manufacturer = None
         self.eridian = False
-        self.gun_type = Guntypes.PISTOL
+        self._gun_type = Guntypes.PISTOL
 
         self.base_stats = {
             'hit_dice': Dice.from_string('1d4'),
@@ -68,6 +70,7 @@ class Gun:
 
         self.user_rolls = False
 
+
     def generate(self, user_rolls=False, props = None):
         self.user_rolls = user_rolls
 
@@ -78,35 +81,26 @@ class Gun:
         d12 = Dice(1, 12)
 
         # Determine level and tier
-        if props is not None and 'item_level' in props:
-            self.level = props['item_level']
         self.tier = get_item_tier(self.level)
 
         # Manufacturer and gun type
         print(f"Determining Gun Manufacturer...")
-        if props is not None and 'manufacturer' in props:
-            self.manufacturer = props['manufacturer']
-            if self.manufacturer == Manufacturers.ERIDIAN:
-                print("MANUFACTURER == ERIDIAN")
-                self.eridian = True
-                self.manufacturer = None
-
         while self.manufacturer is None:
             roll = d12.roll(self.user_rolls)
-            self.manufacturer = manufacturer_table[roll]
-            print(f"Rolled a {roll}! Gun Manufacturer = {self.manufacturer}")
-            if self.manufacturer == Manufacturers.ERIDIAN:
+            roll = 3
+            new_manufacturer = manufacturer_table[roll]
+            print(f"Rolled a {roll}! Gun Manufacturer = {new_manufacturer}")
+            if new_manufacturer == Manufacturers.ERIDIAN:
                 print(f"Rolled Eridian Manufacturer. Roll again for Manufacturer of Gun Base.")
                 self.eridian = True
-                self.manufacturer = None
+            else:
+                self.set_manufacturer(new_manufacturer)
 
         print(f"Determining Gun Type...")
-        if props is not None and 'item_type' in props:
-            self.gun_type = props['item_type']
-        else:
-            roll = d12.roll(self.user_rolls)
-            self.gun_type = self.manufacturer.make_random_gun(roll)
-            print(f"Rolled a {roll}! Gun Type = {self.gun_type}")
+        roll = d12.roll(self.user_rolls)
+        roll = 5
+        self.gun_type = self.manufacturer.make_random_gun(roll)
+        print(f"Rolled a {roll}! Gun Type = {self.gun_type}")
 
         # Weapon base stats
         self.base_stats = self.gun_type.get_basestats(self.tier)
@@ -118,25 +112,10 @@ class Gun:
         d6_roll = d6.roll(self.user_rolls)
         self.rarity, roll_for_element = rarity_tables['normal'][d4_roll][d6_roll]
 
-        if props is not None and 'rarity' in props:
-            self.rarity = props['rarity']
-
         if roll_for_element:
             self.elemental_roll['n_rolls'] = 1
 
         print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Gun Rarity = {self.rarity}.{' Might also be Elemental.' if roll_for_element else ''}")
-
-        # Add Manufacturer Primary Traits
-        print(f"Determining Manufacturer Primary Gun Traits...")
-        for trait in self.manufacturer.weapon_traits['primary']:
-            self.traits.append(trait)
-
-        # Add Manufacturer Secondary Trait (chosen randomly)
-        print(f"Determining Manufacturer Secondary Gun Traits...")
-        if self.manufacturer != Manufacturers.DAHL:
-            trait = self.manufacturer.pick_secondary_weapon_trait(self.user_rolls)
-            if trait:
-                self.traits.append(trait)
 
         # Roll for weapon parts
         print(f"Determining Gun Parts...")
@@ -172,12 +151,9 @@ class Gun:
                 print(f"Rolled a {roll}! You may roll for a Gun Accessory!")
                 part = self.pick_weapon_accessory()
 
-            if type(part) != str and part not in self.parts:
-                self.parts.append(part)
+            if type(part) != str and part not in self.equipment_properties:
+                self.add_property(part)
                 self.n_parts += 1
-
-        # Apply Traits and Gun Part Effects
-        self.apply_effects()
 
         # Roll for element (if applicable)
         if self.forced_elemental and self.elemental_roll['n_rolls'] == 0:
@@ -234,6 +210,27 @@ class Gun:
         self.randomize_name()
         if props is not None and 'item_name' in props:
             self.name = props['item_name']
+
+
+    def set_manufacturer(self, new_manufacturer):
+        # Remove old manufacturer traits
+        if self.manufacturer is not None:
+            for old_trait in self.manufacturer.weapon_traits['primary'] + self.manufacturer.weapon_traits['secondary']:
+                self.remove_property(old_trait)
+
+        # Set new manufacturer
+        self.manufacturer = new_manufacturer
+
+        # Load new manufacturer traits
+        # Primary weapon traits
+        for trait in self.manufacturer.weapon_traits['primary']:
+            self.add_property(trait)
+
+        # Secondary weapon trait
+        trait = self.manufacturer.pick_secondary_weapon_trait(self.user_rolls)
+        if trait:
+            self.add_property(trait)
+
 
     def apply_effects(self):
         # Apply Traits
@@ -304,6 +301,21 @@ class Gun:
 
         return part
 
+    @property
+    def gun_type(self):
+        return self._gun_type
+
+    @gun_type.setter
+    def gun_type(self, new_type):
+        for old_trait in self._gun_type.weapon_bonus:
+            self.remove_property(old_trait)
+
+        for new_trait in new_type.weapon_bonus:
+            self.add_property(new_trait)
+
+        self._gun_type = new_type
+
+
     def generate_card(self):
         generate_gun_card(self)
 
@@ -341,33 +353,27 @@ class Gun:
         # Weapon Bonus
         str += f"Weapon Bonus:\n"
         for bonus in self.gun_type.weapon_bonus:
-            str += f" - {bonus}\n"
+            str += f" - {bonus.effect}\n"
         str += f"\n"
 
         # Print Weapon Traits
         str += f"Traits:\n"
-        for trait in self.traits:
-           str += f" - {trait.name} - {trait.to_text(self)}\n"
+        for trait in self.equipment_properties:
+            if isinstance(trait, WeaponTrait):
+                str += f" - {trait.name} - {trait.effect}\n"
         str += f"\n"
 
         # Print Weapon Parts
         str += f"Parts:\n"
-        for part in self.parts:
-            str += f" - {part.name}: {part}\n"
+        for part in self.equipment_properties:
+            if isinstance(part, WeaponPart):
+                str += f" - {part.name}: {part.effect}\n"
         str += f"\n"
 
         # Mods & Checks
         str += f"Mods & Checks:\n"
-        if 'mods' in self.mod_stats:
-            for k, v in self.mod_stats['mods'].items():
-                w_parts = k.split('_')
-                for i in range(len(w_parts)):
-                    w = w_parts[i]
-                    w = f"{w[0].upper()}{w[1:]}"
-                    if w in ['Dmg', 'Ads', 'Acc', 'Mod']:
-                        w = w.upper()
-                    w_parts[i] = w
-                k = ' '.join(w_parts)
-                str += f" - {k} {'+' if v > 0 else ''}{v} \n"
+        for prop in self.equipment_modifiers:
+            if prop.situational is False and prop.hidden is False:
+                str += f" - {prop.effect}\n"
 
         return str
