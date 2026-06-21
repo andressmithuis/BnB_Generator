@@ -1,11 +1,12 @@
 import math
 
-from util import EquipmentProperty, mod_template
+from util import EquipmentProperty
+from util.modifier import *
 
-from AdvancedBnB.abnb_element import Explosive
 from AdvancedBnB.gun.abnb_weapon_modifiers import *
+from AdvancedBnB.shield import Shieldtypes
 
-
+# Wrapper class
 class WeaponTrait(EquipmentProperty):
     pass
 
@@ -30,22 +31,12 @@ class trait_caseless_ammunition(WeaponTrait):
 
 
 # Anshin - Secondary
-healing = {
-    Rarity.COMMON: 2,
-    Rarity.UNCOMMON: 4,
-    Rarity.RARE: 6,
-    Rarity.EPIC: 8,
-    Rarity.LEGENDARY: 10,
-    Rarity.PEARLESCENT: 12
-}
-
 class trait_medic(WeaponTrait):
     name = 'Medic'
     effect = 'When you Target an Ally, they regain Health.'
 
     def reload_modifiers(self):
-        amount = healing[self.linked_equipment.rarity]
-        self.replace_modifiers([prop_medic(amount)])
+        self.replace_modifiers([mod_medic(self.linked_equipment.rarity)])
 
 
 class trait_vampire(WeaponTrait):
@@ -53,25 +44,24 @@ class trait_vampire(WeaponTrait):
     effect = 'When you Damage an Enemy, you regain Health.'
 
     def reload_modifiers(self):
-        amount = healing[self.linked_equipment.rarity]
-        self.replace_modifiers([prop_vampire(amount)])
+        self.replace_modifiers([mod_vampire(self.linked_equipment.rarity)])
 
 # Atlas - Primary
-high_quality = {
-    Rarity.COMMON: [mod_dmg_mod(1)],
-    Rarity.UNCOMMON: [mod_dmg_mod(2), mod_reload_check(1)],
-    Rarity.RARE: [mod_dmg_mod(3), mod_acc_mod(1), mod_reload_check(1)],
-    Rarity.EPIC: [mod_dmg_mod(4), mod_acc_mod(1), mod_reload_check(2)],
-    Rarity.LEGENDARY: [mod_dmg_mod(5), mod_acc_mod(1), mod_reload_check(2)],
-    Rarity.PEARLESCENT: [mod_dmg_mod(6), mod_acc_mod(2), mod_reload_check(3)],
-}
-
 class trait_high_quality(WeaponTrait):
     name = 'High Quality'
     effect = 'Improved Parts on Average.'
 
+    high_quality = {
+        Rarity.COMMON: [mod_dmg_mod(1)],
+        Rarity.UNCOMMON: [mod_dmg_mod(2), mod_reload_check(1)],
+        Rarity.RARE: [mod_dmg_mod(3), mod_acc_mod(1), mod_reload_check(1)],
+        Rarity.EPIC: [mod_dmg_mod(4), mod_acc_mod(1), mod_reload_check(2)],
+        Rarity.LEGENDARY: [mod_dmg_mod(5), mod_acc_mod(1), mod_reload_check(2)],
+        Rarity.PEARLESCENT: [mod_dmg_mod(6), mod_acc_mod(2), mod_reload_check(3)],
+    }
+
     def reload_modifiers(self):
-        new_properties = high_quality[self.linked_equipment.rarity]
+        new_properties = self.high_quality[self.linked_equipment.rarity]
         self.replace_modifiers(new_properties)
 
 
@@ -80,7 +70,7 @@ class trait_heavy_mags(WeaponTrait):
     effect = '+1 Mag Size, -1 Movement.'
 
     def reload_modifiers(self):
-        new_properties = [mod_mag_size(1), prop_movement_mod(-1)]
+        new_properties = [mod_mag_size(1), mod_movement_mod(-1)]
         self.replace_modifiers(new_properties)
 
 
@@ -99,7 +89,7 @@ class trait_non_elemental(WeaponTrait):
     effect = f"This Equipment can't be Elemental."
 
     def reload_modifiers(self):
-        self.replace_modifiers([prop_non_elemental()])
+        self.replace_modifiers([mod_non_elemental()])
 
 
 # Bandit - Primary
@@ -112,6 +102,7 @@ class trait_big_mags(WeaponTrait):
             mod_mag_size(3),
             mod_fumble_range(2)
         ])
+
 
 class trait_pointy(WeaponTrait):
     name = 'Pointy'
@@ -157,6 +148,7 @@ class trait_tacticool(WeaponTrait):
             mod_tacticool()
         ])
 
+
 class trait_reconfigure(WeaponTrait):
     name = 'Reconfigure'
     effect = "Swap between Fire Modes and/or Scopes. SPD 10 Check."
@@ -167,6 +159,7 @@ class trait_reconfigure(WeaponTrait):
         self.replace_modifiers([
             new_modifier
         ])
+
 
 # Dahl - Fire Modes
 class trait_fm_single_fire(WeaponTrait):
@@ -180,6 +173,7 @@ class trait_fm_single_fire(WeaponTrait):
             new_modifier
         ])
 
+
 class trait_fm_burst_fire(WeaponTrait):
     name = '(Fire Mode) Burst Fire'
     effect = "+1 Burst, -3 ACC MOD, Consumes 2 Ammo."
@@ -190,6 +184,7 @@ class trait_fm_burst_fire(WeaponTrait):
         self.replace_modifiers([
             new_modifier
         ])
+
 
 class trait_fm_full_auto(WeaponTrait):
     name = '(Fire Mode) Full Auto'
@@ -202,97 +197,89 @@ class trait_fm_full_auto(WeaponTrait):
             new_modifier
         ])
 
+
 # Hyperion - Primary
-recoil_control = {
-    Rarity.COMMON: {'acc_mod': 1, 'dmg_mod': -2},
-    Rarity.UNCOMMON: {'acc_mod': 2, 'dmg_mod': -2},
-    Rarity.RARE: {'acc_mod': 3, 'dmg_mod': -2},
-    Rarity.EPIC: {'acc_mod': 4, 'dmg_mod': -2},
-    Rarity.LEGENDARY: {'acc_mod': 5, 'dmg_mod': -2},
-    Rarity.PEARLESCENT: {'acc_mod': 6, 'dmg_mod': -2},
-}
 class trait_recoil_control(WeaponTrait):
     name = 'Recoil Control'
-    effect = 'Increased Accuracy.'
+    effect = 'Increased Accuracy at the cost of Damage.'
 
-    def apply(self, gun):
-        bonus = recoil_control[gun.rarity]
+    recoil_control = {
+        Rarity.COMMON: [mod_acc_mod(1), mod_dmg_mod(-2)],
+        Rarity.UNCOMMON: [mod_acc_mod(2), mod_dmg_mod(-2)],
+        Rarity.RARE: [mod_acc_mod(3), mod_dmg_mod(-2)],
+        Rarity.EPIC: [mod_acc_mod(4), mod_dmg_mod(-2)],
+        Rarity.LEGENDARY: [mod_acc_mod(5), mod_dmg_mod(-2)],
+        Rarity.PEARLESCENT: [mod_acc_mod(6), mod_dmg_mod(-2)],
+    }
 
-        for k, v in bonus.items():
-            gun.mod_stats.setdefault('mods', {}).setdefault(k, 0)
-            gun.mod_stats['mods'][k] += v
+    def reload_modifiers(self):
+        new_modifiers = self.recoil_control[self.linked_equipment.rarity]
+        self.replace_modifiers(new_modifiers)
 
 
-    def to_text(self, gun):
-        bonus = recoil_control[gun.rarity]
-
-        str = f"+{bonus['acc_mod']} ACC MOD, -2 DMG MOD."
-        return str
-
-# TODO: Move to Tables (circular import issue)
-shield_stats_balanced = {
-    1: {'capacity': 30, 'charge_rate': 10},
-    2: {'capacity': 45, 'charge_rate': 15},
-    3: {'capacity': 60, 'charge_rate': 20},
-    4: {'capacity': 75, 'charge_rate': 25},
-    5: {'capacity': 90, 'charge_rate': 30},
-    6: {'capacity': 105, 'charge_rate': 35},
-    7: {'capacity': 120, 'charge_rate': 40},
-    8: {'capacity': 135, 'charge_rate': 45},
-    9: {'capacity': 150, 'charge_rate': 50},
-    10: {'capacity': 165, 'charge_rate': 55},
-}
 class trait_gun_shield(WeaponTrait):
     name = 'Gun Shield'
-    effect = 'While ADS: Gun provides an Extra Energy Shield. Capacity is half of a Balanced Shield. Recharges After every Encounter.'
+    effect = 'While ADS: Gun provides an Extra Energy Shield. Capacity is half of a Balanced Shield. Recharges after every Encounter.'
     situational = True
 
-    def to_text(self, gun):
-        shield_cap = shield_stats_balanced[gun.tier]['charge_rate']
-        shield_cap = math.floor(shield_cap / 2)
 
-        str = f"While ADS: Gun gives an Extra Shield (Capacity: {shield_cap}). Recharges after Encounter."
-        return str
+    def reload_modifiers(self):
+        shield_stats = Shieldtypes.BALANCED.get_basestats(self.linked_equipment.tier)
+        shield_cap = math.floor(shield_stats['capacity'] / 2)
+
+        new_modifier = mod_template(self.name, '')
+        new_modifier.effect = f"While ADS: Gun gives an Extra Shield (Capacity: {shield_cap}). Recharges after Encounter."
+        new_modifier.situational = True
+
+        self.replace_modifiers([new_modifier])
+
 
 # Hyperion - Gun Shield Parts
 class trait_shield_amp(WeaponTrait):
     name = '(Amped) Gun Shield'
     effect = 'While Gun Shield is Full: Next Ranged Attack +1 Hit. Gun Shield takes 10 DMG.'
 
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([new_modifier])
+
+
 class trait_shield_genesis(WeaponTrait):
     name = '(Genesis) Gun Shield'
-    effect = 'When taking Ranged DMG: Roll a d100. On 90+, DMG=0 and gain 1 Ammo.'
+    effect = 'When Gun Shield takes Ranged DMG: Roll a d100. On 90+, take no DMG and gain 1 Ammo.'
+
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([new_modifier])
 
 class trait_shield_redirect(WeaponTrait):
     name = '(Redirect) Gun Shield'
-    effect = 'When taking Ranged DMG: Roll a d100. On 90+, DMG instead is Reflected back to the Attacker.'
+    effect = 'When Gun Shield takes Ranged DMG: Roll a d100. On 90+, DMG instead is Reflected back to the Attacker.'
+
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([new_modifier])
 
 # Jakobs - Primary
-head_hunter = {
-    Rarity.COMMON: {'acc_mod': 2, 'crit_dmg': 2},
-    Rarity.UNCOMMON: {'acc_mod': 2, 'crit_dmg': 4},
-    Rarity.RARE: {'acc_mod': 2, 'crit_dmg': 6},
-    Rarity.EPIC: {'acc_mod': 2, 'crit_dmg': 8},
-    Rarity.LEGENDARY: {'acc_mod': 2, 'crit_dmg': 10},
-    Rarity.PEARLESCENT: {'acc_mod': 2, 'crit_dmg': 12},
-}
-
 class trait_head_hunter(WeaponTrait):
     name = 'Head Hunter'
     effect = "Increased Crit DMG and ACC MOD."
 
-    def apply(self, gun):
-        bonus = head_hunter[gun.rarity]
+    head_hunter = {
+        Rarity.COMMON: [mod_acc_mod(2), mod_crit_damage(2)],
+        Rarity.UNCOMMON: [mod_acc_mod(2), mod_crit_damage(4)],
+        Rarity.RARE: [mod_acc_mod(2), mod_crit_damage(6)],
+        Rarity.EPIC: [mod_acc_mod(2), mod_crit_damage(8)],
+        Rarity.LEGENDARY: [mod_acc_mod(2), mod_crit_damage(10)],
+        Rarity.PEARLESCENT: [mod_acc_mod(2), mod_crit_damage(12)],
+    }
 
-        for k, v in bonus.items():
-            gun.mod_stats.setdefault('mods', {}).setdefault(k, 0)
-            gun.mod_stats['mods'][k] += v
-
-    def to_text(self, gun):
-        bonus = head_hunter[gun.rarity]
-
-        str = f"+{bonus['acc_mod']} ACC MOD, +{bonus['crit_dmg']} Crit DMG."
-        return str
+    def reload_modifiers(self):
+        new_modifiers = self.head_hunter[self.linked_equipment.rarity]
+        self.replace_modifiers(new_modifiers)
 
 # For Non-Elemental trait See trait_non_elemental
 
@@ -300,35 +287,49 @@ class trait_cumbersome(WeaponTrait):
     name = 'Cumbersome'
     effect = '-1 Mag Size'
 
-    def apply(self, gun):
-        if gun.mod_stats['mag_size'] > 1:
-            gun.mod_stats['mag_size'] -= 1
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_mag_size(-1)])
+
 
 # Jakobs - Secondary
 class trait_fan_the_hammer(WeaponTrait):
     name = 'Fan the Hammer'
-    effect = "You can use your SPD MOD instead of ACC MOD for Accuracy rolls. If you do, gain an extra Attack that has -3 Accuracy."
-    situational = True
+    effect = "You can use your SPD MOD instead of ACC MOD for Accuracy rolls. If you do, gain an Extra Attack that has -3 Accuracy."
+
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([new_modifier])
+
 
 class trait_ricochet(WeaponTrait):
     name = 'Ricochet'
     effect = "Crits also deal DMG to one Adjacent Enemy."
-    situational = True
+
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([new_modifier])
+
 
 class trait_percise(WeaponTrait):
     name = 'Percise'
     effect = "On Penetrating and Lethal Attacks: +1 Crit."
-    situational = True
+
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([new_modifier])
+
 
 # Maliwan - Primary
-
 class trait_elemental(WeaponTrait):
     name = 'Elemental'
     effect = 'Always Elemental (Non-Explosive).'
 
-    def apply(self, gun):
-        #TODO: Make sure Explosive Element is left out
-        gun.forced_elemental = True
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_is_elemental(), mod_non_explosive()])
+
 
 class trait_proliferation(WeaponTrait):
     name = 'Proliferation'
@@ -336,83 +337,55 @@ class trait_proliferation(WeaponTrait):
     situational = True
 
     proliferation = {
-        Rarity.COMMON: {'n_rolls': 1, 'roll_bonus': 0},
-        Rarity.UNCOMMON: {'n_rolls': 1, 'roll_bonus': 10},
-        Rarity.RARE: {'n_rolls': 2, 'roll_bonus': 10},
-        Rarity.EPIC: {'n_rolls': 2, 'roll_bonus': 20},
-        Rarity.LEGENDARY: {'n_rolls': 2, 'roll_bonus': 30},
-        Rarity.PEARLESCENT: {'n_rolls': 2, 'roll_bonus': 40}
+        Rarity.COMMON: [mod_elements_min(1), mod_elemental_roll_bonus(0)],
+        Rarity.UNCOMMON: [mod_elements_min(1), mod_elemental_roll_bonus(10)],
+        Rarity.RARE: [mod_elements_min(2), mod_elemental_roll_bonus(10)],
+        Rarity.EPIC: [mod_elements_min(2), mod_elemental_roll_bonus(20)],
+        Rarity.LEGENDARY: [mod_elements_min(2), mod_elemental_roll_bonus(30)],
+        Rarity.PEARLESCENT: [mod_elements_min(2), mod_elemental_roll_bonus(40)]
     }
 
-    def apply(self, gun):
-        bonus = self.proliferation[gun.rarity]
+    def reload_modifiers(self):
+        new_modifiers = self.proliferation[self.linked_equipment.rarity]
+        self.replace_modifiers(new_modifiers)
 
-        gun.mod_stats.setdefault('mods', {}).setdefault('status_effect_chance', 0)
-        gun.mod_stats['mods']['status_effect_chance'] += bonus['roll_bonus']
-
-        gun.elemental_roll = bonus
-
-    def to_text(self, gun):
-        bonus = self.proliferation[gun.rarity]
-
-        if bonus['roll_bonus'] != 0:
-            return f"+{bonus['roll_bonus']}% Elemental Status Effect Chance."
-        else:
-            self.situational = False
 
 class trait_mode_switch(WeaponTrait):
     name = 'Mode Switch'
     effect = 'Rare and higher Rarity can swap between 2 elements. SPD 10 Check.'
     situational = True
-    
-    def apply(self, gun):
-        # Remove trait when rarity is below Rare. Doesn't do anything for lower grade Guns
-        if gun.rarity in [Rarity.COMMON, Rarity.UNCOMMON]:
-            idx = gun.traits.index(self)
-            gun.traits.pop(idx)
 
-    def to_text(self, gun):
-        return f"Can swap between 2 Elements. SPD 10 Check."
+    def reload_modifiers(self):
+        new_modifiers = []
+        # Only applicable for equipment of Rare and higher rarity
+        if not self.linked_equipment.rarity in [Rarity.COMMON, Rarity.UNCOMMON]:
+            new_modifier = mod_template(self.name, '')
+            new_modifier.effect = 'Swap between 2 Elements, SPD 10 Check.'
+            new_modifier.situational = True
+
+            new_modifiers = [new_modifier]
+
+        self.replace_modifiers(new_modifiers)
+
 
 # Torgue - Primary
+#TODO: Add modifier to force the equipment have only the Explosive Element.
 class trait_boom(WeaponTrait):
     name = 'Boom!'
     effect = 'Always Explosive, only Explosive, at the cost of Accuracy.'
 
     boom = {
-        Rarity.COMMON: {'knock_back': 5, 'acc_mod': -4},
-        Rarity.UNCOMMON: {'knock_back': 10, 'acc_mod': -3},
-        Rarity.RARE: {'knock_back': 15, 'acc_mod': -2},
-        Rarity.EPIC: {'knock_back': 20, 'acc_mod': -1},
-        Rarity.LEGENDARY: {'knock_back': 25, 'acc_mod': 0},
-        Rarity.PEARLESCENT: {'knock_back': 30, 'acc_mod': 0},
+        Rarity.COMMON: [mod_splash(), mod_knock_back(5), mod_acc_mod(-4)],
+        Rarity.UNCOMMON: [mod_splash(), mod_knock_back(10), mod_acc_mod(-3)],
+        Rarity.RARE: [mod_splash(), mod_knock_back(15), mod_acc_mod(-2)],
+        Rarity.EPIC: [mod_splash(), mod_knock_back(20), mod_acc_mod(-1)],
+        Rarity.LEGENDARY: [mod_splash(), mod_knock_back(25)],
+        Rarity.PEARLESCENT: [mod_splash(), mod_knock_back(30)],
     }
 
-    def apply(self, gun):
-
-
-        # Apply bonus stats
-        bonus = self.boom[gun.rarity]
-
-        gun.mod_stats.setdefault('mods', {}).setdefault('splash', 0)
-        gun.mod_stats['mods']['splash'] = 1
-
-        for k, v in bonus.items():
-            gun.mod_stats.setdefault('mods', {}).setdefault(k, 0)
-            gun.mod_stats['mods'][k] += v
-
-    def finalize(self, gun):
-        # Make sure Gun is Explosive and ONLY Explosive
-        gun.manufacturer.gun_part_exception(gun)
-        if len(gun.elements) == 0:
-            gun.elements.append(Explosive())
-
-    def to_text(self, gun):
-        bonus = self.boom[gun.rarity]
-
-        str = f"Splash. +{bonus['knock_back']}% Knock Back."
-        if bonus['acc_mod'] != 0:
-            str += f" -{bonus['acc_mod']} ACC MOD."
+    def reload_modifiers(self):
+        new_modifiers = self.boom[self.linked_equipment.rarity]
+        self.replace_modifiers(new_modifiers)
 
 
 class trait_splasher(WeaponTrait):
@@ -420,23 +393,26 @@ class trait_splasher(WeaponTrait):
     effect = 'Deals Full Splash Damage.'
     situational = True
 
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([new_modifier])
+
 
 class trait_explosions(WeaponTrait):
     name = 'Explosions!?'
     effect = 'Splash Range +1.'
 
-    def apply(self, gun):
-        gun.mod_stats.setdefault('mods', {}).setdefault('splash_range', 0)
-        gun.mod_stats['mods']['splash_range'] += 1
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_splash_range(1)])
 
 
 class trait_concussive(WeaponTrait):
     name = 'Concussive!'
     effect = '+25% Knock Back.'
 
-    def apply(self, gun):
-        gun.mod_stats.setdefault('mods', {}).setdefault('knock_back', 0)
-        gun.mod_stats['mods']['knock_back'] += 25
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_knock_back(25)])
 
 
 # Pangolin - Primary

@@ -390,7 +390,6 @@ class Torgue(Manufacturer):
                 if isinstance(element, Explosive):
                     fixed_elements.append(element)
 
-                #if type(element) == FusionElement:
                 if isinstance(element, FusionElement):
                     for sub_element in element.fusion_elements:
                         print(sub_element)

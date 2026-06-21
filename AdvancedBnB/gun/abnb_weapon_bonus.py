@@ -7,6 +7,7 @@ from .abnb_weapon_modifiers import mod_splash
 class WeaponBonus(EquipmentProperty):
     pass
 
+
 class BonusPistol(WeaponBonus):
     name = 'Pistol Bonus'
     effect = 'You gain +2 on Swap Checks when swapping to or from a Pistol.'
@@ -20,6 +21,11 @@ class BonusPistol(WeaponBonus):
 class BonusSmg(WeaponBonus):
     name = 'Smg Bonus'
     effect = 'Smg has no Type Bonus.'
+
+    def reload_modifiers(self):
+        new_mod = mod_template(self.name, self.effect)
+        new_mod.hidden = True
+        self.replace_modifiers([new_mod])
 
 
 class BonusRifle(WeaponBonus):
@@ -51,7 +57,6 @@ class BonusSniper_accuracy(WeaponBonus):
 class BonusShotgun(WeaponBonus):
     name = 'Shotgun Bonus'
     effect = f"When Attacking a Target within half the Shotguns' Range (rounded down), gain a DMG Bonus equal to it's Tier."
-    situational = True
 
     def reload_modifiers(self):
         self.replace_modifiers([wp_bonus_shotgun(self.linked_equipment.range, self.linked_equipment.tier)])

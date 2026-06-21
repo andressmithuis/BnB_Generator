@@ -64,7 +64,9 @@ class Gun(Equipment):
 
         self.forced_elemental = False
         self.forced_non_elemental = False
-        self.elemental_roll = {'n_rolls': 0, 'roll_bonus': 0}
+        self.elemental_roll_bonus = 0
+        self.min_elements = 0
+        self.disabled_elements = []
 
         self.user_rolls = False
 
@@ -85,7 +87,7 @@ class Gun(Equipment):
         print(f"Determining Gun Manufacturer...")
         while self.manufacturer is None:
             roll = d12.roll(self.user_rolls)
-            #roll = 2
+            roll = 11
             new_manufacturer = manufacturer_table[roll]
             print(f"Rolled a {roll}! Gun Manufacturer = {new_manufacturer}")
             if new_manufacturer == Manufacturers.ERIDIAN:
@@ -108,9 +110,6 @@ class Gun(Equipment):
         d4_roll = d4.roll(self.user_rolls)
         d6_roll = d6.roll(self.user_rolls)
         self.rarity, roll_for_element = rarity_tables['normal'][d4_roll][d6_roll]
-
-        if roll_for_element:
-            self.elemental_roll['n_rolls'] = 1
 
         print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Gun Rarity = {self.rarity}.{' Might also be Elemental.' if roll_for_element else ''}")
 
@@ -138,25 +137,22 @@ class Gun(Equipment):
                 self.n_parts += 1
 
         # Roll for element (if applicable)
-        if self.forced_elemental and self.elemental_roll['n_rolls'] == 0:
-            self.elemental_roll['n_rolls'] = 1
+        if self.forced_elemental is True:
+            self.min_elements = max(self.min_elements, 1)
 
-        if self.forced_non_elemental and not self.forced_elemental:
-            self.elemental_roll['n_rolls'] = 0
+        if self.forced_non_elemental is True and self.forced_elemental is False:
+            self.min_elements = 0
 
-        while self.elemental_roll['n_rolls'] > 0:
-            dice_roll = min([d100.roll() + self.elemental_roll['roll_bonus'], 100])
+        while roll_for_element is True or len(self.elements) < self.min_elements:
+            dice_roll = min([d100.roll() + self.elemental_roll_bonus, 100])
             el_roll = lookup_in_table(elemental_table, dice_roll)[self.rarity]
 
-            # Maliwan can't be explosive, unless its part of a Fusion
-            if self.manufacturer == Manufacturers.MALIWAN:
-                if type(el_roll) == Explosive:
-                    el_roll = None
+            # Ignore disabled elements
+            if type(el_roll) in [type(el) for el in self.disabled_elements]:
+                el_roll = None
 
             if el_roll is None:
                 print(f"NO ELEMENT ROLLED! {dice_roll}")
-                if not self.forced_elemental:
-                    self.elemental_roll['n_rolls'] -= 1
             elif type(el_roll) == Fusion:
                 d8 = Dice.from_string('2d8')
 
@@ -170,11 +166,11 @@ class Gun(Equipment):
                             if fusion_el is not None:
                                 fusion_el.bonus = el_roll.bonus
                                 self.elements.append(fusion_el)
-                                self.elemental_roll['n_rolls'] -= 1
                                 break
             else:
                 self.elements.append(el_roll)
-                self.elemental_roll['n_rolls'] -= 1
+
+            roll_for_element = False
 
 
         # If Originally Manufactured by Eridian. Apply Eridian Effects afterwards
@@ -291,11 +287,11 @@ class Gun(Equipment):
         str += f"n Gun Parts: {self.max_parts}\n"
         str += f"n Gun Scope: {self.max_scopes}\n"
 
-        str += f"Elements: "
+        str += f"Elements: \n"
         if self.forced_elemental or not self.forced_non_elemental:
             for el in self.elements:
-                str += f"{el} "
-        str += f"\n\n"
+                str += f" - {el}\n"
+        str += f"\n"
 
         mod_str = mod_to_string(self.range, self.base_stats['range'])
         str += f"Range: {self.range}{mod_str}\n"
@@ -335,7 +331,6 @@ class Gun(Equipment):
         # Mods & Checks
         str += f"Mods & Checks:\n"
         for prop in self.equipment_modifiers:
-            if prop.situational is False and prop.hidden is False:
-                str += f" - {prop.effect}\n"
+            str += f" - {prop.effect}\n"
 
         return str

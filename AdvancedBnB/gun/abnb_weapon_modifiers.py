@@ -1,3 +1,4 @@
+from AdvancedBnB.abnb_element import Explosive
 from util import Modifier, Dice, Rarity
 
 class mod_dmg_mod(Modifier):
@@ -99,7 +100,7 @@ class mod_fumble_range(Modifier):
         self.effect = f"Fumble range {'+' if self.value > 0 else ''}{self.value}"
 
 
-class prop_movement_mod(Modifier):
+class mod_movement_mod(Modifier):
     name = 'Movement MOD'
     additive = True
 
@@ -126,13 +127,6 @@ class mod_swap_check(Modifier):
         self.effect = f"Swap Check {'+' if self.value > 0 else ''}{self.value}"
 
 
-class prop_non_elemental(Modifier):
-    name = 'Non Elemental'
-
-    def __init__(self):
-        self.effect = "Non Elemental"
-
-
 class mod_splash(Modifier):
     name = 'Splash'
 
@@ -140,20 +134,49 @@ class mod_splash(Modifier):
         self.effect = "Splash"
 
 
+class mod_splash_range(Modifier):
+    name = 'Splash Range'
+    additive = True
+
+    def __init__(self, mod_value):
+        self.value = mod_value
+        self.effect = f"Splash Range {'+' if self.value > 0 else ''}{self.value}"
+
+
+class mod_knock_back(Modifier):
+    name = 'Knock Back Chance'
+    additive = True
+
+    def __init__(self, mod_value):
+        self.value = mod_value
+        self.effect = f"Knock Back Chance {'+' if self.value > 0 else ''}{self.value}%"
+
+
 # Anshin - Secondary Gun Properties
-class prop_medic(Modifier):
+healing = {
+    Rarity.COMMON: 2,
+    Rarity.UNCOMMON: 4,
+    Rarity.RARE: 6,
+    Rarity.EPIC: 8,
+    Rarity.LEGENDARY: 10,
+    Rarity.PEARLESCENT: 12
+}
+
+class mod_medic(Modifier):
     name = 'Medic'
     situational = True
 
-    def __init__(self, healing):
-        self.effect = f"When you Target an Ally, they regain Health ({healing}/Hit, {healing * 2}/Crit)."
+    def __init__(self, rarity):
+        heal_value = healing['rarity']
+        self.effect = f"When you Target an Ally, they regain Health ({heal_value}/Hit, {heal_value * 2}/Crit)."
 
-class prop_vampire(Modifier):
+class mod_vampire(Modifier):
     name = 'Vampire'
     situational = True
 
-    def __init__(self, healing):
-        self.effect = f"When you Damage an Enemy, you regain Health ({healing}/Hit, {healing * 2}/Crit)."
+    def __init__(self, rarity):
+        heal_value = healing['rarity']
+        self.effect = f"When you Damage an Enemy, you regain Health ({heal_value}/Hit, {heal_value * 2}/Crit)."
 
 
 # --- Bandit ---
