@@ -5,6 +5,12 @@ class Modifier:
     additive = False  # Same property effects can be summed up
     hidden = False  # Used to hide this modifier in the 'Mods & Checks' table on the card.
 
+    def apply_to_equipment(self, equipment):
+        pass
+
+    def revert_from_equipment(self, equipment):
+        pass
+
 
 # --- Common Modifiers ---
 class mod_template(Modifier):

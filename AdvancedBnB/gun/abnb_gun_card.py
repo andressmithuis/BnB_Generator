@@ -215,6 +215,7 @@ def generate_gun_card(gun_obj):
             card_field = gun_card_back_template['fld_mod_effects'][1 + idx]
             card_back = draw_text_to_field(card_back, card_field, f"{modifier.effect}", 'avenir-next-condensed-medium.otf', align='left', font_size=22)
             idx += 1
+            idx = min(idx, 13)
 
     # Gun Type Bonus
     card_field = gun_card_back_template['fld_type_bonus_txt']

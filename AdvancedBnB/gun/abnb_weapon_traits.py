@@ -15,7 +15,7 @@ class trait_do_no_harm(WeaponTrait):
     effect = '-1 Hit on Glancing, Solid & Penetrating Attacks (to a minimum of 1)'
 
     def reload_modifiers(self):
-        return [mod_burst(-1)]
+        self.replace_modifiers([mod_burst(-1)])
 
 
 class trait_caseless_ammunition(WeaponTrait):
@@ -23,7 +23,10 @@ class trait_caseless_ammunition(WeaponTrait):
     effect = '+1 Mag Size, +1 on Reload Checks'
 
     def reload_modifiers(self):
-        return [mod_mag_size(1), mod_reload_check(1)]
+        self.replace_modifiers([
+            mod_mag_size(-1),
+            mod_reload_check(1)
+        ])
 
 
 # Anshin - Secondary
@@ -136,48 +139,68 @@ class trait_overheat(WeaponTrait):
 class trait_steady_aim(WeaponTrait):
     name = 'Steady Aim'
     effect = "While ADS: Burst +1."
-    situational = True
 
-tacticool = {
-    Rarity.COMMON: {'fire_modes': 1, 'scopes': 1},
-    Rarity.UNCOMMON: {'fire_modes': 1, 'scopes': 1, 'accessories': 1},
-    Rarity.RARE: {'fire_modes': 2, 'scopes': 1, 'accessories': 1},
-    Rarity.EPIC: {'fire_modes': 2, 'scopes': 2, 'accessories': 1},
-    Rarity.LEGENDARY: {'fire_modes': 2, 'scopes': 2, 'accessories': 2},
-    Rarity.PEARLESCENT: {'fire_modes': 2, 'scopes': 2, 'accessories': 3},
-}
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([
+            new_modifier
+        ])
 
-class trait_Tacticool(WeaponTrait):
+
+class trait_tacticool(WeaponTrait):
     name = 'Tacti-cool'
     effect = "Gains extra Gun Parts."
 
-    def to_text(self, gun):
-        bonus = tacticool[gun.rarity]
-
-        str = f"{bonus['fire_modes']} Fire Modes, {bonus['scopes']} Scope{'s' if bonus['scopes'] > 1 else ''}"
-        if 'accessories' in bonus:
-            str += f", +{bonus['accessories']} Accessories"
-        str += '.'
-
-        return str
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_tacticool()
+        ])
 
 class trait_reconfigure(WeaponTrait):
     name = 'Reconfigure'
     effect = "Swap between Fire Modes and/or Scopes. SPD 10 Check."
-    situational = True
+
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([
+            new_modifier
+        ])
 
 # Dahl - Fire Modes
 class trait_fm_single_fire(WeaponTrait):
     name = '(Fire Mode) Single Fire'
     effect = "+1 Range, +1 ACC MOD."
 
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.hidden = True
+        self.replace_modifiers([
+            new_modifier
+        ])
+
 class trait_fm_burst_fire(WeaponTrait):
     name = '(Fire Mode) Burst Fire'
     effect = "+1 Burst, -3 ACC MOD, Consumes 2 Ammo."
 
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.hidden = True
+        self.replace_modifiers([
+            new_modifier
+        ])
+
 class trait_fm_full_auto(WeaponTrait):
     name = '(Fire Mode) Full Auto'
     effect = "+2 Burst, -8 ACC MOD, Consumes 3 Ammo."
+
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.hidden = True
+        self.replace_modifiers([
+            new_modifier
+        ])
 
 # Hyperion - Primary
 recoil_control = {

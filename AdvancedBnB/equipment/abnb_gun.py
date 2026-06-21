@@ -55,8 +55,6 @@ class Gun(Equipment):
         self.range = 0
         self.mag_size = 0
 
-        self.traits = []
-        self.parts = []
         self.n_parts = 0
         self.max_parts = 0
         self.n_scopes = 0
@@ -87,7 +85,7 @@ class Gun(Equipment):
         print(f"Determining Gun Manufacturer...")
         while self.manufacturer is None:
             roll = d12.roll(self.user_rolls)
-            roll = 3
+            #roll = 2
             new_manufacturer = manufacturer_table[roll]
             print(f"Rolled a {roll}! Gun Manufacturer = {new_manufacturer}")
             if new_manufacturer == Manufacturers.ERIDIAN:
@@ -98,7 +96,6 @@ class Gun(Equipment):
 
         print(f"Determining Gun Type...")
         roll = d12.roll(self.user_rolls)
-        roll = 5
         self.gun_type = self.manufacturer.make_random_gun(roll)
         print(f"Rolled a {roll}! Gun Type = {self.gun_type}")
 
@@ -120,21 +117,6 @@ class Gun(Equipment):
         # Roll for weapon parts
         print(f"Determining Gun Parts...")
         self.max_parts = weapon_part_count[self.rarity]
-        self.n_parts = 0
-        self.n_scopes = 0
-
-        # PART EXCEPTIONS TODO: Add these to the Dice Rolls Questions
-        # Sniper Rifle spawns with a Scope. This DOES count towards the maximum equipped number of parts
-        Guntypes.SNIPER.gun_part_exception(self)
-
-        # Bandit weapons always spawn with a Bayonet Accessory. This does NOT count towards number of Gun Parts
-        Manufacturers.BANDIT.gun_part_exception(self)
-
-        # Combat Rifle Spawns with one accessory. This does NOT count towards number of Gun Parts
-        Guntypes.RIFLE.gun_part_exception(self)
-
-        # Dahl weapons trait 'Tacti-cool' determines number of scopes and maybe accessories. Scopes count towards maximum number of parts, Accessories are extra
-        Manufacturers.DAHL.gun_part_exception(self)
 
         # Roll for remaining parts
         while self.n_parts < self.max_parts:
@@ -194,9 +176,6 @@ class Gun(Equipment):
                 self.elements.append(el_roll)
                 self.elemental_roll['n_rolls'] -= 1
 
-        # Run final effect checks
-        for trait in self.traits:
-            trait.finalize(self)
 
         # If Originally Manufactured by Eridian. Apply Eridian Effects afterwards
         if self.eridian:
@@ -208,9 +187,6 @@ class Gun(Equipment):
 
         # Randomly choose a name
         self.randomize_name()
-        if props is not None and 'item_name' in props:
-            self.name = props['item_name']
-
 
     def set_manufacturer(self, new_manufacturer):
         # Remove old manufacturer traits
@@ -230,20 +206,6 @@ class Gun(Equipment):
         trait = self.manufacturer.pick_secondary_weapon_trait(self.user_rolls)
         if trait:
             self.add_property(trait)
-
-
-    def apply_effects(self):
-        # Apply Traits
-        for trait in self.traits:
-            trait.apply(self)
-
-        # Apply Parts
-        for part in self.parts:
-            part.apply(self)
-
-        # Apply Gun Type Bonus
-        for bonus in self.gun_type.weapon_bonus:
-            bonus.apply(self)
 
     def calculate_stats(self):
         # Extract final stats
@@ -268,7 +230,7 @@ class Gun(Equipment):
         while retries_left > 0:
             roll = d100.roll(self.user_rolls)
             part = lookup_in_table(weapon_accessories_table, roll)
-            if part not in self.parts:
+            if part not in self.equipment_properties:
                 print(f"Rolled a {roll}! Adding Gun Accessory <{part.name}>!")
                 break
 
@@ -289,7 +251,7 @@ class Gun(Equipment):
             roll = d100.roll(self.user_rolls)
             part = lookup_in_table(weapon_sight_table, roll)
             if self.gun_type in part.weapon_types:
-                if part not in self.parts:
+                if part not in self.equipment_properties:
                     print(f"Rolled a {roll}! Adding Gun Scope <{part.name}>!")
                     break
 

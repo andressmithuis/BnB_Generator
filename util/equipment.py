@@ -57,6 +57,7 @@ class EquipmentProperty:
             for modifier in to_delete:
                 print(f"Removing {modifier.name} - {modifier.effect}({modifier.situational})")
                 self.linked_equipment.equipment_modifiers.remove(modifier)
+                modifier.revert_from_equipment(self.linked_equipment)
                 self.active_mods.remove(modifier)
 
     def add_modifiers(self, modifiers):
@@ -64,6 +65,7 @@ class EquipmentProperty:
         for modifier in modifiers:
             print(f"Adding {modifier.name} - {modifier.effect}({modifier.situational})")
             self.linked_equipment.equipment_modifiers.append(modifier)
+            modifier.apply_to_equipment(self.linked_equipment)
             self.active_mods.append(modifier)
 
     def replace_modifiers(self, new_modifiers):

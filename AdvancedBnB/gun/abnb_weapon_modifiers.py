@@ -156,7 +156,7 @@ class prop_vampire(Modifier):
         self.effect = f"When you Damage an Enemy, you regain Health ({healing}/Hit, {healing * 2}/Crit)."
 
 
-# Bandit
+# --- Bandit ---
 class mod_overheat(Modifier):
     name = 'Overheat'
     situational = True
@@ -183,3 +183,81 @@ class mod_overheat(Modifier):
         dmg_die.count *= dice_multi
 
         self.effect = f"When Reloading: You and Adjacent Targets take {dmg_die} Elemental Damage (Same Element as the Gun, Incendiary if Non Elemental)."
+
+
+# --- Dahl ---
+class mod_tacticool(Modifier):
+    name = 'Tacti-cool'
+    effect = "Gains extra Parts."
+    hidden = True
+
+    def __init__(self):
+        self.applied_fire_modes = []
+        self.applied_scopes = []
+        self.applied_accessories = []
+
+    def apply_to_equipment(self, equipment):
+        tacticool = {
+            Rarity.COMMON: {'fire_modes': 1, 'scopes': 1},
+            Rarity.UNCOMMON: {'fire_modes': 1, 'scopes': 1, 'accessories': 1},
+            Rarity.RARE: {'fire_modes': 2, 'scopes': 1, 'accessories': 1},
+            Rarity.EPIC: {'fire_modes': 2, 'scopes': 2, 'accessories': 1},
+            Rarity.LEGENDARY: {'fire_modes': 2, 'scopes': 2, 'accessories': 2},
+            Rarity.PEARLESCENT: {'fire_modes': 2, 'scopes': 2, 'accessories': 3},
+        }
+
+        extra_parts = tacticool[equipment.rarity]
+
+        # Add Fire Mode(s)
+        # (Exclusive to DAHL's 'Tatci-Cool', fixed number)
+        for _ in range(extra_parts['fire_modes']):
+            while True:
+                fire_mode = equipment.manufacturer.pick_fire_mode()
+                if fire_mode not in equipment.equipment_properties:
+                    equipment.add_property(fire_mode)
+                    self.applied_fire_modes.append(fire_mode)
+                    break
+
+        # Add Scope(s)
+        equipment.max_scopes = extra_parts['scopes']
+        for _ in range(extra_parts['scopes']):
+            if equipment.n_scopes >= equipment.max_scopes:
+                break
+            part = equipment.pick_weapon_scope()
+            equipment.add_property(part)
+            self.applied_scopes.append(part)
+            equipment.n_scopes += 1
+            equipment.n_parts += 1
+
+        # Add Bonus Accessories (don't count towards total)
+        if 'accessories' in extra_parts:
+            for _ in range(extra_parts['accessories']):
+                part = equipment.pick_weapon_accessory()
+                equipment.add_property(part)
+                self.applied_accessories.append(part)
+
+    def revert_from_equipment(self, equipment):
+        # Remove Fire Mode(s)
+        to_remove = self.applied_fire_modes.copy()
+        for fire_mode in to_remove:
+            equipment.remove_property(fire_mode)
+
+        self.applied_fire_modes.clear()
+
+        # Remove Scope(s)
+        to_remove = self.applied_scopes.copy()
+        for scope_property in to_remove:
+            equipment.remove_property(scope_property)
+            equipment.n_scopes -= 1
+            equipment.n_parts -= 1
+
+        equipment.max_scopes = 1  # Remove DAHL scope limit exception
+
+        self.applied_scopes.clear()
+
+        # Remove Bonus Accessories
+        to_remove = self.applied_accessories.copy()
+        for accessory in to_remove:
+            equipment.remove_property(accessory)
+
+        self.applied_accessories.clear()

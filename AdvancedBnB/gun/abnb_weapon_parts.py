@@ -1,6 +1,6 @@
-from AdvancedBnB.gun.abnb_guntypes import *
-from util import Modifier, EquipmentProperty
+from util import mod_template, EquipmentProperty
 from .abnb_weapon_modifiers import *
+from .abnb_guntypes import Guntypes
 
 class WeaponPart(EquipmentProperty):
     pass
@@ -40,7 +40,7 @@ class wp_part_matching_stock(WeaponPart):
         self.replace_modifiers([mod_dmg_mod(1)])
 
 
-# Weapon Sights
+# Weapon Sights / Scopes
 class wp_part_iron_sight(WeaponPart):
     name = '(Scope) Iron Sight'
     effect = 'While ADS: +1 Range and +1 Minimum ADS Range.'
@@ -136,7 +136,7 @@ class wp_part_hairpin_trigger(WeaponPart):
 
     def reload_modifiers(self):
         self.replace_modifiers([
-            mod_burst(1),
+            mod_burst(2),
             mod_mag_size(1),
             mod_ammo_cost(1),
             mod_acc_mod(-3)

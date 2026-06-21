@@ -1,6 +1,6 @@
 from .abnb_element import FusionElement
 from .gun.abnb_guntypes import Guntypes
-from .gun.abnb_weapon_parts import weapon_accessories_table
+from .gun.abnb_weapon_parts import wp_part_bayonet
 from .gun.abnb_weapon_traits import *
 from .shield.abnb_shield_parts import *
 from .shield.abnb_shieldtypes import Shieldtypes
@@ -122,7 +122,7 @@ class Bandit(Manufacturer):
             'relics': []
         }
         self.weapon_traits = {
-            'primary': [trait_big_mags(), trait_pointy(), trait_overheat()],
+            'primary': [trait_big_mags(), trait_pointy(), wp_part_bayonet(), trait_overheat()],
             'secondary': []
         }
 
@@ -136,12 +136,6 @@ class Bandit(Manufacturer):
         }
 
         return lookup_in_table(table, dice_roll)
-
-    def gun_part_exception(self, gun):
-        # Bandit weapons always spawn with a Bayonet Accessory. This does NOT count towards number of Gun Parts
-        if gun.manufacturer == self:
-            part = lookup_in_table(weapon_accessories_table, 1)
-            gun.add_property(part)
 
     def edit_shield(self, shield_obj):
         shield_obj.shield_type = self.makes['shield']
@@ -167,7 +161,7 @@ class Dahl(Manufacturer):
             'relics': []
         }
         self.weapon_traits = {
-            'primary': [trait_steady_aim(), trait_Tacticool(), trait_reconfigure()],
+            'primary': [trait_steady_aim(), trait_tacticool(), trait_reconfigure()],
             'secondary': [trait_fm_single_fire(), trait_fm_burst_fire(), trait_fm_full_auto()]
         }
 
@@ -181,7 +175,10 @@ class Dahl(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self, user_roll=False):
+    def pick_secondary_weapon_trait(self, user_rolls=False):
+        return []
+
+    def pick_fire_mode(self, user_roll=False):
         table = {
             (1, 2): self.weapon_traits['secondary'][0],
             (3, 4): self.weapon_traits['secondary'][1],
@@ -189,36 +186,6 @@ class Dahl(Manufacturer):
         }
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
-
-    def gun_part_exception(self, gun):
-        if gun.manufacturer == self:
-            # Resolve 'Tacti-cool' Trait?
-            bonus = tacticool[gun.rarity]
-
-            gun.max_scopes = 2 # Dahl Guns might come with 2 scopes
-
-            # Add Scopes
-            for _ in range(bonus['scopes']):
-                if gun.n_scopes >= gun.max_scopes:
-                    break
-                part = gun.pick_weapon_scope()
-                gun.add_property(part)
-                gun.n_scopes += 1
-                gun.n_parts += 1
-
-            # Add Bonus Accessories
-            if 'accessories' in bonus:
-                for _ in range(bonus['accessories']):
-                    part = gun.pick_weapon_accessory()
-                    gun.add_property(part)
-
-            # Add Fire Modes
-            for _ in range(bonus['fire_modes']):
-                while True:
-                    trait = self.pick_secondary_weapon_trait(gun.user_rolls)
-                    if trait not in gun.equipment_properties:
-                        gun.add_property(trait)
-                        break
 
     def edit_shield(self, shield_obj):
         shield_obj.shield_type = self.makes['shield']
