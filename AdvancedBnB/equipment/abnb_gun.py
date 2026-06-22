@@ -25,13 +25,6 @@ class Gun(Equipment):
     def __init__(self):
         super().__init__()
 
-        self.name = ''
-        self.name_prefix = ''
-        self.level = 1
-        self.tier = 1
-
-        self.manufacturer = None
-        self.eridian = False
         self._gun_type = Guntypes.PISTOL
 
         self.base_stats = {
@@ -53,25 +46,11 @@ class Gun(Equipment):
         self.range = 0
         self.mag_size = 0
 
-        self.n_parts = 0
-        self.max_parts = 0
         self.n_scopes = 0
         self.max_scopes = 1
 
-        self.elements = []
-
-        self.forced_elemental = False
-        self.forced_non_elemental = False
-        self.elemental_roll_bonus = 0
-        self.min_elements = 0
-        self.disabled_elements = []
-
-        self.user_rolls = False
-
 
     def generate(self, user_rolls=False):
-        self.user_rolls = user_rolls
-
         # Prepare dice
         d100 = Dice(1, 100)
         d4 = Dice(1, 4)
@@ -84,7 +63,7 @@ class Gun(Equipment):
         # Manufacturer and gun type
         print(f"Determining Gun Manufacturer...")
         while self.manufacturer is None:
-            roll = d12.roll(self.user_rolls)
+            roll = d12.roll()
             new_manufacturer = manufacturer_table[roll]
             print(f"Rolled a {roll}! Gun Manufacturer = {new_manufacturer}")
             if new_manufacturer == Manufacturers.ERIDIAN:
@@ -95,7 +74,7 @@ class Gun(Equipment):
                 self.set_manufacturer(new_manufacturer)
 
         print(f"Determining Gun Type...")
-        roll = d12.roll(self.user_rolls)
+        roll = d12.roll()
         self.gun_type = self.manufacturer.make_random_gun(roll)
         print(f"Rolled a {roll}! Gun Type = {self.gun_type}")
 
@@ -108,8 +87,8 @@ class Gun(Equipment):
 
         # Rarity and element
         print(f"Determining Gun Rarity and Element...")
-        d4_roll = d4.roll(self.user_rolls)
-        d6_roll = d6.roll(self.user_rolls)
+        d4_roll = d4.roll()
+        d6_roll = d6.roll()
         self.rarity, roll_for_element = rarity_tables['normal'][d4_roll][d6_roll]
 
         print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Gun Rarity = {self.rarity}.{' Might also be Elemental.' if roll_for_element else ''}")
@@ -121,7 +100,7 @@ class Gun(Equipment):
         # Roll for remaining parts
         while self.n_parts < self.max_parts:
             print(f"Rolling for part {self.n_parts+1}/{self.max_parts}...")
-            roll = d100.roll(self.user_rolls)
+            roll = d100.roll()
             part = lookup_in_table(weapon_parts_table, roll)
 
             if part == 'sight':
@@ -212,7 +191,7 @@ class Gun(Equipment):
             self.add_property(trait)
 
         # Secondary weapon trait
-        trait = self.manufacturer.pick_secondary_weapon_trait(self.user_rolls)
+        trait = self.manufacturer.pick_secondary_weapon_trait()
         if trait:
             self.add_property(trait)
 
@@ -262,7 +241,7 @@ class Gun(Equipment):
         part = None
         retries_left = 50
         while retries_left > 0:
-            roll = d100.roll(self.user_rolls)
+            roll = d100.roll()
             part = lookup_in_table(weapon_accessories_table, roll)
             # Check if part already present
             for property in self.equipment_properties:
@@ -286,7 +265,7 @@ class Gun(Equipment):
 
         retries_left = 50
         while retries_left > 0:
-            roll = d100.roll(self.user_rolls)
+            roll = d100.roll()
             part = lookup_in_table(weapon_sight_table, roll)
             # Check if part already present
             for property in self.equipment_properties:

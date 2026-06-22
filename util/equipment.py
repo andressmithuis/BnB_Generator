@@ -6,10 +6,28 @@ from .common_modifiers import mod_template
 
 class Equipment:
     def __init__(self):
+        self.name = ''
+        self.name_prefix = ''
+        self.level = 1
+        self.tier = 1
         self._rarity = Rarity.COMMON
+
+        self.manufacturer = None
+        self.eridian = False
+
+        self.n_parts = 0
+        self.max_parts = 0
 
         self.equipment_properties = []
         self.equipment_modifiers = []
+
+        self.elements = []
+
+        self.forced_elemental = False
+        self.forced_non_elemental = False
+        self.elemental_roll_bonus = 0
+        self.min_elements = 0
+        self.disabled_elements = []
 
     def add_property(self, property):
         # Link property and add modifiers

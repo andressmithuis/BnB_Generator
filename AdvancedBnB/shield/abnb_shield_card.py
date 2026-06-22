@@ -6,6 +6,7 @@ from PIL import Image, ImageOps
 
 from util.cards.card_basics import *
 from util.cards.card_generation import *
+from util.modifier import AdditiveModifier
 from util import Rarity
 
 shield_card_front_template = {
@@ -109,17 +110,16 @@ def generate_shield_card(shield_obj):
 
     # Quick Reference
     quick_ref = []
-    for part in shield_obj.parts:
-        if part.situational:
-            if part.name not in [x.name for x in quick_ref]:
-                quick_ref.append(part)
+    for modifier in shield_obj.equipment_modifiers:
+        if modifier.situational:
+            quick_ref.append(modifier)
 
     card_front = card_add_quick_ref(card_front, quick_ref, shield_obj)
 
     # Shield Parts / Tag
     # Collect part count / deduplication of parts
     dedup_list = []
-    for part in shield_obj.parts:
+    for part in shield_obj.equipment_properties:
         part_added = False
         for dedup_part in dedup_list:
             if part.name == dedup_part['part'].name:
@@ -147,7 +147,7 @@ def generate_shield_card(shield_obj):
 
         header_col.append(new_header)
 
-        ef_str = split_text_on_length(f"{part.to_text(shield_obj)}", 65)
+        ef_str = split_text_on_length(f"{part.effect}", 65)
         for ef in ef_str:
             effect_col.append(ef)
 
@@ -184,30 +184,26 @@ def generate_shield_card(shield_obj):
         card_back = draw_text_to_field(card_back, name_field, header_col[i],font, align='left', font_size=22)
         card_back = draw_text_to_field(card_back, effect_field, effect_col[i], fonts['effect'], align='left',font_size=22)
 
-
     # Mods & Checks
     card_field = shield_card_back_template['fld_mod_effects'][0]
     card_back = draw_text_to_field(card_back, card_field, f"--Mods & Checks--", 'rexlia rg.otf', align='left', font_size=22)
 
-    if 'mods' in shield_obj.mod_stats:
-        mods = shield_obj.mod_stats['mods']
-        idx = 0
-        for k, v in mods.items():
-            if v != 0:
-                w_parts = k.split('_')
-                for i in range(len(w_parts)):
-                    w = w_parts[i]
-                    w = f"{w[0].upper()}{w[1:]}"
+    idx = 0
+    for modifier in shield_obj.equipment_modifiers:
+        skip_print = False
 
-                    if w in ['Dmg', 'Ads', 'Acc', 'Mod']:
-                        w = w.upper()
+        if modifier.situational is True or modifier.hidden is True:
+            skip_print = True
 
-                    w_parts[i] = w
-                k = ' '.join(w_parts)
-                card_field = shield_card_back_template['fld_mod_effects'][1 + idx]
-                card_back = draw_text_to_field(card_back, card_field, f"{k} {'+' if v > 0 else ''}{v}",'avenir-next-condensed-medium.otf', align='left', font_size=22)
+        if isinstance(modifier, AdditiveModifier):
+            if modifier.value == 0:
+                skip_print = True
 
-                idx += 1
+        if skip_print is False:
+            card_field = shield_card_back_template['fld_mod_effects'][1 + idx]
+            card_back = draw_text_to_field(card_back, card_field, f"{modifier.effect}",'avenir-next-condensed-medium.otf', align='left', font_size=22)
+            idx += 1
+            idx = min(idx, 12)
 
     # Merge front and back of card
     card_joined = card_merge_sideways(card_front, card_back)

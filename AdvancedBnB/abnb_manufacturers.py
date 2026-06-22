@@ -42,6 +42,10 @@ class Anshin(Manufacturer):
             'primary': [trait_do_no_harm(), trait_caseless_ammunition()],
             'secondary': [trait_medic(), trait_vampire()]
         }
+        self.shield_traits = {
+            'tag': shd_tag_energy(),
+            'parts': [shd_part_adaptive()]
+        }
 
     def make_random_gun(self, dice_roll):
         table = {
@@ -59,11 +63,6 @@ class Anshin(Manufacturer):
         }
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
-
-    def edit_shield(self, shield_obj):
-        shield_obj.shield_type = self.makes['shield']
-        shield_obj.tag = shd_tag_energy()
-        shield_obj.parts.append(shd_part_adaptive())
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Any
@@ -438,6 +437,10 @@ class Pangolin(Manufacturer):
             'primary': [trait_do_no_harm(), trait_caseless_ammunition()],
             'secondary': [trait_charge(), trait_drain()]
         }
+        self.shield_traits = {
+            'tag': shd_tag_energy(),
+            'parts': [shd_part_turtle()]
+        }
 
     def make_random_gun(self, dice_roll):
         table = {
@@ -455,11 +458,6 @@ class Pangolin(Manufacturer):
         }
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
-
-    def edit_shield(self, shield_obj):
-        shield_obj.shield_type = self.makes['shield']
-        shield_obj.tag = shd_tag_energy()
-        shield_obj.parts.append(shd_part_turtle())
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Any
