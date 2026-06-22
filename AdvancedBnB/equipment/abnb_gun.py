@@ -1,6 +1,5 @@
 import json
 import random
-from copy import deepcopy
 
 from AdvancedBnB.abnb_tables import rarity_tables, weapon_part_count, elemental_table, fusion_table
 from AdvancedBnB.abnb_util import get_item_tier
@@ -134,7 +133,15 @@ class Gun(Equipment):
                 print(f"Rolled a {roll}! You may roll for a Gun Accessory!")
                 part = self.pick_weapon_accessory()
 
-            if type(part) != str and part not in self.equipment_properties:
+            # Check if part is already applied
+            part_exists = False
+            for property in self.equipment_properties:
+                if isinstance(property, type(part)):
+                    part_exists = True
+                    print(f"Picked a <{part.name}>! But the Gun already has it... Try again!")
+                    break
+
+            if part_exists is False:
                 self.add_property(part)
                 self.n_parts += 1
 
@@ -281,14 +288,17 @@ class Gun(Equipment):
         while retries_left > 0:
             roll = d100.roll(self.user_rolls)
             part = lookup_in_table(weapon_sight_table, roll)
-            if self.gun_type in part.weapon_types:
-                if part not in self.equipment_properties:
-                    print(f"Rolled a {roll}! Adding Gun Scope <{part.name}>!")
+            # Check if part already present
+            for property in self.equipment_properties:
+                if isinstance(part, type(property)):
+                    print(f"Rolled a {roll}! But the part <{part.name}> is already equipped. Roll again...")
+                    part = None
+                    retries_left -= 1
                     break
 
-            print(f"Rolled a {roll}! But the part <{part.name}> is invalid. Roll again...")
-            part = None
-            retries_left -= 1
+            if part is not None:
+                print(f"Rolled a {roll}! Adding Gun Scope <{part.name}>!")
+                break
 
         assert part is not None, f"Failed to roll for a Weapon Scope...\n{self}"
 
