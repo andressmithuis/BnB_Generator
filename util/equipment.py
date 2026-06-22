@@ -1,5 +1,5 @@
 from .rarity import Rarity
-from .modifier import mod_template
+from .common_modifiers import mod_template
 
 class Equipment:
     def __init__(self):
@@ -58,11 +58,13 @@ class EquipmentProperty:
                 print(f"Removing {modifier.name} - {modifier.effect}({modifier.situational})")
                 self.linked_equipment.equipment_modifiers.remove(modifier)
                 modifier.revert_from_equipment(self.linked_equipment)
+                modifier.linked_property = None
                 self.active_mods.remove(modifier)
 
     def add_modifiers(self, modifiers):
         # Load in new properties
         for modifier in modifiers:
+            modifier.linked_property = self
             print(f"Adding {modifier.name} - {modifier.effect}({modifier.situational})")
             self.linked_equipment.equipment_modifiers.append(modifier)
             modifier.apply_to_equipment(self.linked_equipment)

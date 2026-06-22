@@ -51,7 +51,7 @@ class BonusSniper_accuracy(WeaponBonus):
     effect = f"When Attacking a Target over half the Sniper Rifles' Range (rounded up), gain an ACC Bonus equal to half it's Tier (rounded up)."
 
     def reload_modifiers(self):
-        self.replace_modifiers([wp_bonus_sniper(self.linked_equipment.range, self.linked_equipment.tier)])
+        self.replace_modifiers([wp_bonus_sniper()])
 
 
 class BonusShotgun(WeaponBonus):
@@ -59,7 +59,7 @@ class BonusShotgun(WeaponBonus):
     effect = f"When Attacking a Target within half the Shotguns' Range (rounded down), gain a DMG Bonus equal to it's Tier."
 
     def reload_modifiers(self):
-        self.replace_modifiers([wp_bonus_shotgun(self.linked_equipment.range, self.linked_equipment.tier)])
+        self.replace_modifiers([wp_bonus_shotgun()])
 
 
 class BonusLauncher(WeaponBonus):
@@ -95,10 +95,13 @@ class wp_bonus_sniper(Modifier):
     effect = "When Attacking a Target over half the Sniper Rifles' Range (rounded up), gain an ACC Bonus equal to half it's Tier (rounded up)."
     situational = True
 
-    def __init__(self, range, tier):
-        range_prop = math.ceil(range/ 2)
-        acc_bonus = math.ceil(tier / 2)
-        self.effect = f"When Attacking a Target over {range_prop} Range, +{acc_bonus} ACC MOD."
+    @property
+    def effect(self):
+        equipment = self.linked_property.linked_equipment
+        range_value = math.ceil(equipment.range / 2)
+        tier_value = math.ceil(equipment.tier / 2)
+        return f"When Attacking a Target over {range_value} Range: ACC MOD +{tier_value}."
+
 
 
 class wp_bonus_sniper_scope(Modifier):
@@ -130,6 +133,9 @@ class wp_bonus_shotgun(Modifier):
     effect = f"When Attacking a Target within half the Shotguns' Range (rounded down), gain a DMG Bonus equal to it's Tier."
     situational = True
 
-    def __init__(self, range, tier):
-        range_prop = math.floor(range / 2)
-        self.effect = f"When Attacking a Target within {range_prop} Range: +{tier} DMG MOD."
+    @property
+    def effect(self):
+        equipment = self.linked_property.linked_equipment
+        range_value = math.floor(equipment.range / 2)
+        tier_value = equipment.tier
+        return f"When Attacking a Target within {range_value} Range: DMG MOD +{tier_value} ."

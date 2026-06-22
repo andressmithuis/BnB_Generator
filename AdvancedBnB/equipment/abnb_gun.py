@@ -87,7 +87,6 @@ class Gun(Equipment):
         print(f"Determining Gun Manufacturer...")
         while self.manufacturer is None:
             roll = d12.roll(self.user_rolls)
-            roll = 11
             new_manufacturer = manufacturer_table[roll]
             print(f"Rolled a {roll}! Gun Manufacturer = {new_manufacturer}")
             if new_manufacturer == Manufacturers.ERIDIAN:
@@ -142,6 +141,10 @@ class Gun(Equipment):
 
         if self.forced_non_elemental is True and self.forced_elemental is False:
             self.min_elements = 0
+
+        if roll_for_element is True and len(self.elements) > 0:
+            # Already got at least one Element forced by a Modifier, which replaces the one that could result from the rarity table
+            roll_for_element = False
 
         while roll_for_element is True or len(self.elements) < self.min_elements:
             dice_roll = min([d100.roll() + self.elemental_roll_bonus, 100])
@@ -330,7 +333,13 @@ class Gun(Equipment):
 
         # Mods & Checks
         str += f"Mods & Checks:\n"
-        for prop in self.equipment_modifiers:
-            str += f" - {prop.effect}\n"
+        for mod in self.equipment_modifiers:
+            effect = mod.effect
+            if mod.hidden:
+                effect = f"({mod.effect})"
+            elif mod.situational:
+                effect = f"[{mod.effect}]"
+
+            str += f" - {effect}\n"
 
         return str

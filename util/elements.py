@@ -1,8 +1,32 @@
-class Element:
-    def __init__(self, bonus):
-        self.name = '<Unknown>'
+from .modifier import Modifier
+
+class Element(Modifier):
+    name = '<Unknown Element>'
+    hidden = True
+    bonus = 0
+    is_fusion = False
+
+    def __init__(self, bonus=0):
         self.bonus = bonus
-        self.is_fusion = False
+
+    def apply_to_equipment(self, equipment):
+        already_applied = False
+        for element in equipment.elements:
+            if isinstance(element, type(self)):
+                already_applied = True
+                break
+
+        if already_applied is False:
+            equipment.elements.append(self)
+
+    def revert_from_equipment(self, equipment):
+        for element in equipment.elements:
+            if isinstance(element, type(self)):
+                equipment.elements.remove(self)
+
+    @property
+    def effect(self):
+        return self.name
 
     def __repr__(self):
         str = f"{self.name}"
@@ -13,37 +37,23 @@ class Element:
 
 # Elements
 class Incendiary(Element):
-    def __init__(self, bonus=0):
-        super().__init__(bonus)
-        self.name = 'Incendiary'
+    name = 'Incendiary'
 
 class Shock(Element):
-    def __init__(self, bonus=0):
-        super().__init__(bonus)
-        self.name = 'Shock'
+    name = 'Shock'
 
 class Corrosive(Element):
-    def __init__(self, bonus=0):
-        super().__init__(bonus)
-        self.name = 'Corrosive'
+    name = 'Corrosive'
 
 class Explosive(Element):
-    def __init__(self, bonus=0):
-        super().__init__(bonus)
-        self.name = 'Explosive'
+    name = 'Explosive'
 
 class Cryo(Element):
-    def __init__(self, bonus=0):
-        super().__init__(bonus)
-        self.name = 'Cryo'
+    name = 'Cryo'
 
 class Radiation(Element):
-    def __init__(self, bonus=0):
-        super().__init__(bonus)
-        self.name = 'Radiation'
+    name = 'Radiation'
 
 # Torgue Shield Easter Egg
 class PsychicMockery(Element):
-    def __init__(self, bonus=0):
-        super().__init__(bonus)
-        self.name = 'PsychicMockery'
+    name = 'PsychicMockery'

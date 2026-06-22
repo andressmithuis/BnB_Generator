@@ -382,23 +382,6 @@ class Torgue(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
-    def gun_part_exception(self, gun):
-        if gun.manufacturer == self:
-            fixed_elements = []
-            for element in gun.elements:
-                print(element)
-                if isinstance(element, Explosive):
-                    fixed_elements.append(element)
-
-                if isinstance(element, FusionElement):
-                    for sub_element in element.fusion_elements:
-                        print(sub_element)
-                        if isinstance(sub_element, Explosive):
-                            fixed_elements.append(element)
-                            break
-
-            gun.elements = fixed_elements
-
     def edit_shield(self, shield_obj):
         shield_obj.shield_type = self.makes['shield']
         shield_obj.tag = shd_tag_alloy()

@@ -1,7 +1,7 @@
 import math
 
 from util import EquipmentProperty
-from util.modifier import *
+from util.common_modifiers import *
 
 from AdvancedBnB.gun.abnb_weapon_modifiers import *
 from AdvancedBnB.shield import Shieldtypes
@@ -25,7 +25,7 @@ class trait_caseless_ammunition(WeaponTrait):
 
     def reload_modifiers(self):
         self.replace_modifiers([
-            mod_mag_size(-1),
+            mod_mag_size(1),
             mod_reload_check(1)
         ])
 
@@ -36,7 +36,7 @@ class trait_medic(WeaponTrait):
     effect = 'When you Target an Ally, they regain Health.'
 
     def reload_modifiers(self):
-        self.replace_modifiers([mod_medic(self.linked_equipment.rarity)])
+        self.replace_modifiers([mod_medic()])
 
 
 class trait_vampire(WeaponTrait):
@@ -44,7 +44,7 @@ class trait_vampire(WeaponTrait):
     effect = 'When you Damage an Enemy, you regain Health.'
 
     def reload_modifiers(self):
-        self.replace_modifiers([mod_vampire(self.linked_equipment.rarity)])
+        self.replace_modifiers([mod_vampire()])
 
 # Atlas - Primary
 class trait_high_quality(WeaponTrait):
@@ -70,7 +70,7 @@ class trait_heavy_mags(WeaponTrait):
     effect = '+1 Mag Size, -1 Movement.'
 
     def reload_modifiers(self):
-        new_properties = [mod_mag_size(1), mod_movement_mod(-1)]
+        new_properties = [mod_mag_size(1), mod_extra_movement(-1)]
         self.replace_modifiers(new_properties)
 
 
@@ -122,7 +122,7 @@ class trait_overheat(WeaponTrait):
 
     def reload_modifiers(self):
         self.replace_modifiers([
-            mod_overheat(self.linked_equipment.tier, self.linked_equipment.rarity)
+            mod_overheat()
         ])
 
 
@@ -220,18 +220,9 @@ class trait_recoil_control(WeaponTrait):
 class trait_gun_shield(WeaponTrait):
     name = 'Gun Shield'
     effect = 'While ADS: Gun provides an Extra Energy Shield. Capacity is half of a Balanced Shield. Recharges after every Encounter.'
-    situational = True
-
 
     def reload_modifiers(self):
-        shield_stats = Shieldtypes.BALANCED.get_basestats(self.linked_equipment.tier)
-        shield_cap = math.floor(shield_stats['capacity'] / 2)
-
-        new_modifier = mod_template(self.name, '')
-        new_modifier.effect = f"While ADS: Gun gives an Extra Shield (Capacity: {shield_cap}). Recharges after Encounter."
-        new_modifier.situational = True
-
-        self.replace_modifiers([new_modifier])
+        self.replace_modifiers([mod_gun_shield()])
 
 
 # Hyperion - Gun Shield Parts
@@ -369,7 +360,6 @@ class trait_mode_switch(WeaponTrait):
 
 
 # Torgue - Primary
-#TODO: Add modifier to force the equipment have only the Explosive Element.
 class trait_boom(WeaponTrait):
     name = 'Boom!'
     effect = 'Always Explosive, only Explosive, at the cost of Accuracy.'
@@ -384,7 +374,8 @@ class trait_boom(WeaponTrait):
     }
 
     def reload_modifiers(self):
-        new_modifiers = self.boom[self.linked_equipment.rarity]
+        new_modifiers = [Explosive()]
+        new_modifiers += self.boom[self.linked_equipment.rarity]
         self.replace_modifiers(new_modifiers)
 
 
@@ -431,28 +422,23 @@ battery = {
 class trait_charge(WeaponTrait):
     name = 'Charge'
     effect = 'When you Target an Ally, they regain Shields.'
-    situational = True
 
-    def to_text(self, gun):
-        amount = healing[gun.rarity]
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_charge()])
 
-        return f"When you Target an Ally, they regain Shields ({amount}/Hit, {amount * 2}/Crit)."
 
 class trait_drain(WeaponTrait):
     name = 'Drain'
     effect = 'When you Damage an Enemy, you regain Shields.'
-    situational = True
 
-    def to_text(self, gun):
-        amount = healing[gun.rarity]
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_drain()])
 
-        return f"When you Damage an Enemy, you regain Shields ({amount}/Hit, {amount * 2}/Crit)."
 
 # Tediore - Primary
 class trait_fire_and_forget(WeaponTrait):
     name = 'Fire & Forget'
     effect = 'When you Reload this Gun, you Throw it away instead and deal Damage.'
-    situational = True
 
     fire_and_forget = {
         Rarity.COMMON: Dice(1,4),
@@ -463,41 +449,45 @@ class trait_fire_and_forget(WeaponTrait):
         Rarity.PEARLESCENT: Dice(2,8)
     }
 
-    def to_text(self, gun):
-        bonus_dice = self.fire_and_forget[gun.rarity]
-        bonus_dice.count *= gun.tier
-
-        str = f"When you Reload this Gun: You Throw it away instead, dealing {bonus_dice} DMG."
-        return str
+    def reload_modifiers(self):
+        bonus_dice = self.fire_and_forget[self.linked_equipment.rarity]
+        new_modifier = mod_template(self.name, '')
+        new_modifier.effect = f"When you Reload this Gun: You Throw it away instead, dealing {bonus_dice} DMG."
+        new_modifier.situational = True
+        self.replace_modifiers([new_modifier])
 
 
 class trait_compact(WeaponTrait):
     name = 'Compact'
     effect = '-2 Mag Size (minimum of 1), +4 on Reload and Swap Checks.'
 
-    def apply(self, gun):
-        gun.mod_stats['mag_size'] -= 2
-        if gun.mod_stats['mag_size'] < 1:
-            gun.mod_stats['mag_size'] = 1
-
-        gun.mod_stats.setdefault('mods', {}).setdefault('reload_check', 0)
-        gun.mod_stats['mods']['reload_check'] += 4
-
-        gun.mod_stats.setdefault('mods', {}).setdefault('swap_check', 0)
-        gun.mod_stats['mods']['swap_check'] += 4
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_mag_size(-2),
+            mod_reload_check(4),
+            mod_swap_check(4)
+        ])
 
 
 # Tediore - Secondary
 class trait_turret(WeaponTrait):
     name = 'Turret'
     effect = 'When Thrown: the Gun turns into a Turret for 2 turns. Once per turn the Turret shoots the closest Enemy.'
-    situational = True
+
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([new_modifier])
 
 
 class trait_bomb(WeaponTrait):
     name = 'Bomb'
     effect = 'When Thrown: the Gun turns into a Grenade dealing Splash Damage in the same Element as the Gun (Explosive if Non Elemental).'
-    situational = True
+
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([new_modifier])
 
 
 # Vladof - Primary
@@ -506,34 +496,35 @@ class trait_wall_of_lead(WeaponTrait):
     effect = 'Extra Attacks at the cost of Accuracy.'
 
     fire_and_forget = {
-        Rarity.COMMON: {'extra_attack': 1, 'acc_mod': -4},
-        Rarity.UNCOMMON: {'extra_attack': 1, 'acc_mod': -3},
-        Rarity.RARE: {'extra_attack': 1, 'acc_mod': -2},
-        Rarity.EPIC: {'extra_attack': 1, 'acc_mod': -1},
-        Rarity.LEGENDARY: {'extra_attack': 1},
-        Rarity.PEARLESCENT: {'extra_attack': 1, 'extra_movement': 1},
+        Rarity.COMMON: [mod_extra_attack(1), mod_acc_mod(-4)],
+        Rarity.UNCOMMON: [mod_extra_attack(1), mod_acc_mod(-3)],
+        Rarity.RARE: [mod_extra_attack(1), mod_acc_mod(-2)],
+        Rarity.EPIC: [mod_extra_attack(1), mod_acc_mod(-1)],
+        Rarity.LEGENDARY: [mod_extra_attack(1)],
+        Rarity.PEARLESCENT: [mod_extra_attack(1), mod_extra_movement(1)],
     }
 
-    def apply(self, gun):
-        bonus = self.fire_and_forget[gun.rarity]
-
-        for k, v in bonus.items():
-            gun.mod_stats.setdefault('mods', {}).setdefault(k, 0)
-            gun.mod_stats['mods'][k] += v
+    def reload_modifiers(self):
+        new_modifiers = self.fire_and_forget[self.linked_equipment.rarity]
+        self.replace_modifiers(new_modifiers)
 
 
 class trait_extended_mags(WeaponTrait):
     name = 'Extended Mags'
     effect = '+2 Mag Size.'
 
-    def apply(self, gun):
-        gun.mod_stats['mag_size'] += 2
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_mag_size(2)])
 
 
 class trait_endless_fire(WeaponTrait):
     name = 'Endless Fire'
     effect = "On an Accuracy Roll of 5, 10, 15 or 20 (before Mods): this Attack doesn't consume Ammo."
-    situational = True
+
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([new_modifier])
 
 
 # Vladof - Secondary
@@ -542,11 +533,8 @@ class trait_grenade_launcher(WeaponTrait):
     effect = '(1/Encounter) Shoot a 1d8/Tier Explosive Grenade at a point within 5 squares.'
     situational = True
 
-    def to_text(self, gun):
-        dmg_dice = Dice(1, 8)
-        dmg_dice.count *= gun.tier
-
-        return f"(1/Encounter): Shoot a {dmg_dice} Explosive Grenade at a point within 5 squares."
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_grenade_launcher()])
 
 
 class trait_taser(WeaponTrait):
@@ -554,17 +542,18 @@ class trait_taser(WeaponTrait):
     effect = '(1/Encounter) When used: Each Enemy within a 3 square Cone takes 1d4/Tier Shock Damage and is Dazed.'
     situational = True
 
-    def to_text(self, gun):
-        dmg_dice = Dice(1, 4)
-        dmg_dice.count *= gun.tier
-
-        return f"(1/Encounter) When used: Each Enemy within a 3 square Cone takes {dmg_dice} Shock Damage and is Dazed."
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_taser()])
 
 
 class trait_bipod(WeaponTrait):
     name = 'Bipod'
     effect = 'While Active: +2 ACC MOD on Ranged Attacks, -1 Movement. You can (de)activate the Bipod once on your turn.'
-    situational = True
+
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.situational = True
+        self.replace_modifiers([new_modifier])
 
 
 # Eridian - Primary
