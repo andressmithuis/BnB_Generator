@@ -105,7 +105,7 @@ class mod_medic(Modifier):
 
     @property
     def effect(self):
-        equipment = self.linked_property.linked_equipment
+        equipment = self.get_linked_equipment()
         heal_value = healing[equipment.rarity]
         return f"When you Target an Ally, they regain Health ({heal_value}/Hit, {heal_value * 2}/Crit)."
 
@@ -278,7 +278,7 @@ class mod_charge(Modifier):
 
     @property
     def effect(self):
-        equipment = self.linked_property.linked_equipment
+        equipment = self.get_linked_equipment()
         amount = battery[equipment.rarity]
         return f"When you Target an Ally, they regain Shields ({amount}/Hit, {amount * 2}/Crit)."
 

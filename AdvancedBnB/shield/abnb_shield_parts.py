@@ -1,11 +1,17 @@
 from AdvancedBnB.shield.abnb_shieldtypes import Shieldtypes
-from util import Modifier, EquipmentProperty
+from util import EquipmentProperty, mod_template
+from .abnb_shield_modifiers import *
 
 
 # Wrapper class
 class ShieldPart(EquipmentProperty):
-    pass
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.hidden = True
+        self.replace_modifiers([new_modifier])
 
+
+# --- Shield Parts ---
 class shd_part_empty(ShieldPart):
     name = 'Trinket'
     effect = 'Looks cool. Does Nothing.'
@@ -14,36 +20,32 @@ class shd_part_empty(ShieldPart):
 class shd_part_absorb(ShieldPart):
     name = 'Absorb'
     effect = 'When taking Ranged Damage: Roll a d100. 10%/P chance to take no Damage and gain 1 Ammo.'
-    situational = True
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"When taking Ranged Damage: Roll a d100. On a {100 - (10*n_parts)}+: take no Damage and gain 1 Ammo."
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_absorb()
+        ])
 
 
 class shd_part_adaptive(ShieldPart):
     name = 'Adaptive'
     effect = 'Gain +10/P Max Health. After taking Elemental Damage: gain 1d4/P Damage Reduction from that Element until you take Damage from a different Element.'
-    situational = True
 
-    def apply(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        item.mod_stats.setdefault('mods', {}).setdefault('max_health', 0)
-        item.mod_stats['mods']['max_health'] += (n_parts * 10)
-
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"After taking Elemental Damage: gain {n_parts}d4 Damage Reduction from that Element until you take Damage from a different Element."
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_max_health(10),
+            mod_adaptive()
+        ])
 
 
 class shd_part_adrenaline(ShieldPart):
     name = 'Adrenaline'
     effect = 'While Depleted: Gain +2/P on Reload Checks.'
-    situational = True
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"While Depleted: Gain +{n_parts * 2} on Reload Checks."
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_adrenaline()
+        ])
 
 
 class shd_part_amp(ShieldPart):
@@ -51,59 +53,56 @@ class shd_part_amp(ShieldPart):
     effect = 'While Full: Your next Ranged Attack deals an Extra 1/P Hit. You then lose 10/P Shield.'
     situational = True
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"While Full: Your next Ranged Attack deals an Extra {n_parts} Hit{'s' if n_parts > 1 else ''}. You then lose {10 * n_parts} Shield."
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_amp()
+        ])
 
 
 class shd_part_brimming(ShieldPart):
     name = 'Brimming'
     effect = 'While Full: gain 5/P Health Regen.'
-    situational = True
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"While Full: gain +{n_parts * 5} Health Regen."
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_brimming()
+        ])
 
 
 class shd_part_capacity(ShieldPart):
     name = 'Capacity'
     effect = 'Gain an extra (15/20/10)/P Shield Capacity (based on Shield Type)'
 
-    def apply(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        cap_bonus = {
+    def reload_modifiers(self):
+        equipment = self.linked_equipment
+        shieldtype_bonus = {
             Shieldtypes.BALANCED: 15,
             Shieldtypes.HIGHCAPACITY: 20,
             Shieldtypes.FAST: 10
         }
-        item.mod_stats['capacity'] += (cap_bonus[item.shield_type] * n_parts)
-
-    def to_text(self, item):
-        return f"Increased Shield Capacity."
+        self.replace_modifiers([
+            mod_capacity(shieldtype_bonus[equipment.shield_type])
+        ])
 
 
 class shd_part_fleet(ShieldPart):
     name = 'Fleet'
     effect = 'While Depleted: gain +2/P Movement.'
-    situational = True
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"While Depleted: gain +{n_parts * 2} Movement."
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_fleet()
+        ])
 
 
 class shd_part_health(ShieldPart):
     name = 'Health'
     effect = 'Gain +20/P Max Health.'
 
-    def apply(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        item.mod_stats.setdefault('mods', {}).setdefault('max_health', 0)
-        item.mod_stats['mods']['max_health'] += (n_parts * 20)
-
-    def to_text(self, item):
-        return f"Increased Max Health."
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_max_health(20)
+        ])
 
 
 class shd_part_nova(ShieldPart):
@@ -171,21 +170,21 @@ class shd_part_roid(ShieldPart):
 class shd_part_charge_health(ShieldPart):
     name = 'Charge'
     effect = 'When Damaged: Roll a d100. On a 75+, drop 1/P Common Health Potions (1d8).'
-    situational = True
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"When Damaged: Roll a d100. On a 75+, drop {n_parts} Common Health Potions (1d8)."
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_health_booster()
+        ])
 
 
 class shd_part_charge_shield(ShieldPart):
     name = 'Charge'
     effect = 'When Damaged: Roll a d100. On a 75+, drop 1/P Common Shield Potions (1d8).'
-    situational = True
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"When Damaged: Roll a d100. On a 75+, drop {n_parts} Common Shield Potions (1d8)."
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_shield_booster()
+        ])
 
 
 class shd_part_spike(ShieldPart):
@@ -202,20 +201,17 @@ class shd_part_turtle(ShieldPart):
     name = 'Turtle'
     effect = 'Gain an Extra (30/40/20)/P Shield Capacity (based on Shield Type). -10/P Max Health.'
 
-    def apply(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        cap_bonus = {
+    def reload_modifiers(self):
+        equipment = self.linked_equipment
+        shieldtype_bonus = {
             Shieldtypes.BALANCED: 30,
             Shieldtypes.HIGHCAPACITY: 40,
             Shieldtypes.FAST: 20
         }
-        item.mod_stats['capacity'] += (n_parts * cap_bonus[item.shield_type])
-
-        item.mod_stats.setdefault('mods', {}).setdefault('max_health', 0)
-        item.mod_stats['mods']['max_health'] -= (n_parts * 10)
-
-    def to_text(self, item):
-        return f"Increased Shield Capacity. Decreased Max Health."
+        self.replace_modifiers([
+            mod_capacity(shieldtype_bonus[equipment.shield_type]),
+            mod_max_health(-10)
+        ])
 
 
 class shd_part_vagabond(ShieldPart):
