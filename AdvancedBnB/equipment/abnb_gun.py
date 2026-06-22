@@ -2,17 +2,18 @@ import json
 import random
 from copy import deepcopy
 
-from AdvancedBnB.abnb_tables import Rarity, rarity_tables, weapon_part_count, elemental_table, fusion_table
+from AdvancedBnB.abnb_tables import rarity_tables, weapon_part_count, elemental_table, fusion_table
 from AdvancedBnB.abnb_util import get_item_tier
 from AdvancedBnB.gun.abnb_gun_card import generate_gun_card
-from AdvancedBnB import Fusion, Explosive
+from AdvancedBnB import Fusion
 from AdvancedBnB.abnb_manufacturers import Manufacturers, manufacturer_table
+from AdvancedBnB.gun.abnb_weapon_modifiers import mod_burst, mod_range, mod_mag_size, mod_penetrate_crits
 from util import Equipment, Dice, lookup_in_table
 
 from AdvancedBnB.gun.abnb_weapon_traits import WeaponTrait
-from AdvancedBnB.gun.abnb_weapon_parts import weapon_parts_table, weapon_accessories_table, weapon_sight_table, \
-    WeaponPart
+from AdvancedBnB.gun.abnb_weapon_parts import weapon_parts_table, weapon_accessories_table, weapon_sight_table, WeaponPart
 from AdvancedBnB.gun.abnb_guntypes import Guntypes
+
 
 def mod_to_string(val_1, val_2):
     delta = val_1 - val_2
@@ -46,8 +47,6 @@ class Gun(Equipment):
             'mag_size': 0
         }
 
-        self.mod_stats = deepcopy(self.base_stats)
-
         self.hits_crits = self.base_stats['hits_crits']
 
         self.hit_dice = Dice(1, 4)
@@ -71,7 +70,7 @@ class Gun(Equipment):
         self.user_rolls = False
 
 
-    def generate(self, user_rolls=False, props = None):
+    def generate(self, user_rolls=False):
         self.user_rolls = user_rolls
 
         # Prepare dice
@@ -92,6 +91,7 @@ class Gun(Equipment):
             if new_manufacturer == Manufacturers.ERIDIAN:
                 print(f"Rolled Eridian Manufacturer. Roll again for Manufacturer of Gun Base.")
                 self.eridian = True
+                self.manufacturer = None
             else:
                 self.set_manufacturer(new_manufacturer)
 
@@ -102,7 +102,10 @@ class Gun(Equipment):
 
         # Weapon base stats
         self.base_stats = self.gun_type.get_basestats(self.tier)
-        self.mod_stats = deepcopy(self.base_stats)
+        self.hit_dice = self.base_stats['hit_dice']
+        self.crit_dice = self.base_stats['crit_dice']
+        self.range = self.base_stats['range']
+        self.mag_size = self.base_stats['mag_size']
 
         # Rarity and element
         print(f"Determining Gun Rarity and Element...")
@@ -207,12 +210,37 @@ class Gun(Equipment):
             self.add_property(trait)
 
     def calculate_stats(self):
-        # Extract final stats
-        self.hit_dice = self.mod_stats['hit_dice']
-        self.crit_dice = self.mod_stats['crit_dice']
-        self.hits_crits = self.mod_stats['hits_crits']
-        self.range = self.mod_stats['range']
-        self.mag_size = max(self.mod_stats['mag_size'], 1)
+        # Load base stats
+        self.hits_crits = self.base_stats['hits_crits'].copy()
+        self.mag_size = self.base_stats['mag_size']
+
+        # Apply Modifiers to stats
+        for mod in self.equipment_modifiers:
+            if isinstance(mod, mod_burst):
+                for atk in ['glance', 'solid', 'penetrate']:
+                    self.hits_crits[atk]['hits'] += mod.value
+
+            elif isinstance(mod, mod_range):
+                self.range += mod.value
+
+            elif isinstance(mod, mod_mag_size):
+                self.mag_size += mod.value
+
+            elif isinstance(mod, mod_penetrate_crits):
+                self.hits_crits['penetrate']['crits'] += mod.value
+
+        # Clamp values
+        # Magazine size cannot go below 1
+        if self.mag_size < 1:
+            self.mag_size = 1
+
+        # Hits & Crits cannot be lowered below 1
+        for atk in ['glance', 'solid', 'penetrate']:
+            if self.hits_crits[atk]['hits'] < 1 and self.base_stats['hits_crits'][atk]['hits'] > 0:
+                self.hits_crits[atk]['hits'] = 1
+
+            if self.hits_crits[atk]['crits'] < 1 and self.base_stats['hits_crits'][atk]['crits'] > 0:
+                self.hits_crits[atk]['crits'] = 1
 
     def randomize_name(self):
         with open('assets.json') as file:
@@ -229,13 +257,17 @@ class Gun(Equipment):
         while retries_left > 0:
             roll = d100.roll(self.user_rolls)
             part = lookup_in_table(weapon_accessories_table, roll)
-            if part not in self.equipment_properties:
+            # Check if part already present
+            for property in self.equipment_properties:
+                if isinstance(part, type(property)):
+                    print(f"Rolled a {roll}! But the part <{part.name}> is already equipped. Roll again...")
+                    part = None
+                    retries_left -= 1
+                    break
+
+            if part is not None:
                 print(f"Rolled a {roll}! Adding Gun Accessory <{part.name}>!")
                 break
-
-            print(f"Rolled a {roll}! But the part <{part.name}> is invalid. Roll again...")
-            part = None
-            retries_left -= 1
 
         assert part is not None, f"Failed to roll for a Weapon Accessory..."
 

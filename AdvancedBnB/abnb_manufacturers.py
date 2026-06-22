@@ -594,8 +594,7 @@ class Eridian(Manufacturer):
             # Apply Eridian Primary Traits
             eridian_traits = [trait for trait in self.weapon_traits['primary']]
             for trait in eridian_traits:
-                gun.traits.append(trait)
-                trait.apply(gun)
+                gun.add_property(trait)
 
             # Apply Eridian Gun Type Trait
             eridian_gun_traits = {
@@ -608,8 +607,7 @@ class Eridian(Manufacturer):
             }
 
             trait = eridian_gun_traits[gun.gun_type]
-            gun.traits.append(trait)
-            trait.apply(gun)
+            gun.add_property(trait)
 
     def pick_secondary_weapon_trait(self, user_roll=False):
         return

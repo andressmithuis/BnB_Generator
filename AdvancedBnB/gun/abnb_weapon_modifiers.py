@@ -1,147 +1,72 @@
 import math
 
 from AdvancedBnB.shield import Shieldtypes
-from util import Modifier, Dice, Rarity
+from util.modifier import Modifier, AdditiveModifier
+from util import Dice, Rarity
 
-class mod_dmg_mod(Modifier):
+
+
+class mod_dmg_mod(AdditiveModifier):
     name = 'DMG MOD'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"DMG MOD {'+' if self.value > 0 else ''}{self.value}"
 
 
-class mod_acc_mod(Modifier):
+class mod_acc_mod(AdditiveModifier):
     name = 'ACC MOD'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"ACC MOD {'+' if self.value > 0 else ''}{self.value}"
 
 
-class mod_range(Modifier):
+class mod_range(AdditiveModifier):
     name = 'Range'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Range {'+' if self.value > 0 else ''}{self.value}"
-
-    def apply_to_equipment(self, equipment):
-        equipment.range += self.value
-
-    def revert_from_equipment(self, equipment):
-        equipment.range -= self.value
+    hidden = True
 
 
-class mod_hit_damage(Modifier):
+class mod_hit_damage(AdditiveModifier):
     name = 'Hit Damage'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Hit Damage {'+' if self.value > 0 else ''}{self.value}"
 
 
-class mod_crit_damage(Modifier):
+class mod_crit_damage(AdditiveModifier):
     name = 'Crit Damage'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Crit Damage {'+' if self.value > 0 else ''}{self.value}"
 
 
-class mod_burst(Modifier):
-    name = 'Burst MOD'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Burst {'+' if self.value > 0 else ''}{self.value}"
+class mod_burst(AdditiveModifier):
+    name = 'Burst'
+    hidden = True
 
 
-class mod_ammo_cost(Modifier):
+class mod_ammo_cost(AdditiveModifier):
     name = 'Ammo per Attack'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Ammo per Attack {'+' if self.value > 0 else ''}{self.value}"
 
 
-class mod_lethal_range(Modifier):
+class mod_lethal_range(AdditiveModifier):
     name = 'Lethal range'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Lethal range {'+' if self.value > 0 else ''}{self.value}"
 
 
-class mod_mag_size(Modifier):
-    name = 'Magazine Size MOD'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Mag size {'+' if self.value > 0 else ''}{self.value}"
+class mod_mag_size(AdditiveModifier):
+    name = 'Mag size'
+    hidden = True
 
 
-class mod_ads_range_min(Modifier):
-    name = 'Minimum ADS Range'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Min ADS range {'+' if self.value > 0 else ''}{self.value}"
+class mod_ads_range_min(AdditiveModifier):
+    name = 'Min ADS range'
 
 
-class mod_fumble_range(Modifier):
+class mod_fumble_range(AdditiveModifier):
     name = 'Fumble Range'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Fumble range {'+' if self.value > 0 else ''}{self.value}"
 
 
-class mod_extra_movement(Modifier):
+class mod_extra_movement(AdditiveModifier):
     name = 'Extra Movement'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Extra Movement {'+' if self.value > 0 else ''}{self.value}"
 
 
-class mod_extra_attack(Modifier):
+class mod_extra_attack(AdditiveModifier):
     name = 'Extra Attack'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Extra Attack {'+' if self.value > 0 else ''}{self.value}"
 
 
-class mod_reload_check(Modifier):
+class mod_reload_check(AdditiveModifier):
     name = 'Reload Check'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Reload Check {'+' if self.value > 0 else ''}{self.value}"
 
 
-class mod_swap_check(Modifier):
+class mod_swap_check(AdditiveModifier):
     name = 'Swap Check'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Swap Check {'+' if self.value > 0 else ''}{self.value}"
 
 
 class mod_splash(Modifier):
@@ -151,22 +76,17 @@ class mod_splash(Modifier):
         self.effect = "Splash"
 
 
-class mod_splash_range(Modifier):
+class mod_splash_range(AdditiveModifier):
     name = 'Splash Range'
-    additive = True
-
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Splash Range {'+' if self.value > 0 else ''}{self.value}"
 
 
-class mod_knock_back(Modifier):
+class mod_knock_back(AdditiveModifier):
     name = 'Knock Back Chance'
     additive = True
 
-    def __init__(self, mod_value):
-        self.value = mod_value
-        self.effect = f"Knock Back {'+' if self.value > 0 else ''}{self.value}%"
+    @property
+    def effect(self):
+        return f"Knock Back {'+' if self.value > 0 else ''}{self.value}%"
 
 
 # Anshin - Secondary Gun Properties
@@ -196,7 +116,7 @@ class mod_vampire(Modifier):
 
     @property
     def effect(self):
-        equipment = self.linked_property.linked_equipment
+        equipment = self.get_linked_equipment()
         heal_value = healing[equipment.rarity]
         return f"When you Damage an Enemy, you regain Health ({heal_value}/Hit, {heal_value * 2}/Crit)."
 
@@ -217,7 +137,7 @@ class mod_overheat(Modifier):
 
     @property
     def effect(self):
-        equipment = self.linked_property.linked_equipment
+        equipment = self.get_linked_equipment()
 
         dice_multi = 1
         if equipment.tier >= 4:
@@ -319,7 +239,7 @@ class mod_gun_shield(Modifier):
 
     @property
     def effect(self):
-        equipment = self.linked_property.linked_equipment
+        equipment = self.get_linked_equipment()
         shield_stats = Shieldtypes.BALANCED.get_basestats(equipment.tier)
         shield_cap = math.floor(shield_stats['capacity'] / 2)
 
@@ -330,6 +250,15 @@ class mod_gun_shield(Modifier):
 class mod_explosive_only(Modifier):
     name = 'Explosive Only'
     effect = 'This Equipment can only get the Explosive Element.'
+
+
+# --- Jakobs ---
+class mod_penetrate_crits(AdditiveModifier):
+    name = 'Penetrate Crits'
+    hidden = True
+
+class mod_lethal_crits(AdditiveModifier):
+    name = 'Lethal Crits'
 
 
 # --- Pangolin ---
@@ -361,7 +290,7 @@ class mod_drain(Modifier):
 
     @property
     def effect(self):
-        equipment = self.linked_property.linked_equipment
+        equipment = self.get_linked_equipment()
         amount = battery[equipment.rarity]
         return f"When you Damage an Enemy, you regain Shields ({amount}/Hit, {amount * 2}/Crit)."
 
@@ -374,7 +303,7 @@ class mod_grenade_launcher(Modifier):
 
     @property
     def effect(self):
-        equipment = self.linked_property.linked_equipment
+        equipment = self.get_linked_equipment()
         dmg_dice = Dice(1, 8)
         dmg_dice.count *= equipment.tier
         return f"(1/Encounter): Shoot a {dmg_dice} Explosive Grenade at a point within 5 squares."
@@ -387,7 +316,7 @@ class mod_taser(Modifier):
 
     @property
     def effect(self):
-        equipment = self.linked_property.linked_equipment
+        equipment = self.get_linked_equipment()
         dmg_dice = Dice(1, 4)
         dmg_dice.count *= equipment.tier
         return f"(1/Encounter) When used: Each Enemy within a 3 square Cone takes {dmg_dice} Shock Damage and is Dazed."

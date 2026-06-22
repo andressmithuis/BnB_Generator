@@ -7,6 +7,7 @@ from AdvancedBnB.gun.abnb_weapon_traits import WeaponTrait
 from AdvancedBnB.gun.abnb_weapon_parts import WeaponPart
 from util.cards.card_generation import Field, draw_image_to_field, draw_text_to_field, draw_field_locations
 from util.cards.card_basics import *
+from util.modifier import AdditiveModifier
 
 gun_card_front_template = {
     'fld_red_txt': Field(0.66, 0.68, 0.45, 0.08, False),
@@ -88,7 +89,7 @@ def generate_gun_card(gun_obj):
 
     origin_x = ammo_cnt_field.x - ((n_fields / 2) * ammo_cnt_field.w) + (0.5 * ammo_cnt_field.w)
     for i in range(n_fields):
-        if i > gun_obj.mag_size:
+        if i > gun_obj.mag_size-1:
             break
         ammo_cnt_field.x = origin_x + (ammo_cnt_field.w * i)
         card_front = draw_image_to_field(card_front, symbol, ammo_cnt_field)
@@ -211,7 +212,16 @@ def generate_gun_card(gun_obj):
 
     idx = 0
     for modifier in gun_obj.equipment_modifiers:
-        if modifier.situational is False and modifier.hidden is False:
+        skip_print = False
+
+        if modifier.situational is True or modifier.hidden is True:
+            skip_print = True
+
+        if isinstance(modifier, AdditiveModifier):
+            if modifier.value == 0:
+                skip_print = True
+
+        if skip_print is False:
             card_field = gun_card_back_template['fld_mod_effects'][1 + idx]
             card_back = draw_text_to_field(card_back, card_field, f"{modifier.effect}", 'avenir-next-condensed-medium.otf', align='left', font_size=22)
             idx += 1

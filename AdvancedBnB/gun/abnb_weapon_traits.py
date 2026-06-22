@@ -272,6 +272,11 @@ class trait_head_hunter(WeaponTrait):
         new_modifiers = self.head_hunter[self.linked_equipment.rarity]
         self.replace_modifiers(new_modifiers)
 
+    @property
+    def effect(self):
+        mods = self.head_hunter[self.linked_equipment.rarity]
+        return f"{mods[1].effect} and {mods[0].effect}"
+
 # For Non-Elemental trait See trait_non_elemental
 
 class trait_cumbersome(WeaponTrait):
@@ -308,9 +313,10 @@ class trait_percise(WeaponTrait):
     effect = "On Penetrating and Lethal Attacks: +1 Crit."
 
     def reload_modifiers(self):
-        new_modifier = mod_template(self.name, self.effect)
-        new_modifier.situational = True
-        self.replace_modifiers([new_modifier])
+        self.replace_modifiers([
+            mod_penetrate_crits(1),
+            mod_lethal_crits(1)
+        ])
 
 
 # Maliwan - Primary
@@ -531,7 +537,6 @@ class trait_endless_fire(WeaponTrait):
 class trait_grenade_launcher(WeaponTrait):
     name = 'Grenade Launcher'
     effect = '(1/Encounter) Shoot a 1d8/Tier Explosive Grenade at a point within 5 squares.'
-    situational = True
 
     def reload_modifiers(self):
         self.replace_modifiers([mod_grenade_launcher()])
@@ -540,7 +545,6 @@ class trait_grenade_launcher(WeaponTrait):
 class trait_taser(WeaponTrait):
     name = 'Taser'
     effect = '(1/Encounter) When used: Each Enemy within a 3 square Cone takes 1d4/Tier Shock Damage and is Dazed.'
-    situational = True
 
     def reload_modifiers(self):
         self.replace_modifiers([mod_taser()])
@@ -561,95 +565,89 @@ class trait_reverse_engineer(WeaponTrait):
     name = 'Reverse Engineer'
     effect = 'This Alien Gun is made using a Gun from another Manufacturer as a base.'
 
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, self.effect)
+        new_modifier.hidden = True
+        self.replace_modifiers([new_modifier])
+
+
 class trait_alien_ammo(WeaponTrait):
     name = 'Alien Ammo'
     effect = 'Consumes 2 Ammo per Attack, +2 Mag Size.'
 
-    def apply(self, gun):
-        gun.mod_stats['mag_size'] += 2
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_ammo_cost(2),
+            mod_mag_size(2)
+        ])
 
-        gun.mod_stats.setdefault('mods', {}).setdefault('ammo_per_attack', 0)
-        gun.mod_stats['mods']['ammo_per_attack'] += 1
 
 # Eridian - Gun Type Traits
 class trait_dart(WeaponTrait):
     name = 'Dart'
     effect = '+2 Range, Ignores Cover.'
-    situational = True
 
-    def apply(self, gun):
-        gun.mod_stats['range'] += 2
-
-    def to_text(self, gun):
-        return 'Ignores Cover'
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, '')
+        new_modifier.effect = 'Ignores Cover'
+        new_modifier.situational = True
+        self.replace_modifiers([mod_range(2), new_modifier])
 
 
 class trait_plasma_caster(WeaponTrait):
     name = 'Plasma Caster'
     effect = '+1 Range, +2 Burst.'
 
-    def apply(self, gun):
-        gun.mod_stats['range'] += 1
-
-        for atk in ['glance', 'solid', 'penetrate']:
-            gun.mod_stats['hits_crits'][atk]['hits'] += 2
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_range(1), mod_burst(2)])
 
 
 class trait_splat(WeaponTrait):
     name = 'Splat'
     effect = '-1 Range, Splash, +1 Burst.'
 
-    def apply(self, gun):
-        gun.mod_stats['range'] -= 1
-
-        for atk in ['glance', 'solid', 'penetrate']:
-            gun.mod_stats['hits_crits'][atk]['hits'] += 1
-
-        gun.mod_stats.setdefault('mods', {}).setdefault('splash', 0)
-        gun.mod_stats['mods']['splash'] = 1
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_range(-1),
+            mod_splash(),
+            mod_burst(1)
+        ])
 
 
 class trait_blaster(WeaponTrait):
     name = 'Blaster'
     effect = '+1 Range, +2 Burst, +3 Mag Size.'
 
-    def apply(self, gun):
-        gun.mod_stats['range'] += 1
-
-        for atk in ['glance', 'solid', 'penetrate']:
-            gun.mod_stats['hits_crits'][atk]['hits'] += 2
-
-        gun.mod_stats['mag_size'] += 3
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_range(1),
+            mod_burst(2),
+            mod_mag_size(3)
+        ])
 
 
 class trait_railer(WeaponTrait):
     name = 'Railer'
     effect = '+2 Range, +1 Burst, Pierces 1 Enemy or Object.'
-    situational = True
 
-    def apply(self, gun):
-        gun.mod_stats['range'] += 2
 
-        for atk in ['glance', 'solid', 'penetrate']:
-            gun.mod_stats['hits_crits'][atk]['hits'] += 1
-
-    def to_text(self, gun):
-        return f"Pierces 1 Enemy or Object."
+    def reload_modifiers(self):
+        new_modifier = mod_template(self.name, '')
+        new_modifier.effect = 'Pierces 1 Enemy or Object.'
+        self.replace_modifiers([
+            mod_range(2),
+            mod_burst(1),
+            new_modifier
+        ])
 
 
 class trait_plasma_cannon(WeaponTrait):
     name = 'Plasma Cannon'
     effect = '+1 Range, +1 Burst, +1 Splash Radius.'
 
-    def apply(self, gun):
-        gun.mod_stats['range'] += 1
-
-        for atk in ['glance', 'solid', 'penetrate']:
-            gun.mod_stats['hits_crits'][atk]['hits'] += 1
-
-        gun.mod_stats.setdefault('mods', {}).setdefault('splash_range', 0)
-        gun.mod_stats['mods']['splash_range'] += 1
-
-
-
-
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_range(1),
+            mod_burst(1),
+            mod_splash_range(1)
+        ])

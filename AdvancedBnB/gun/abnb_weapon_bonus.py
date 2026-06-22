@@ -97,7 +97,7 @@ class wp_bonus_sniper(Modifier):
 
     @property
     def effect(self):
-        equipment = self.linked_property.linked_equipment
+        equipment = self.get_linked_equipment()
         range_value = math.ceil(equipment.range / 2)
         tier_value = math.ceil(equipment.tier / 2)
         return f"When Attacking a Target over {range_value} Range: ACC MOD +{tier_value}."

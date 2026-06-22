@@ -62,40 +62,40 @@ if __name__ == '__main__':
 
         if args.item_type == 'gun':
             new_gun = Gun()
-            new_gun.generate(props=props)
+            new_gun.generate()
             print(new_gun)
             new_gun.generate_card()
 
         elif args.item_type == 'shield':
             new_shield = Shield()
-            new_shield.generate(props=props)
+            new_shield.generate()
             print(new_shield)
             new_shield.generate_card()
 
         elif args.item_type == 'grenade':
             new_grenade = Grenade()
-            new_grenade.generate(props=props)
+            new_grenade.generate()
             print(new_grenade)
             new_grenade.generate_card()
 
         elif args.item_type == 'relic':
             new_item = Relic()
-            new_item.generate(props=props)
+            new_item.generate()
             print(new_item)
             new_item.generate_card()
 
         elif args.item_type == 'class-mod':
             new_item = ClassMod()
-            new_item.generate(props=props)
+            new_item.generate()
             print(new_item)
             new_item.generate_card()
 
         elif args.item_type == 'health_potion':
-            new_potion = HealthPotion(props=props)
+            new_potion = HealthPotion()
             new_potion.generate_card()
 
         elif args.item_type == 'shield_potion':
-            new_potion = ShieldPotion(props=props)
+            new_potion = ShieldPotion()
             new_potion.generate_card()
 
 
