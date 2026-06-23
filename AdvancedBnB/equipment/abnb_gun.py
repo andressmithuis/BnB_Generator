@@ -53,6 +53,7 @@ class Gun(Equipment):
         d4 = Dice(1, 4)
         d6 = Dice(1, 6)
         d12 = Dice(1, 12)
+        Dice.input_rolls = True
 
         # Determine level and tier
         self.tier = get_item_tier(self.level)
@@ -60,7 +61,7 @@ class Gun(Equipment):
         # Manufacturer and gun type
         print(f"Determining Gun Manufacturer...")
         while self.manufacturer is None:
-            roll = d12.roll()
+            roll = d12.roll(f"Roll for Manufacturer")
             new_manufacturer = manufacturer_table[roll]
             print(f"Rolled a {roll}! Gun Manufacturer = {new_manufacturer}")
             if new_manufacturer == Manufacturers.ERIDIAN:
@@ -71,7 +72,7 @@ class Gun(Equipment):
                 self.set_manufacturer(new_manufacturer)
 
         print(f"Determining Gun Type...")
-        roll = d12.roll()
+        roll = d12.roll(f"Roll for Gun Type")
         self.gun_type = self.manufacturer.make_random_gun(roll)
         print(f"Rolled a {roll}! Gun Type = {self.gun_type}")
 
@@ -82,8 +83,8 @@ class Gun(Equipment):
 
         # Rarity and element
         print(f"Determining Gun Rarity and Element...")
-        d4_roll = d4.roll()
-        d6_roll = d6.roll()
+        d4_roll = d4.roll(f"Roll for Rarity and Element(1/2)")
+        d6_roll = d6.roll(f"Roll for Rarity and Element(2/2)")
         self.rarity, roll_for_element = rarity_tables['normal'][d4_roll][d6_roll]
 
         print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Gun Rarity = {self.rarity}.{' Might also be Elemental.' if roll_for_element else ''}")
@@ -96,7 +97,7 @@ class Gun(Equipment):
         while self.n_parts < self.max_parts:
             add_part = True
             print(f"Rolling for part {self.n_parts+1}/{self.max_parts}...")
-            roll = d100.roll()
+            roll = d100.roll(f"Roll for Gun Part")
             part = lookup_in_table(weapon_parts_table, roll)
 
             if part == 'sight':
@@ -134,7 +135,7 @@ class Gun(Equipment):
             roll_for_element = False
 
         while roll_for_element is True or len(self.elements) < self.min_elements:
-            dice_roll = min([d100.roll() + self.elemental_roll_bonus, 100])
+            dice_roll = min([d100.roll(f"Roll on Element table") + self.elemental_roll_bonus, 100])
             el_roll = lookup_in_table(elemental_table, dice_roll)[self.rarity]
 
             # Ignore disabled elements
@@ -144,13 +145,14 @@ class Gun(Equipment):
             if el_roll is None:
                 print(f"NO ELEMENT ROLLED! {dice_roll}")
             elif type(el_roll) == Fusion:
-                d8 = Dice.from_string('2d8')
+                d8 = Dice.from_string('1d8')
 
                 while True:
-                    rolls = d8.roll_dice()
+                    roll_1 = d8.roll_dice(f"Roll on Elemental Fusion Table(1/2)")
+                    roll_2 = d8.roll_dice(f"Roll on Elemental Fusion Table(2/2)")
                     # TODO: Handle 'Special' columns
-                    if rolls[0] != 8 and rolls[0] != rolls[1]:
-                        fusion_el = fusion_table[rolls[0]][rolls[1]]
+                    if roll_1 != 8 and roll_1 != roll_2:
+                        fusion_el = fusion_table[roll_1][roll_2]
 
                         if fusion_el is not None and fusion_el != 'special':
                             if fusion_el is not None:
@@ -195,7 +197,7 @@ class Gun(Equipment):
             asset_data = json.load(file)
 
         self.asset = random.choice(asset_data['weapons'][self.gun_type.asset_dir])
-        self.name = self.asset['item_name']
+        self.name_raw = self.asset['item_name']
 
     def pick_weapon_accessory(self):
         d100 = Dice.from_string('1d100')
@@ -203,7 +205,7 @@ class Gun(Equipment):
         part = None
         retries_left = 50
         while retries_left > 0:
-            roll = d100.roll()
+            roll = d100.roll(f"Roll for Gun Accessory")
             part = lookup_in_table(weapon_accessories_table, roll)
             # Check if part already present
             for property in self.equipment_properties:
@@ -227,7 +229,7 @@ class Gun(Equipment):
 
         retries_left = 50
         while retries_left > 0:
-            roll = d100.roll()
+            roll = d100.roll(f"Roll for Gun Scope")
             part = lookup_in_table(weapon_sight_table, roll)
             # Check if part already present
             for property in self.equipment_properties:
@@ -304,7 +306,7 @@ class Gun(Equipment):
     def  __repr__(self):
         str = ''
         str += f"--- Generated Gun --- \n"
-        str += f"Name: <{self.name_prefix + ' ' if self.name_prefix != '' else ''}{self.name}> \n"
+        str += f"Name: <{self.name}> \n"
         str += f"Type: (Lv.{self.level}) {self.rarity} {self.gun_type}\n"
         str += f"Manufacturer: {self.manufacturer}\n"
         str += f"n Gun Parts: {self.max_parts}\n"

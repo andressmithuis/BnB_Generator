@@ -1,6 +1,8 @@
 import random
 
 class Dice:
+    input_rolls = False
+
     def __init__(self, count, sides):
         self.count = count
         self.sides = sides
@@ -8,28 +10,26 @@ class Dice:
     def __repr__(self):
         return f"{self.count}d{self.sides}"
 
-    def roll_dice(self, user=False):
-        rolls = [random.randint(1, self.sides) for _ in range(self.count)]
-        if user:
-            rolls = self.ask_for_roll()
+    def roll_extended(self):
+        return [random.randint(1, self.sides) for _ in range(self.count)]
 
-        return rolls
+    def roll(self, text=None):
+        rolls = self.roll_extended()
+        total = sum(rolls)
 
-    def roll(self, user=False):
-        roll = sum(self.roll_dice())
-        if user:
-            roll = self.ask_for_roll()
+        if self.input_rolls is True:
+            total = self.ask_for_roll(text)
 
-        return roll
+        return total
 
     def ask_for_roll(self, text=None):
         roll = None
         if text is None:
-            text = f"Please roll {self}"
+            text = f"Please roll"
 
         valid_roll = False
         while not valid_roll:
-            roll = int(input(f"{text}:"))
+            roll = int(input(f"[{self}] {text}:"))
             if self.count <= roll <= self.count * self.sides:
                 valid_roll = True
 

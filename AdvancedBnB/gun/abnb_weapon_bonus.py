@@ -73,7 +73,7 @@ class BonusLauncher(WeaponBonus):
 # --- Gun Bonus specififc Modifiers ---
 class wp_bonus_rifle(Modifier):
     name = 'Combat Rifle Bonus'
-    effect = f"Combat Rifles always spawn with an Accessory Part. This Part doesn't count towards the maximum numer of Parts for this Gun."
+    effect = f"Combat Rifles always come with an Accessory Part. This Part doesn't count towards the maximum numer of Parts for this Gun."
     hidden = True
 
     def __init__(self):

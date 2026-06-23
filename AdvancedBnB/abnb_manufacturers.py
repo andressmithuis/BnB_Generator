@@ -1,4 +1,3 @@
-from .abnb_element import FusionElement
 from .gun.abnb_guntypes import Guntypes
 from .gun.abnb_weapon_parts import wp_part_bayonet
 from .gun.abnb_weapon_traits import *
@@ -11,11 +10,11 @@ from util import lookup_in_table
 class Manufacturer:
     name = ''
 
-    def pick_secondary_weapon_trait(self, user_roll=False):
+    def pick_secondary_weapon_trait(self):
         return
 
-    def roll_for_secondary_weapon_trait(self, table, user_roll=False):
-        roll = Dice(1, 6).roll(user_roll)
+    def roll_for_secondary_weapon_trait(self, table):
+        roll = Dice(1, 6).roll(f"Roll for Secondary Manufacturer Gun Trait")
         trait = lookup_in_table(table, roll)
         print(f"Rolled a {roll}! Gun Trait <{trait.name}> added.")
 
@@ -57,13 +56,13 @@ class Anshin(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self, user_roll=False):
+    def pick_secondary_weapon_trait(self):
         table = {
             (1, 3): self.weapon_traits['secondary'][0],
             (4, 6): self.weapon_traits['secondary'][1]
         }
 
-        return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
+        return self.roll_for_secondary_weapon_trait(table)
 
     def make_random_shield(self):
         return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
@@ -185,17 +184,17 @@ class Dahl(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self, user_rolls=False):
+    def pick_secondary_weapon_trait(self):
         return []
 
-    def pick_fire_mode(self, user_roll=False):
+    def pick_fire_mode(self):
         table = {
             (1, 2): self.weapon_traits['secondary'][0],
             (3, 4): self.weapon_traits['secondary'][1],
             (5, 6): self.weapon_traits['secondary'][2]
         }
 
-        return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
+        return self.roll_for_secondary_weapon_trait(table)
 
     def make_random_shield(self):
         starting_parts = {
@@ -244,14 +243,14 @@ class Hyperion(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self, user_roll=False):
+    def pick_secondary_weapon_trait(self):
         table = {
             (1, 2): self.weapon_traits['secondary'][0],
             (3, 4): self.weapon_traits['secondary'][1],
             (5, 6): self.weapon_traits['secondary'][2]
         }
 
-        return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
+        return self.roll_for_secondary_weapon_trait(table)
 
     def make_random_shield(self):
         return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
@@ -293,14 +292,14 @@ class Jakobs(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self, user_roll=False):
+    def pick_secondary_weapon_trait(self):
         table = {
             (1, 2): self.weapon_traits['secondary'][0],
             (3, 4): self.weapon_traits['secondary'][1],
             (5, 6): self.weapon_traits['secondary'][2]
         }
 
-        return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
+        return self.roll_for_secondary_weapon_trait(table)
 
     def make_random_shield(self):
         return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
@@ -389,14 +388,14 @@ class Torgue(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self, user_roll=False):
+    def pick_secondary_weapon_trait(self):
         table = {
             (1, 2): self.weapon_traits['secondary'][0],
             (3, 4): self.weapon_traits['secondary'][1],
             (5, 6): self.weapon_traits['secondary'][2]
         }
 
-        return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
+        return self.roll_for_secondary_weapon_trait(table)
 
     def make_random_shield(self):
         starting_parts = {
@@ -449,13 +448,13 @@ class Pangolin(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self, user_roll=False):
+    def pick_secondary_weapon_trait(self):
         table = {
             (1, 3): self.weapon_traits['secondary'][0],
             (4, 6): self.weapon_traits['secondary'][1],
         }
 
-        return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
+        return self.roll_for_secondary_weapon_trait(table)
 
     def make_random_shield(self):
         return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
@@ -497,13 +496,13 @@ class Tediore(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self, user_roll=False):
+    def pick_secondary_weapon_trait(self):
         table = {
             (1, 3): self.weapon_traits['secondary'][0],
             (4, 6): self.weapon_traits['secondary'][1],
         }
 
-        return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
+        return self.roll_for_secondary_weapon_trait(table)
 
     def make_random_shield(self):
         return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
@@ -545,13 +544,13 @@ class Vladof(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self, user_roll=False):
+    def pick_secondary_weapon_trait(self):
         table = {
             (1, 3): self.weapon_traits['secondary'][0],
             (4, 6): self.weapon_traits['secondary'][1],
         }
 
-        return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
+        return self.roll_for_secondary_weapon_trait(table)
 
     def make_random_shield(self):
         starting_parts = {
@@ -618,7 +617,7 @@ class Eridian(Manufacturer):
             trait = eridian_gun_traits[gun.gun_type]
             gun.add_property(trait)
 
-    def pick_secondary_weapon_trait(self, user_roll=False):
+    def pick_secondary_weapon_trait(self):
         return
 
 

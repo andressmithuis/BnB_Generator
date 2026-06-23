@@ -217,7 +217,7 @@ class Shield(Equipment):
             asset_data = json.load(file)
 
         self.asset = random.choice(asset_data['shields'])
-        self.name = self.asset['item_name']
+        self.name_raw = self.asset['item_name']
 
     def generate_card(self):
         generate_shield_card(self)
@@ -233,7 +233,7 @@ class Shield(Equipment):
     def  __repr__(self):
         str = ''
         str += f"--- Generated Shield --- \n"
-        str += f"Name: <{self.name_prefix + ' ' if self.name_prefix != '' else ''}{self.name}> \n"
+        str += f"Name: <{self.name}> \n"
         str += f"Type: (Lv.{self.level}) {self.rarity} {self.shield_type} Shield\n"
         str += f"Tag: {self.tag.name}\n"
         str += f"Manufacturer: {self.manufacturer}\n"

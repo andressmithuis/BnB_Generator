@@ -96,7 +96,7 @@ def generate_gun_card(gun_obj):
     card_front = card_add_element(card_front, gun_obj)
 
     # Add gun name
-    item_name = f"{gun_obj.name_prefix + ' ' if gun_obj.name_prefix != '' else ''}{gun_obj.name}"
+    item_name = f"{gun_obj.name}"
     card_front = card_add_item_name(card_front, item_name)
     card_back = card_add_item_name(card_back, item_name)
 

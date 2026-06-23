@@ -67,9 +67,8 @@ def generate_shield_card(shield_obj):
     card_front = card_add_element(card_front, shield_obj)
 
     # Add shield name
-    item_name = f"{shield_obj.name_prefix + ' ' if shield_obj.name_prefix != '' else ''}{shield_obj.name}"
-    card_front = card_add_item_name(card_front, item_name)
-    card_back = card_add_item_name(card_back, item_name)
+    card_front = card_add_item_name(card_front, shield_obj.name)
+    card_back = card_add_item_name(card_back, shield_obj.name)
 
     # Add Rarity and Shield Type
     item_rarity = f"{shield_obj.rarity}".upper()

@@ -6,8 +6,8 @@ from .common_modifiers import mod_template
 
 class Equipment:
     def __init__(self):
-        self.name = ''
         self.name_prefix = ''
+        self.name_raw = ''
         self.level = 1
         self.tier = 1
         self._rarity = Rarity.COMMON
@@ -52,6 +52,10 @@ class Equipment:
                 mod_value += modifier.value
 
         return mod_value
+
+    @property
+    def name(self):
+        return f"{self.name_prefix}{' ' if len(self.name_prefix) != 0 else ''}{self.name_raw}"
 
     @property
     def rarity(self):
