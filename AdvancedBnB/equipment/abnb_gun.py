@@ -1,5 +1,6 @@
 import json
 import random
+from copy import deepcopy
 
 from AdvancedBnB.abnb_tables import rarity_tables, weapon_part_count, elemental_table, fusion_table
 from AdvancedBnB.abnb_util import get_item_tier
@@ -39,12 +40,8 @@ class Gun(Equipment):
             'mag_size': 0
         }
 
-        self.hits_crits = self.base_stats['hits_crits']
-
         self.hit_dice = Dice(1, 4)
         self.crit_dice = Dice(1, 4)
-        self.range = 0
-        self.mag_size = 0
 
         self.n_scopes = 0
         self.max_scopes = 1
@@ -82,8 +79,6 @@ class Gun(Equipment):
         self.base_stats = self.gun_type.get_basestats(self.tier)
         self.hit_dice = self.base_stats['hit_dice']
         self.crit_dice = self.base_stats['crit_dice']
-        self.range = self.base_stats['range']
-        self.mag_size = self.base_stats['mag_size']
 
         # Rarity and element
         print(f"Determining Gun Rarity and Element...")
@@ -99,6 +94,7 @@ class Gun(Equipment):
 
         # Roll for remaining parts
         while self.n_parts < self.max_parts:
+            add_part = True
             print(f"Rolling for part {self.n_parts+1}/{self.max_parts}...")
             roll = d100.roll()
             part = lookup_in_table(weapon_parts_table, roll)
@@ -108,19 +104,21 @@ class Gun(Equipment):
                 if self.n_scopes < self.max_scopes:
                     part = self.pick_weapon_scope()
                     self.n_scopes += 1
+                else:
+                    print(f"Gun already has {self.n_scopes}/{self.max_scopes} Gun Scopes... Roll for new part...")
+                    add_part = False
             elif part == 'accessories':
                 print(f"Rolled a {roll}! You may roll for a Gun Accessory!")
                 part = self.pick_weapon_accessory()
+            else:
+                # Check if part is already applied (Scopes and Accessories perform this check in their respective functions)
+                for property in self.equipment_properties:
+                    if isinstance(property, type(part)):
+                        print(f"Picked a <{part.name}>! But the Gun already has it... Try again!")
+                        add_part = False
+                        break
 
-            # Check if part is already applied
-            part_exists = False
-            for property in self.equipment_properties:
-                if isinstance(property, type(part)):
-                    part_exists = True
-                    print(f"Picked a <{part.name}>! But the Gun already has it... Try again!")
-                    break
-
-            if part_exists is False:
+            if add_part is True:
                 self.add_property(part)
                 self.n_parts += 1
 
@@ -170,9 +168,6 @@ class Gun(Equipment):
             self.manufacturer = Manufacturers.ERIDIAN
             self.manufacturer.gun_part_exception(self)
 
-        # Calculate final stats
-        self.calculate_stats()
-
         # Randomly choose a name
         self.randomize_name()
 
@@ -194,39 +189,6 @@ class Gun(Equipment):
         trait = self.manufacturer.pick_secondary_weapon_trait()
         if trait:
             self.add_property(trait)
-
-    def calculate_stats(self):
-        # Load base stats
-        self.hits_crits = self.base_stats['hits_crits'].copy()
-        self.mag_size = self.base_stats['mag_size']
-
-        # Apply Modifiers to stats
-        for mod in self.equipment_modifiers:
-            if isinstance(mod, mod_burst):
-                for atk in ['glance', 'solid', 'penetrate']:
-                    self.hits_crits[atk]['hits'] += mod.value
-
-            elif isinstance(mod, mod_range):
-                self.range += mod.value
-
-            elif isinstance(mod, mod_mag_size):
-                self.mag_size += mod.value
-
-            elif isinstance(mod, mod_penetrate_crits):
-                self.hits_crits['penetrate']['crits'] += mod.value
-
-        # Clamp values
-        # Magazine size cannot go below 1
-        if self.mag_size < 1:
-            self.mag_size = 1
-
-        # Hits & Crits cannot be lowered below 1
-        for atk in ['glance', 'solid', 'penetrate']:
-            if self.hits_crits[atk]['hits'] < 1 and self.base_stats['hits_crits'][atk]['hits'] > 0:
-                self.hits_crits[atk]['hits'] = 1
-
-            if self.hits_crits[atk]['crits'] < 1 and self.base_stats['hits_crits'][atk]['crits'] > 0:
-                self.hits_crits[atk]['crits'] = 1
 
     def randomize_name(self):
         with open('assets.json') as file:
@@ -296,6 +258,43 @@ class Gun(Equipment):
             self.add_property(new_trait)
 
         self._gun_type = new_type
+
+    @property
+    def mag_size(self):
+        mag_size = self.base_stats['mag_size'] + self.get_modifier_value(mod_mag_size)
+
+        # Magazine size cannot go below 1
+        if mag_size < 1:
+            mag_size = 1
+
+        return mag_size
+
+    @property
+    def range(self):
+        return self.base_stats['range'] + self.get_modifier_value(mod_range)
+
+    @property
+    def hits_crits(self):
+        # Load base stats
+        stats = deepcopy(self.base_stats['hits_crits'])
+
+        # Apply Modifiers to stats
+        burst_value = self.get_modifier_value(mod_burst)
+        for atk in ['glance', 'solid', 'penetrate']:
+            stats[atk]['hits'] += burst_value
+
+        stats['penetrate']['crits'] += self.get_modifier_value(mod_penetrate_crits)
+
+        # Clamp values
+        # Hits & Crits cannot be lowered below 1 (if Gun basestats were non-zero)
+        for atk in ['glance', 'solid', 'penetrate']:
+            if stats[atk]['hits'] < 1 and self.base_stats['hits_crits'][atk]['hits'] != 0:
+                stats[atk]['hits'] = 1
+
+            if stats[atk]['crits'] < 1 and self.base_stats['hits_crits'][atk]['crits'] != 0:
+                stats[atk]['crits'] = 1
+
+        return stats
 
 
     def generate_card(self):

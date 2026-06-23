@@ -1,5 +1,4 @@
 from util.modifier import AdditiveModifier
-from .abnb_shieldtypes import Shieldtypes
 
 class ShieldPartModifier(AdditiveModifier):
     name = '<Shield Part Name>'
@@ -11,10 +10,12 @@ class ShieldPartModifier(AdditiveModifier):
 # --- Stat Modifiers ---
 class mod_capacity(AdditiveModifier):
     name = 'Capacity'
+    hidden = True
 
 
 class mod_shield_regen(AdditiveModifier):
     name = 'Shield Regen'
+    hidden = True
 
 
 class mod_max_health(AdditiveModifier):

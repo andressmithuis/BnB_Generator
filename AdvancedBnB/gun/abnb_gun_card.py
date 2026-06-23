@@ -88,9 +88,7 @@ def generate_gun_card(gun_obj):
     ammo_cnt_field.sq = True
 
     origin_x = ammo_cnt_field.x - ((n_fields / 2) * ammo_cnt_field.w) + (0.5 * ammo_cnt_field.w)
-    for i in range(n_fields):
-        if i > gun_obj.mag_size:
-            break
+    for i in range(gun_obj.mag_size):
         ammo_cnt_field.x = origin_x + (ammo_cnt_field.w * i)
         card_front = draw_image_to_field(card_front, symbol, ammo_cnt_field)
 

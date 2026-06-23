@@ -135,7 +135,7 @@ class wp_bonus_shotgun(Modifier):
 
     @property
     def effect(self):
-        equipment = self.linked_property.linked_equipment
+        equipment = self.get_linked_equipment()
         range_value = math.floor(equipment.range / 2)
         tier_value = equipment.tier
         return f"When Attacking a Target within {range_value} Range: DMG MOD +{tier_value} ."

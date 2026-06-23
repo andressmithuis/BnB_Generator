@@ -80,7 +80,7 @@ def generate_shield_card(shield_obj):
     card_front = card_add_tr_text(card_front, item_type)
     card_back = card_add_tr_text(card_back, item_type)
 
-    # Capacity and Recharge Rate
+    # --- Capacity and Recharge Rate ---
     # Icons
     colors = {
         Rarity.COMMON: (191, 191, 191),

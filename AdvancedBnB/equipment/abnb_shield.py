@@ -46,10 +46,8 @@ class Shield(Equipment):
         # Manufacturer and shield type
         print(f"Determining Shield Manufacturer...")
 
-        next_roll = 4
         while self.manufacturer is None:
             roll = d12.roll()
-            roll = next_roll
             new_manufacturer = manufacturer_table[roll]
             print(f"Rolled a {roll}! Shield Manufacturer = {new_manufacturer}")
             if new_manufacturer == Manufacturers.ERIDIAN:
@@ -58,8 +56,6 @@ class Shield(Equipment):
                 self.manufacturer = None
             else:
                 self.set_manufacturer(new_manufacturer)
-
-            next_roll = 7
 
         print(f"Shield Type = {self.shield_type}")
         print(f"Shield Tag = {self.tag}")
@@ -75,16 +71,12 @@ class Shield(Equipment):
         print(f"Determining Shield Rarity and Element...")
         d4_roll = d4.roll()
         d6_roll = d6.roll()
-        d4_roll = 4
-        d6_roll = 6
         self.rarity, roll_for_element = rarity_tables['normal'][d4_roll][d6_roll]
 
         if roll_for_element:
             self.roll_for_element()
 
         print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Shield Rarity = {self.rarity}, Element = {[el for el in self.elements]}")
-
-
 
         # Roll for Shield parts
         print(f"Determining Shield Parts...")
@@ -157,11 +149,12 @@ class Shield(Equipment):
 
             # Ignore disabled elements
             if type(el_roll) in [type(el) for el in self.disabled_elements]:
+                print(f"Rolled Element ({el_roll.name}) is forbidden!")
                 el_roll = None
 
             if el_roll is None:
-                print(f"NO ELEMENT ROLLED! {dice_roll}")
-            elif type(el_roll) == Fusion:
+                print(f"No Element rolled! {dice_roll}")
+            elif isinstance(el_roll, Fusion):
                 d8 = Dice.from_string('2d8')
 
                 while True:

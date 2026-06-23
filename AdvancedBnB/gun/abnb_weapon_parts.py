@@ -178,13 +178,6 @@ class wp_part_hollow_points(WeaponPart):
     name = 'Hollow Points'
     effect = '-1 Hit Damage, +3 Crit Damage.'
 
-    def apply(self, gun):
-        gun.mod_stats.setdefault('mods', {}).setdefault('hit_dmg', 0)
-        gun.mod_stats.setdefault('mods', {}).setdefault('crit_dmg', 0)
-        gun.mod_stats['mods']['hit_dmg'] -= 1
-        gun.mod_stats['mods']['crit_dmg'] += 3
-
-
     def reload_modifiers(self):
         self.replace_modifiers([
             mod_hit_damage(-1),
