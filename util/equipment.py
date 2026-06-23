@@ -16,7 +16,6 @@ class Equipment:
         self.eridian = False
 
         self.n_parts = 0
-        self.max_parts = 0
 
         self.equipment_properties = []
         self.equipment_modifiers = []
@@ -28,6 +27,13 @@ class Equipment:
         self.elemental_roll_bonus = 0
         self.min_elements = 0
         self.disabled_elements = []
+
+    def has_property(self, property_type):
+        for property in self.equipment_properties:
+            if isinstance(property, property_type):
+                return True
+
+        return False
 
     def add_property(self, property):
         # Link property and add modifiers
@@ -44,6 +50,13 @@ class Equipment:
     def update_modifiers(self):
         for property in self.equipment_properties:
             property.reload_modifiers()
+
+    def has_modifier(self, modifier_type):
+        for modifier in self.equipment_modifiers:
+            if isinstance(modifier, modifier_type):
+                return True
+
+        return False
 
     def get_modifier_value(self, modifier_type):
         mod_value = 0

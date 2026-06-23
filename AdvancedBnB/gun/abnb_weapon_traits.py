@@ -1,10 +1,7 @@
-import math
-
 from util import EquipmentProperty
 from util.common_modifiers import *
 
 from AdvancedBnB.gun.abnb_weapon_modifiers import *
-from AdvancedBnB.shield import Shieldtypes
 
 # Wrapper class
 class WeaponTrait(EquipmentProperty):
@@ -143,10 +140,18 @@ class trait_tacticool(WeaponTrait):
     name = 'Tacti-cool'
     effect = "Gains extra Gun Parts."
 
+    tacticool = {
+        Rarity.COMMON: [mod_tacticool_firemodes(1), mod_fixed_scopes(1)],
+        Rarity.UNCOMMON: [mod_tacticool_firemodes(1), mod_fixed_scopes(1), mod_extra_accessories(1)],
+        Rarity.RARE: [mod_tacticool_firemodes(2), mod_fixed_scopes(1), mod_extra_accessories(1)],
+        Rarity.EPIC: [mod_tacticool_firemodes(2), mod_fixed_scopes(2), mod_extra_accessories(1)],
+        Rarity.LEGENDARY: [mod_tacticool_firemodes(2), mod_fixed_scopes(2), mod_extra_accessories(2)],
+        Rarity.PEARLESCENT: [mod_tacticool_firemodes(2), mod_fixed_scopes(2), mod_extra_accessories(3)],
+    }
+
     def reload_modifiers(self):
-        self.replace_modifiers([
-            mod_tacticool()
-        ])
+        equipment = self.linked_equipment
+        self.replace_modifiers(self.tacticool[equipment.rarity])
 
 
 class trait_reconfigure(WeaponTrait):

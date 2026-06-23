@@ -2,17 +2,16 @@ import json
 import random
 from copy import deepcopy
 
+from util import Equipment, Dice, lookup_in_table
+from AdvancedBnB import Fusion
 from AdvancedBnB.abnb_tables import rarity_tables, weapon_part_count, elemental_table, fusion_table
 from AdvancedBnB.abnb_util import get_item_tier
-from AdvancedBnB.gun.abnb_gun_card import generate_gun_card
-from AdvancedBnB import Fusion
 from AdvancedBnB.abnb_manufacturers import Manufacturers, manufacturer_table
-from AdvancedBnB.gun.abnb_weapon_modifiers import mod_burst, mod_range, mod_mag_size, mod_penetrate_crits
-from util import Equipment, Dice, lookup_in_table
-
+from AdvancedBnB.gun.abnb_weapon_modifiers import *
 from AdvancedBnB.gun.abnb_weapon_traits import WeaponTrait
-from AdvancedBnB.gun.abnb_weapon_parts import weapon_parts_table, weapon_accessories_table, weapon_sight_table, WeaponPart
+from AdvancedBnB.gun.abnb_weapon_parts import WeaponPart, WeaponPartScope, weapon_parts_table, weapon_accessories_table, weapon_sight_table
 from AdvancedBnB.gun.abnb_guntypes import Guntypes
+from AdvancedBnB.gun.abnb_gun_card import generate_gun_card
 
 
 def mod_to_string(val_1, val_2):
@@ -43,17 +42,13 @@ class Gun(Equipment):
         self.hit_dice = Dice(1, 4)
         self.crit_dice = Dice(1, 4)
 
-        self.n_scopes = 0
-        self.max_scopes = 1
-
-
     def generate(self, user_rolls=False):
         # Prepare dice
         d100 = Dice(1, 100)
         d4 = Dice(1, 4)
         d6 = Dice(1, 6)
         d12 = Dice(1, 12)
-        Dice.input_rolls = True
+        #Dice.input_rolls = True
 
         # Determine level and tier
         self.tier = get_item_tier(self.level)
@@ -91,35 +86,67 @@ class Gun(Equipment):
 
         # Roll for weapon parts
         print(f"Determining Gun Parts...")
-        self.max_parts = weapon_part_count[self.rarity]
+
+        # Resolve Gun Parts provided by Traits/Mods (These all do not count towards Part count total)
+        max_firemodes = self.get_modifier_value(mod_tacticool_firemodes)
+        n_firemodes = 0
+        while n_firemodes < max_firemodes:
+            fire_mode = Manufacturers.DAHL.pick_fire_mode()
+            if self.has_property(type(fire_mode)) is False:
+                self.add_property(fire_mode)
+                n_firemodes += 1
+            else:
+                print(f"Fire mode <{fire_mode.name}> already present!")
+
+        max_scopes = self.get_modifier_value(mod_fixed_scopes)
+        n_scopes = 0
+        while n_scopes < max_scopes:
+            scope_part = self.pick_weapon_scope()
+            if self.has_property(type(scope_part)) is False:
+                self.add_property(scope_part)
+                n_scopes += 1
+            else:
+                print(f"Scope Part <{scope_part.name}> already present!")
+
+        max_parts = self.get_modifier_value(mod_extra_accessories)
+        n_parts = 0
+        while n_parts < max_parts:
+            accessory_part = self.pick_weapon_accessory()
+            if self.has_property(type(accessory_part)) is False:
+                self.add_property(accessory_part)
+                n_parts += 1
+            else:
+                print(f"Accessory Part <{accessory_part.name}> already present!")
 
         # Roll for remaining parts
+        self.n_parts = 0
         while self.n_parts < self.max_parts:
-            add_part = True
             print(f"Rolling for part {self.n_parts+1}/{self.max_parts}...")
             roll = d100.roll(f"Roll for Gun Part")
             part = lookup_in_table(weapon_parts_table, roll)
 
             if part == 'sight':
                 print(f"Rolled a {roll}! You may roll for a Gun Scope!")
-                if self.n_scopes < self.max_scopes:
-                    part = self.pick_weapon_scope()
-                    self.n_scopes += 1
+                if self.has_property(WeaponPartScope):
+                    print(f"Gun already has a Gun Scope... Roll for new part...")
+                    part = None
                 else:
-                    print(f"Gun already has {self.n_scopes}/{self.max_scopes} Gun Scopes... Roll for new part...")
-                    add_part = False
+                    part = self.pick_weapon_scope()
+                    # Check if Scope is compatible with the Gun Type
+                    if not self.gun_type in part.weapon_types:
+                        print(f"Gun Type <{self.gun_type}> is not compatible with Scope <{part.name}>... Roll for new part...")
+                        part = None
+
             elif part == 'accessories':
                 print(f"Rolled a {roll}! You may roll for a Gun Accessory!")
                 part = self.pick_weapon_accessory()
-            else:
-                # Check if part is already applied (Scopes and Accessories perform this check in their respective functions)
-                for property in self.equipment_properties:
-                    if isinstance(property, type(part)):
-                        print(f"Picked a <{part.name}>! But the Gun already has it... Try again!")
-                        add_part = False
-                        break
 
-            if add_part is True:
+            # Check if part is already applied
+            if self.has_property(type(part)):
+                print(f"Picked a <{part.name}>! But the Gun already has it... Try again!")
+                part = None
+
+            if part is not None:
                 self.add_property(part)
                 self.n_parts += 1
 
@@ -148,8 +175,8 @@ class Gun(Equipment):
                 d8 = Dice.from_string('1d8')
 
                 while True:
-                    roll_1 = d8.roll_dice(f"Roll on Elemental Fusion Table(1/2)")
-                    roll_2 = d8.roll_dice(f"Roll on Elemental Fusion Table(2/2)")
+                    roll_1 = d8.roll(f"Roll on Elemental Fusion Table(1/2)")
+                    roll_2 = d8.roll(f"Roll on Elemental Fusion Table(2/2)")
                     # TODO: Handle 'Special' columns
                     if roll_1 != 8 and roll_1 != roll_2:
                         fusion_el = fusion_table[roll_1][roll_2]
@@ -201,25 +228,8 @@ class Gun(Equipment):
 
     def pick_weapon_accessory(self):
         d100 = Dice.from_string('1d100')
-
-        part = None
-        retries_left = 50
-        while retries_left > 0:
-            roll = d100.roll(f"Roll for Gun Accessory")
-            part = lookup_in_table(weapon_accessories_table, roll)
-            # Check if part already present
-            for property in self.equipment_properties:
-                if isinstance(part, type(property)):
-                    print(f"Rolled a {roll}! But the part <{part.name}> is already equipped. Roll again...")
-                    part = None
-                    retries_left -= 1
-                    break
-
-            if part is not None:
-                print(f"Rolled a {roll}! Adding Gun Accessory <{part.name}>!")
-                break
-
-        assert part is not None, f"Failed to roll for a Weapon Accessory..."
+        roll = d100.roll(f"Roll for Gun Accessory")
+        part = lookup_in_table(weapon_accessories_table, roll)
 
         return part
 
@@ -276,6 +286,19 @@ class Gun(Equipment):
         return self.base_stats['range'] + self.get_modifier_value(mod_range)
 
     @property
+    def max_parts(self):
+        return weapon_part_count[self.rarity] + self.get_modifier_value(mod_maximum_parts)
+
+    @property
+    def n_scopes(self):
+        scope_cnt = 0
+        for property in self.equipment_properties:
+            if isinstance(property, WeaponPartScope):
+                scope_cnt += 1
+
+        return scope_cnt
+
+    @property
     def hits_crits(self):
         # Load base stats
         stats = deepcopy(self.base_stats['hits_crits'])
@@ -309,8 +332,8 @@ class Gun(Equipment):
         str += f"Name: <{self.name}> \n"
         str += f"Type: (Lv.{self.level}) {self.rarity} {self.gun_type}\n"
         str += f"Manufacturer: {self.manufacturer}\n"
-        str += f"n Gun Parts: {self.max_parts}\n"
-        str += f"n Gun Scope: {self.max_scopes}\n"
+        str += f"n Gun Parts: {self.n_parts}\n"
+        str += f"n Gun Scope: {self.n_scopes}\n"
 
         str += f"Elements: \n"
         if self.forced_elemental or not self.forced_non_elemental:

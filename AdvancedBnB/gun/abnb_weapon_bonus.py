@@ -1,7 +1,7 @@
 import math
 
-from util import EquipmentProperty, Modifier, mod_template
-from .abnb_weapon_modifiers import mod_splash
+from util import EquipmentProperty, mod_template
+from .abnb_weapon_modifiers import *
 
 
 class WeaponBonus(EquipmentProperty):
@@ -34,16 +34,15 @@ class BonusRifle(WeaponBonus):
 
     def reload_modifiers(self):
         self.replace_modifiers([
-            wp_bonus_rifle()
+            mod_extra_accessories(1)
         ])
-
 
 class BonusSniper_scope(WeaponBonus):
     name = 'Sniper Rifle Bonus'
     effect = f"Sniper Rifle always spawn with a Scope Part. This Part counts against the maximum number of Parts for this Gun."
 
     def reload_modifiers(self):
-        self.replace_modifiers([wp_bonus_sniper_scope()])
+        self.replace_modifiers([mod_fixed_scopes(1), mod_maximum_parts(-1)])
 
 
 class BonusSniper_accuracy(WeaponBonus):
@@ -71,25 +70,6 @@ class BonusLauncher(WeaponBonus):
 
 
 # --- Gun Bonus specififc Modifiers ---
-class wp_bonus_rifle(Modifier):
-    name = 'Combat Rifle Bonus'
-    effect = f"Combat Rifles always come with an Accessory Part. This Part doesn't count towards the maximum numer of Parts for this Gun."
-    hidden = True
-
-    def __init__(self):
-        self.accessory_part = None
-
-    def apply_to_equipment(self, equipment):
-        accessory_part = equipment.pick_weapon_accessory()
-        equipment.add_property(accessory_part)
-        self.accessory_part = accessory_part
-
-    def revert_from_equipment(self, equipment):
-        if self.accessory_part is not None:
-            equipment.remove_property(self.accessory_part)
-            self.accessory_part = None
-
-
 class wp_bonus_sniper(Modifier):
     name = 'Sniper Rifle Bonus'
     effect = "When Attacking a Target over half the Sniper Rifles' Range (rounded up), gain an ACC Bonus equal to half it's Tier (rounded up)."
@@ -101,31 +81,6 @@ class wp_bonus_sniper(Modifier):
         range_value = math.ceil(equipment.range / 2)
         tier_value = math.ceil(equipment.tier / 2)
         return f"When Attacking a Target over {range_value} Range: ACC MOD +{tier_value}."
-
-
-
-class wp_bonus_sniper_scope(Modifier):
-    name = 'Sniper Rifle Bonus'
-    effect = f"Sniper Rifle always spawn with a Scope Part. This Part counts against the maximum number of Parts for this Gun."
-    hidden = True
-
-    def __init__(self):
-        self.scope_part = None
-
-    def apply_to_equipment(self, equipment):
-        if equipment.n_scopes < equipment.max_scopes:
-            scope_part = equipment.pick_weapon_scope()
-            equipment.add_property(scope_part)
-            equipment.n_scopes += 1
-            equipment.n_parts += 1
-            self.scope_part = scope_part
-
-    def revert_from_equipment(self, equipment):
-        if self.scope_part is not None:
-            equipment.remove_property(self.scope_part)
-            equipment.n_scopes -= 1
-            equipment.n_parts -= 1
-            self.scope_part = None
 
 
 class wp_bonus_shotgun(Modifier):

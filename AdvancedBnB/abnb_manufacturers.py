@@ -11,7 +11,7 @@ class Manufacturer:
     name = ''
 
     def pick_secondary_weapon_trait(self):
-        return
+        return []
 
     def roll_for_secondary_weapon_trait(self, table):
         roll = Dice(1, 6).roll(f"Roll for Secondary Manufacturer Gun Trait")
@@ -186,6 +186,13 @@ class Dahl(Manufacturer):
 
     def pick_secondary_weapon_trait(self):
         return []
+
+    def roll_for_secondary_weapon_trait(self, table):
+        roll = Dice(1, 6).roll(f"Roll for Manufacturer Fire Mode Trait")
+        trait = lookup_in_table(table, roll)
+        print(f"Rolled a {roll}! Gun Trait <{trait.name}>")
+
+        return trait
 
     def pick_fire_mode(self):
         table = {

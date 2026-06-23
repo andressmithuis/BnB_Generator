@@ -5,7 +5,7 @@ from util.modifier import Modifier, AdditiveModifier
 from util import Dice, Rarity
 
 
-
+# --- Common Modifiers ---
 class mod_dmg_mod(AdditiveModifier):
     name = 'DMG MOD'
 
@@ -89,6 +89,28 @@ class mod_knock_back(AdditiveModifier):
         return f"Knock Back {'+' if self.value > 0 else ''}{self.value}%"
 
 
+class mod_fixed_scopes(AdditiveModifier):
+    name = 'Scopes'
+    hidden = True
+
+    @property
+    def effect(self):
+        return f"Gun will generate with {self.value} Scope Gun Parts"
+
+
+class mod_maximum_parts(AdditiveModifier):
+    name = 'Maximum Equipment Parts'
+    hidden = True
+
+
+class mod_extra_accessories(AdditiveModifier):
+    name = 'Extra Accessory Parts'
+    hidden = True
+
+    @property
+    def effect(self):
+        return f"Gun gain {self.value} extra Accessory Parts. These do not count towards total Gun Parts."
+
 # Anshin - Secondary Gun Properties
 healing = {
     Rarity.COMMON: 2,
@@ -154,81 +176,13 @@ class mod_overheat(Modifier):
 
 
 # --- Dahl ---
-class mod_tacticool(Modifier):
-    name = 'Tacti-cool'
-    effect = "Gains extra Parts."
+class mod_tacticool_firemodes(AdditiveModifier):
+    name = 'Tacti-cool Fire Modes'
     hidden = True
 
-    def __init__(self):
-        self.applied_fire_modes = []
-        self.applied_scopes = []
-        self.applied_accessories = []
-
-    def apply_to_equipment(self, equipment):
-        tacticool = {
-            Rarity.COMMON: {'fire_modes': 1, 'scopes': 1},
-            Rarity.UNCOMMON: {'fire_modes': 1, 'scopes': 1, 'accessories': 1},
-            Rarity.RARE: {'fire_modes': 2, 'scopes': 1, 'accessories': 1},
-            Rarity.EPIC: {'fire_modes': 2, 'scopes': 2, 'accessories': 1},
-            Rarity.LEGENDARY: {'fire_modes': 2, 'scopes': 2, 'accessories': 2},
-            Rarity.PEARLESCENT: {'fire_modes': 2, 'scopes': 2, 'accessories': 3},
-        }
-
-        extra_parts = tacticool[equipment.rarity]
-
-        # Add Fire Mode(s)
-        # (Exclusive to DAHL's 'Tacti-Cool', fixed number)
-        for _ in range(extra_parts['fire_modes']):
-            while True:
-                fire_mode = equipment.manufacturer.pick_fire_mode()
-                if fire_mode not in equipment.equipment_properties:
-                    equipment.add_property(fire_mode)
-                    self.applied_fire_modes.append(fire_mode)
-                    break
-
-        # Add Scope(s)
-        equipment.max_scopes = extra_parts['scopes']
-        for _ in range(extra_parts['scopes']):
-            if equipment.n_scopes >= equipment.max_scopes:
-                break
-            part = equipment.pick_weapon_scope()
-            equipment.add_property(part)
-            self.applied_scopes.append(part)
-            equipment.n_scopes += 1
-            equipment.n_parts += 1
-
-        # Add Bonus Accessories (don't count towards total)
-        if 'accessories' in extra_parts:
-            for _ in range(extra_parts['accessories']):
-                part = equipment.pick_weapon_accessory()
-                equipment.add_property(part)
-                self.applied_accessories.append(part)
-
-    def revert_from_equipment(self, equipment):
-        # Remove Fire Mode(s)
-        to_remove = self.applied_fire_modes.copy()
-        for fire_mode in to_remove:
-            equipment.remove_property(fire_mode)
-
-        self.applied_fire_modes.clear()
-
-        # Remove Scope(s)
-        to_remove = self.applied_scopes.copy()
-        for scope_property in to_remove:
-            equipment.remove_property(scope_property)
-            equipment.n_scopes -= 1
-            equipment.n_parts -= 1
-
-        equipment.max_scopes = 1  # Remove DAHL scope limit exception
-
-        self.applied_scopes.clear()
-
-        # Remove Bonus Accessories
-        to_remove = self.applied_accessories.copy()
-        for accessory in to_remove:
-            equipment.remove_property(accessory)
-
-        self.applied_accessories.clear()
+    @property
+    def effect(self):
+        return f"Gun will generate with {self.value} Fire Modes"
 
 
 # --- Hyperion ---

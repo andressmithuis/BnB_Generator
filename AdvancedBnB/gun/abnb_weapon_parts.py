@@ -41,7 +41,10 @@ class wp_part_matching_stock(WeaponPart):
 
 
 # Weapon Sights / Scopes
-class wp_part_iron_sight(WeaponPart):
+class WeaponPartScope(WeaponPart):
+    pass
+
+class wp_part_iron_sight(WeaponPartScope):
     name = '(Scope) Iron Sight'
     effect = 'While ADS: +1 Range and +1 Minimum ADS Range.'
     weapon_types = [Guntypes.RIFLE, Guntypes.PISTOL, Guntypes.LAUNCHER, Guntypes.SHOTGUN, Guntypes.SMG]
@@ -52,7 +55,7 @@ class wp_part_iron_sight(WeaponPart):
         self.replace_modifiers([mod_ads_range_min(1), new_modifier])
 
 
-class wp_part_reflex_sight(WeaponPart):
+class wp_part_reflex_sight(WeaponPartScope):
     name = '(Scope) Reflex Sight'
     effect = 'While ADS: +2 Range and +1 Minimum ADS Range.'
     weapon_types = [Guntypes.RIFLE, Guntypes.PISTOL, Guntypes.LAUNCHER, Guntypes.SHOTGUN, Guntypes.SMG]
@@ -63,7 +66,7 @@ class wp_part_reflex_sight(WeaponPart):
         self.replace_modifiers([mod_ads_range_min(1), new_modifier])
 
 
-class wp_part_acog(WeaponPart):
+class wp_part_acog(WeaponPartScope):
     name = '(Scope) ACOG'
     effect = 'While ADS: +3 Range and +2 Minimum ADS Range.'
     weapon_types = [Guntypes.RIFLE, Guntypes.LAUNCHER, Guntypes.SNIPER]
@@ -74,7 +77,7 @@ class wp_part_acog(WeaponPart):
         self.replace_modifiers([mod_ads_range_min(2), new_modifier])
 
 
-class wp_part_sniper_scope(WeaponPart):
+class wp_part_sniper_scope(WeaponPartScope):
     name = '(Scope) Sniper Scope'
     effect = 'While ADS: +4 Range and +3 Minimum ADS Range.'
     weapon_types = [Guntypes.RIFLE, Guntypes.SNIPER]
