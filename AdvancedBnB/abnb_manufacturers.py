@@ -27,6 +27,7 @@ class Manufacturer:
     def __repr__(self):
         return f"{self.__class__.name}"
 
+
 class Anshin(Manufacturer):
     name = 'Anshin'
     logo_file = 'Anshin.png'
@@ -64,6 +65,9 @@ class Anshin(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
+    def make_random_shield(self):
+        return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
+
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Any
         # Starting Part: Transfusion
@@ -86,6 +90,10 @@ class Atlas(Manufacturer):
             'primary': [trait_high_quality(), trait_heavy_mags(), trait_lock_on(), trait_non_elemental()],
             'secondary': []
         }
+        self.shield_traits = {
+            'tag': shd_tag_alloy(),
+            'parts': [shd_part_brimming(), trait_non_elemental()]
+        }
 
     def make_random_gun(self, dice_roll):
         table = {
@@ -96,11 +104,8 @@ class Atlas(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def edit_shield(self, shield_obj):
-        shield_obj.shield_type = self.makes['shield']
-        shield_obj.tag = shd_tag_alloy()
-        shield_obj.parts.append(shd_part_brimming())
-        shield_obj.forced_non_elemental = True
+    def make_random_shield(self):
+        return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Any
@@ -124,6 +129,10 @@ class Bandit(Manufacturer):
             'primary': [trait_big_mags(), trait_pointy(), wp_part_bayonet(), trait_overheat()],
             'secondary': []
         }
+        self.shield_traits = {
+            'tag': shd_tag_alloy(),
+            'parts': [shd_part_roid()]
+        }
 
     def make_random_gun(self, dice_roll):
         table = {
@@ -136,10 +145,8 @@ class Bandit(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def edit_shield(self, shield_obj):
-        shield_obj.shield_type = self.makes['shield']
-        shield_obj.tag = shd_tag_alloy()
-        shield_obj.parts.append(shd_part_roid())
+    def make_random_shield(self):
+        return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Exploder
@@ -162,6 +169,10 @@ class Dahl(Manufacturer):
         self.weapon_traits = {
             'primary': [trait_steady_aim(), trait_tacticool(), trait_reconfigure()],
             'secondary': [trait_fm_single_fire(), trait_fm_burst_fire(), trait_fm_full_auto()]
+        }
+        self.shield_traits = {
+            'tag': shd_tag_energy(),
+            'parts': []
         }
 
     def make_random_gun(self, dice_roll):
@@ -186,15 +197,15 @@ class Dahl(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
-    def edit_shield(self, shield_obj):
-        shield_obj.shield_type = self.makes['shield']
-        shield_obj.tag = shd_tag_energy()
-        starting_part = {
+    def make_random_shield(self):
+        starting_parts = {
             (1, 3): shd_part_charge_health(),
             (4, 6): shd_part_charge_shield()
         }
         d6 = Dice.from_string('1d6')
-        shield_obj.parts.append(lookup_in_table(starting_part, d6.roll()))
+        starting_part = lookup_in_table(starting_parts, d6.roll())
+
+        return self.makes['shield'], self.shield_traits['tag'], [starting_part]
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Any
@@ -218,6 +229,10 @@ class Hyperion(Manufacturer):
             'primary': [trait_recoil_control(), trait_gun_shield()],
             'secondary': [trait_shield_amp(), trait_shield_genesis(), trait_shield_redirect()]
         }
+        self.shield_traits = {
+            'tag': shd_tag_energy(),
+            'parts': [shd_part_amp()]
+        }
 
     def make_random_gun(self, dice_roll):
         table = {
@@ -238,10 +253,8 @@ class Hyperion(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
-    def edit_shield(self, shield_obj):
-        shield_obj.shield_type = self.makes['shield']
-        shield_obj.tag = shd_tag_energy()
-        shield_obj.parts.append(shd_part_amp())
+    def make_random_shield(self):
+        return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Longbow
@@ -265,6 +278,10 @@ class Jakobs(Manufacturer):
             'primary': [trait_head_hunter(), trait_non_elemental(), trait_cumbersome()],
             'secondary': [trait_fan_the_hammer(), trait_ricochet(), trait_percise()]
         }
+        self.shield_traits = {
+            'tag': shd_tag_bio(),
+            'parts': [shd_part_health(), trait_non_elemental()]
+        }
 
     def make_random_gun(self, dice_roll):
         table = {
@@ -285,11 +302,8 @@ class Jakobs(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
-    def edit_shield(self, shield_obj):
-        shield_obj.shield_type = self.makes['shield']
-        shield_obj.tag = shd_tag_bio()
-        shield_obj.parts.append(shd_part_health())
-        shield_obj.forced_non_elemental = True
+    def make_random_shield(self):
+        return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Lobbed
@@ -313,6 +327,10 @@ class Maliwan(Manufacturer):
             'primary': [trait_elemental(), trait_proliferation(), trait_mode_switch()],
             'secondary': []
         }
+        self.shield_traits = {
+            'tag': shd_tag_energy(),
+            'parts': [shd_part_health(), trait_non_elemental()]
+        }
 
     def make_random_gun(self, dice_roll):
         table = {
@@ -324,20 +342,15 @@ class Maliwan(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def edit_shield(self, shield_obj):
-        shield_obj.shield_type = self.makes['shield']
-        shield_obj.tag = shd_tag_energy()
-        starting_part = {
+    def make_random_shield(self):
+        starting_parts = {
             (1, 3): shd_part_spike(),
             (4, 6): shd_part_nova()
         }
         d6 = Dice.from_string('1d6')
-        shield_obj.parts.append(lookup_in_table(starting_part, d6.roll()))
-        # Force an Element because of the Spike or Nova part, but make sure no more elements can be rolled after
-        shield_obj.forced_elemental = True
-        shield_obj.roll_for_element()
-        shield_obj.forced_elemental = False
-        shield_obj.forced_non_elemental = True
+        starting_part = lookup_in_table(starting_parts, d6.roll())
+
+        return self.makes['shield'], self.shield_traits['tag'], [starting_part, trait_elemental()]
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Any
@@ -361,6 +374,10 @@ class Torgue(Manufacturer):
             'primary': [trait_boom()],
             'secondary': [trait_splasher(), trait_explosions(), trait_concussive()]
         }
+        self.shield_traits = {
+            'tag': shd_tag_alloy(),
+            'parts': []
+        }
 
     def make_random_gun(self, dice_roll):
         table = {
@@ -381,34 +398,15 @@ class Torgue(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
-    def edit_shield(self, shield_obj):
-        shield_obj.shield_type = self.makes['shield']
-        shield_obj.tag = shd_tag_alloy()
-        starting_part = {
+    def make_random_shield(self):
+        starting_parts = {
             (1, 3): shd_part_spike(),
             (4, 6): shd_part_nova()
         }
         d6 = Dice.from_string('1d6')
-        shield_obj.parts.append(lookup_in_table(starting_part, d6.roll()))
-        # Force Explosive Element
-        shield_obj.forced_elemental = True
-        shield_obj.roll_for_element()
-        shield_obj.forced_elemental = False
-        shield_obj.forced_non_elemental = True
+        starting_part = lookup_in_table(starting_parts, d6.roll())
 
-        # Check if Element is Explosive, else replace
-        has_explosive = False
-        for el in shield_obj.elements:
-            if isinstance(el, FusionElement):
-                for sub_el in el:
-                    if isinstance(sub_el, Explosive):
-                        has_explosive = True
-            else:
-                if isinstance(el, Explosive):
-                    has_explosive = True
-
-        if not has_explosive:
-            shield_obj.elements = [Explosive()]
+        return self.makes['shield'], self.shield_traits['tag'], [starting_part, Explosive()]
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Any
@@ -459,6 +457,9 @@ class Pangolin(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
+    def make_random_shield(self):
+        return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
+
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Any
         # Starting Part: Generator
@@ -481,6 +482,10 @@ class Tediore(Manufacturer):
             'primary': [trait_fire_and_forget(), trait_compact()],
             'secondary': [trait_turret(), trait_bomb()]
         }
+        self.shield_traits = {
+            'tag': shd_tag_energy(),
+            'parts': [shd_part_recharge()]
+        }
 
     def make_random_gun(self, dice_roll):
         table = {
@@ -500,10 +505,8 @@ class Tediore(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
-    def edit_shield(self, shield_obj):
-        shield_obj.shield_type = self.makes['shield']
-        shield_obj.tag = shd_tag_energy()
-        shield_obj.parts.append(shd_part_recharge())
+    def make_random_shield(self):
+        return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Lobbed
@@ -527,6 +530,10 @@ class Vladof(Manufacturer):
             'primary': [trait_wall_of_lead(), trait_extended_mags(), trait_endless_fire()],
             'secondary': [trait_grenade_launcher(), trait_taser(), trait_bipod()]
         }
+        self.shield_traits = {
+            'tag': shd_tag_energy(),
+            'parts': []
+        }
 
     def make_random_gun(self, dice_roll):
         table = {
@@ -546,15 +553,15 @@ class Vladof(Manufacturer):
 
         return self.roll_for_secondary_weapon_trait(table, user_roll=user_roll)
 
-    def edit_shield(self, shield_obj):
-        shield_obj.shield_type = self.makes['shield']
-        shield_obj.tag = shd_tag_energy()
-        starting_part = {
+    def make_random_shield(self):
+        starting_parts = {
             (1, 3): shd_part_absorb(),
             (4, 6): shd_part_reflect()
         }
         d6 = Dice.from_string('1d6')
-        shield_obj.parts.append(lookup_in_table(starting_part, d6.roll()))
+        starting_part = lookup_in_table(starting_parts, d6.roll())
+
+        return self.makes['shield'], self.shield_traits['tag'], [starting_part]
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Any
@@ -585,6 +592,10 @@ class Eridian(Manufacturer):
         self.weapon_traits = {
             'primary': [trait_reverse_engineer(), trait_alien_ammo()],
             'secondary': []
+        }
+        self.shield_traits = {
+            'tag': None,
+            'parts': [shd_trait_reverse_engineer(), shd_trait_symbiotic()]
         }
 
     def gun_part_exception(self, gun):

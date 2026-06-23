@@ -45,6 +45,14 @@ class Equipment:
         for property in self.equipment_properties:
             property.reload_modifiers()
 
+    def get_modifier_value(self, modifier_type):
+        mod_value = 0
+        for modifier in self.equipment_modifiers:
+            if isinstance(modifier, modifier_type):
+                mod_value += modifier.value
+
+        return mod_value
+
     @property
     def rarity(self):
         return self._rarity
@@ -95,6 +103,11 @@ class EquipmentProperty:
             if isinstance(new_modifier, AdditiveModifier):
                 for existing_mod in equipment.equipment_modifiers:
                     if isinstance(new_modifier, type(existing_mod)):
+                        # Check Modifiers which define a sub-type (like Elemental Resistance Parts)
+                        if hasattr(new_modifier, 'type'):
+                            if new_modifier.type != existing_mod.type:
+                                continue
+                        # Add modifiers together instead of adding a new modifier
                         existing_mod += new_modifier
                         existing_mod.linked_properties.append(self)
                         self.active_mods.append(existing_mod)

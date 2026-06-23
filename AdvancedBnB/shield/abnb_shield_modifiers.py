@@ -8,6 +8,24 @@ class ShieldPartModifier(AdditiveModifier):
         super().__init__(mod_value)
 
 
+# --- Stat Modifiers ---
+class mod_capacity(AdditiveModifier):
+    name = 'Capacity'
+
+
+class mod_shield_regen(AdditiveModifier):
+    name = 'Shield Regen'
+
+
+class mod_max_health(AdditiveModifier):
+    name = 'Max Health'
+
+
+class mod_health_regen(AdditiveModifier):
+    name = 'Health Regen'
+
+
+# --- Shield Part Modifiers ---
 class mod_absorb(ShieldPartModifier):
     name = 'Absorb'
     effect = 'When taking Ranged Damage: Roll a d100. 10%/P chance to take no Damage and gain 1 Ammo.'
@@ -35,7 +53,7 @@ class mod_adrenaline(ShieldPartModifier):
 
     @property
     def effect(self):
-        return f"While Depleted: Gain +{2*self.value} on Reload Checks."
+        return f"While Depleted: Reload Check +{2*self.value}."
 
 
 class mod_amp(ShieldPartModifier):
@@ -57,11 +75,6 @@ class mod_brimming(ShieldPartModifier):
     def effect(self):
         return f"While Full: Health Regen +{5 * self.value}."
 
-class mod_capacity(AdditiveModifier):
-    name = 'Capacity'
-
-class mod_max_health(AdditiveModifier):
-    name = 'Max Health'
 
 class mod_fleet(ShieldPartModifier):
     name = 'Fleet'
@@ -70,7 +83,7 @@ class mod_fleet(ShieldPartModifier):
 
     @property
     def effect(self):
-        return f"While Depleted: gain +{2*self.value} Movement."
+        return f"While Depleted: Movement +{2*self.value}."
 
 
 class mod_health_booster(ShieldPartModifier):
@@ -91,6 +104,92 @@ class mod_shield_booster(ShieldPartModifier):
     @property
     def effect(self):
         return f"When Damaged: Roll a d100. On a 75+, drop {self.value} Common Shield Potion{'s' if self.value != 1 else ''} (1d8)."
+
+
+class mod_nova(ShieldPartModifier):
+    name = 'Nova'
+    effect = 'On Depletion: deal 2d6/P Elemental Damage to adjacent Enemies. Shield needs to have been fully Recharged for it to trigger again.'
+    situational = True
+
+    @property
+    def effect(self):
+        return f"On Depletion: deal {2 * self.value}d6 Elemental Damage to adjacent Enemies. Shield needs to have been fully Recharged for it to trigger again."
+
+
+class mod_projected(ShieldPartModifier):
+    name = 'Projected'
+    effect = 'While ADS: gain 1d6/P Damage Reduction.'
+    situational = True
+
+    @property
+    def effect(self):
+        return f"While ADS: +{self.value}d6/P Damage Reduction."
+
+
+class mod_reflect(ShieldPartModifier):
+    name = 'Reflect'
+    effect = 'When taking Ranged Damage: Roll a d100. 10%/P chance to Reflect Damage back to the Attacker. You take no Damage.'
+    situational = True
+
+    @property
+    def effect(self):
+        return f"When taking Ranged Damage: Roll a d100. On a {100 - (self.value * 10)}+: Reflect Damage back to the Attacker instead."
+
+
+class mod_resistance(ShieldPartModifier):
+    name = 'Resistant'
+    effect = 'Gain an Extra 1d8/P Elemental Damage Reduction, up to a maximum of 3d8 per Element.'
+    type = 'Unknown'
+    situational = True
+
+    @property
+    def name(self):
+        return f"Resistant ({self.type})"
+
+    @property
+    def effect(self):
+        return f"+{min(self.value, 3)}d8 {self.type} Elemental Damage Reduction."
+
+
+class mod_roid(ShieldPartModifier):
+    name = 'Roid'
+    effect = 'While Depleted: add +1/P Melee Die to you Melee Attacks.'
+    situational = True
+
+    @property
+    def effect(self):
+        return f"While Depleted: add +{self.value} Melee Die to you Melee Attacks."
+
+
+class mod_spike(ShieldPartModifier):
+    name = 'Spike'
+    effect = 'On taking Melee Damage: deal 1d10/P Elemental Damage to the Attacker.'
+    situational = True
+
+    @property
+    def effect(self):
+        return f"On taking Melee Damage: deal {self.value}d10 Elemental Damage to the Attacker."
+
+
+class mod_vagabond(ShieldPartModifier):
+    name = 'Vagabond'
+    effect = 'While Full: Gain +2/P Movement.'
+    situational = True
+
+    @property
+    def effect(self):
+        return f"While Full: Movement +{2 * self.value}."
+
+
+class mod_symbiotic(ShieldPartModifier):
+    name = 'Symbiotic'
+    effect = 'While this shield is equipped it merges with you.'
+    situational = True
+
+    @property
+    def effect(self):
+        equipment = self.get_linked_equipment()
+        return f"Health Tag: {equipment.tag.name} ({equipment.tag.effect}). Effects that would activate when Shield Depletes, now activate when Health falls below Half."
 
 
 

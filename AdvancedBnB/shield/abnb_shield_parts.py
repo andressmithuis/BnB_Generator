@@ -108,43 +108,35 @@ class shd_part_health(ShieldPart):
 class shd_part_nova(ShieldPart):
     name = 'Nova'
     effect = 'On Depletion: deal 2d6/P Elemental Damage to adjacent Enemies. Shield needs to have been fully Recharged for it to trigger again.'
-    situational = True
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"On Depletion: deal {n_parts * 2}d6 Elemental Damage to adjacent Enemies. Shield needs to have been fully Recharged for it to trigger again."
+    def reload_modifiers(self):
+        self.replace_modifiers([
+            mod_nova()
+        ])
 
 
 class shd_part_projected(ShieldPart):
     name = 'Projected'
     effect = 'While ADS: gain 1d6/P Damage Reduction.'
-    situational = True
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"While ADS: gain {n_parts}d6 Damage Reduction."
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_projected()])
 
 
 class shd_part_recharge(ShieldPart):
     name = 'Recharge'
     effect = 'Gain an extra 10/P Shield Recharge.'
 
-    def apply(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        item.mod_stats['charge_rate'] += (n_parts * 10)
-
-    def to_text(self, item):
-        return f"Increased Shield Recharge Rate."
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_shield_regen(10)])
 
 
 class shd_part_reflect(ShieldPart):
     name = 'Reflect'
     effect = 'When taking Ranged Damage: Roll a d100. 10%/P chance to Reflect Damage back to the Attacker. You take no Damage.'
-    situational = True
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"When taking Ranged Damage: Roll a d100. On a {100 - (n_parts * 10)}+: Reflect Damage back to the Attacker. You take no Damage."
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_reflect()])
 
 
 class shd_part_resistant(ShieldPart):
@@ -152,19 +144,22 @@ class shd_part_resistant(ShieldPart):
     effect = 'Gain an Extra 1d8/P Elemental Damage Reduction.'
     type = 'Unknown'
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"Gain {n_parts}d8 {self.type} Elemental Damage Reduction."
+    @property
+    def name(self):
+        return f"Resistant ({self.type})"
+
+    def reload_modifiers(self):
+        new_modifier = mod_resistance()
+        new_modifier.type = self.type
+        self.replace_modifiers([new_modifier])
 
 
 class shd_part_roid(ShieldPart):
     name = 'Roid'
     effect = 'While Depleted: add +1/P Melee Die to you Melee Attacks.'
-    situational = True
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"While Depleted: add +{n_parts} Melee Die to you Melee Attacks."
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_roid()])
 
 
 class shd_part_charge_health(ShieldPart):
@@ -189,12 +184,10 @@ class shd_part_charge_shield(ShieldPart):
 
 class shd_part_spike(ShieldPart):
     name = 'Spike'
-    effect = 'On taking Melee Damage: deal 1d10/P Damage to the Attacker.'
-    situational = True
+    effect = 'On taking Melee Damage: deal 1d10/P Elemental Damage to the Attacker.'
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"On taking Melee Damage: deal {n_parts}d10 Elemental Damage to the Attacker."
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_spike()])
 
 
 class shd_part_turtle(ShieldPart):
@@ -217,34 +210,32 @@ class shd_part_turtle(ShieldPart):
 class shd_part_vagabond(ShieldPart):
     name = 'Vagabond'
     effect = 'While Full: Gain +2/P Movement.'
-    situational = True
 
-    def to_text(self, item):
-        n_parts = len([x for x in item.parts if x.name == self.name])
-        return f"While Full: Gain +{n_parts * 2} Movement."
+    def reload_modifiers(self):
+        self.replace_modifiers([mod_vagabond()])
 
 
 class shd_trait_reverse_engineer(ShieldPart):
     name = 'Reverse Engineer'
     effect = 'This Shield is made using a Shield from another Manufacturer as a base.'
 
+
 class shd_trait_symbiotic(ShieldPart):
     name = 'Symbiotic'
     effect = 'While this shield is equipped it merges with you.'
     situational = True
 
-    def apply(self, item):
+    def reload_modifiers(self):
+        # TODO: Render Shield Capacity and Recharge Rate as 0 on the generated card
         # Health is increased by Shield Capacity. Health Tags change to that of Shield.
         # Health Regen is increased by Shield Recharge Rate
         # Effect that activate when shield depletes, now activate when Health falls below Half.
-        item.mod_stats.setdefault('mods', {}).setdefault('max_health', 0)
-        item.mod_stats['mods']['max_health'] += item.capacity
-
-        item.mod_stats.setdefault('mods', {}).setdefault('health_regen', 0)
-        item.mod_stats['mods']['health_regen'] += item.recharge_rate
-
-    def to_text(self, item):
-        return f"Health Tag: {item.tag.name} ({item.tag.effect}). Effects that would activate when Shield Depletes, now activate when Health falls below Half."
+        equipment = self.linked_equipment
+        self.replace_modifiers([
+            mod_max_health(equipment.capacity),
+            mod_health_regen(equipment.recharge_rate),
+            mod_symbiotic()
+        ])
 
 
 class shd_tag_energy(ShieldPart):

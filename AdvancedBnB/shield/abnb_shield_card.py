@@ -4,6 +4,7 @@ from copy import deepcopy
 import numpy as np
 from PIL import Image, ImageOps
 
+from AdvancedBnB.shield.abnb_shield_parts import shd_trait_symbiotic
 from util.cards.card_basics import *
 from util.cards.card_generation import *
 from util.modifier import AdditiveModifier
@@ -99,14 +100,21 @@ def generate_shield_card(shield_obj):
     icon = recolor_image(icon, colors[shield_obj.rarity])
     card_front = draw_image_to_field(card_front, icon, card_field)
 
-    # Value
+    # Values
+    capacity_value = shield_obj.capacity
+    charge_rate_value = shield_obj.recharge_rate
+
+    # Eridian 'Symbiotic' trait exception
+    for property in shield_obj.equipment_properties:
+        if isinstance(property, shd_trait_symbiotic):
+            capacity_value = 0
+            charge_rate_value = 0
+
     card_field = shield_card_front_template['fld_cap_val']
-    card_front = draw_text_to_field(card_front, card_field, f"{shield_obj.capacity}", 'rexlia rg.otf', color=(11, 121, 189),
-                                  font_size=50)
+    card_front = draw_text_to_field(card_front, card_field, f"{capacity_value}", 'rexlia rg.otf', color=(11, 121, 189),font_size=50)
 
     card_field = shield_card_front_template['fld_rr_val']
-    card_front = draw_text_to_field(card_front, card_field, f"{shield_obj.recharge_rate}", 'rexlia rg.otf',
-                                  color=(11, 121, 189), font_size=50)
+    card_front = draw_text_to_field(card_front, card_field, f"{charge_rate_value}", 'rexlia rg.otf',color=(11, 121, 189), font_size=50)
 
     # Quick Reference
     quick_ref = []

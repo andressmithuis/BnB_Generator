@@ -10,7 +10,8 @@ from AdvancedBnB.abnb_manufacturers import Manufacturers, manufacturer_table
 from util import Dice, lookup_in_table, Equipment
 
 from AdvancedBnB.shield.abnb_shieldtypes import Shieldtypes
-from AdvancedBnB.shield.abnb_shield_parts import ShieldPart, shield_parts_table, shd_part_resistant, shd_trait_reverse_engineer, shd_trait_symbiotic
+from AdvancedBnB.shield.abnb_shield_parts import ShieldPart, shield_parts_table, shd_part_resistant, shd_part_spike, shd_part_nova
+from AdvancedBnB.shield.abnb_shield_modifiers import mod_capacity, mod_shield_regen
 
 
 def mod_to_string(val_1, val_2):
@@ -27,15 +28,12 @@ class Shield(Equipment):
         self.shield_type = Shieldtypes.FAST
         self.tag = 'Energy'
 
-        self.capacity = 0
-        self.recharge_rate = 0
         self.base_stats = {
             'capacity': 0,
             'charge_rate': 0
         }
 
     def generate(self):
-
         # Prepare dice
         d100 = Dice(1, 100)
         d4 = Dice(1, 4)
@@ -48,9 +46,10 @@ class Shield(Equipment):
         # Manufacturer and shield type
         print(f"Determining Shield Manufacturer...")
 
+        next_roll = 4
         while self.manufacturer is None:
             roll = d12.roll()
-            roll = 1
+            roll = next_roll
             new_manufacturer = manufacturer_table[roll]
             print(f"Rolled a {roll}! Shield Manufacturer = {new_manufacturer}")
             if new_manufacturer == Manufacturers.ERIDIAN:
@@ -60,6 +59,8 @@ class Shield(Equipment):
             else:
                 self.set_manufacturer(new_manufacturer)
 
+            next_roll = 7
+
         print(f"Shield Type = {self.shield_type}")
         print(f"Shield Tag = {self.tag}")
 
@@ -68,11 +69,14 @@ class Shield(Equipment):
 
         # Shield base stats
         self.base_stats = self.shield_type.get_basestats(self.tier)
+        print(self.base_stats)
 
         # Rarity and element
         print(f"Determining Shield Rarity and Element...")
         d4_roll = d4.roll()
         d6_roll = d6.roll()
+        d4_roll = 4
+        d6_roll = 6
         self.rarity, roll_for_element = rarity_tables['normal'][d4_roll][d6_roll]
 
         if roll_for_element:
@@ -80,9 +84,7 @@ class Shield(Equipment):
 
         print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Shield Rarity = {self.rarity}, Element = {[el for el in self.elements]}")
 
-        # If Shield is Elemental, add Resistance part
-        if len(self.elements) > 0:
-            self.add_resistance_part()
+
 
         # Roll for Shield parts
         print(f"Determining Shield Parts...")
@@ -98,31 +100,35 @@ class Shield(Equipment):
             new_part = deepcopy(part)
 
             # Elemental part exceptions (Resistant, Nova, Spike)
-            if new_part.name in ['Resistant', 'Spike', 'Nova']:
-                # Force an element if item is not elemental
+            if isinstance(new_part, (shd_part_resistant, shd_part_spike, shd_part_nova)):
+                # Reroll if Shield has to be Non-Elemental
+                if self.forced_non_elemental:
+                    print(f"Rolled a <{new_part.name}> part, but the Shield is forced Non-Elemental... Roll again...")
+                    continue
+
+                # Force an element if item is not elemental yet
                 if len(self.elements) == 0:
                     self.forced_elemental = True
                     self.roll_for_element()
 
-            if new_part.name == 'Resistant':
-                self.add_resistance_part()
+            if isinstance(new_part, shd_part_resistant):
+                # Actual Resistance parts will be added afterwards
                 self.n_parts += 1
             else:
                 print(f"Adding part: {new_part.name} - {new_part.effect}")
                 self.add_property(new_part)
                 self.n_parts += 1
 
-        # Calculate final stats
-        self.calculate_stats()
+        # If Shield is Elemental, add Resistance parts
+        if len(self.elements) > 0:
+            self.add_resistance_part()
 
         # If Originally Manufactured by Eridian, apply Eridian Shield Effects
-        # NOTE: Needs to have the final stats calculated
         if self.eridian:
             self.manufacturer = Manufacturers.ERIDIAN
-            eridian_traits = [shd_trait_reverse_engineer(), shd_trait_symbiotic()]
+            eridian_traits = Manufacturers.ERIDIAN.shield_traits['parts']
             for trait in eridian_traits:
                 self.add_property(trait)
-                trait.apply(self)
 
         # Randomly choose a name
         self.randomize_name()
@@ -137,6 +143,7 @@ class Shield(Equipment):
 
         if self.forced_non_elemental is True and self.forced_elemental is False:
             self.min_elements = 0
+            roll_for_element = False
 
         if len(self.elements) > 0:
             # Already got at least one Element forced by a Modifier, which replaces the one that could result from the rarity table
@@ -145,6 +152,8 @@ class Shield(Equipment):
         while roll_for_element is True or len(self.elements) < self.min_elements:
             dice_roll = min([d100.roll() + self.elemental_roll_bonus, 100])
             el_roll = lookup_in_table(elemental_table, dice_roll)[self.rarity]
+
+            print(f"Rolling for element. Result: {el_roll}({dice_roll})")
 
             # Ignore disabled elements
             if type(el_roll) in [type(el) for el in self.disabled_elements]:
@@ -172,9 +181,8 @@ class Shield(Equipment):
             roll_for_element = False
 
     def set_manufacturer(self, new_manufacturer):
-        self.shield_type = new_manufacturer.makes['shield']
-        self.tag = new_manufacturer.shield_traits[ 'tag']
-        for part in new_manufacturer.shield_traits['parts']:
+        self.shield_type, self.tag, parts = new_manufacturer.make_random_shield()
+        for part in parts:
             self.add_property(part)
 
         self.manufacturer = new_manufacturer
@@ -193,10 +201,9 @@ class Shield(Equipment):
                     el.append(element)
 
         for element in el:
-            new_part = shd_part_resistant()
-            new_part.name = f"Resistant ({element.name})"
-            new_part.type = element.name
             for i in range(element.bonus + 1):
+                new_part = shd_part_resistant()
+                new_part.type = element.name
                 self.add_property(new_part)
                 print(f"Adding part: {new_part.name} - {new_part.effect}")
 
@@ -212,11 +219,6 @@ class Shield(Equipment):
         for part in dedup_parts:
             part.apply(self)
 
-    def calculate_stats(self):
-        # Extract final stats
-        self.capacity = self.base_stats['capacity']
-        self.recharge_rate = self.base_stats['charge_rate']
-
     def randomize_name(self):
         with open('assets.json') as file:
             asset_data = json.load(file)
@@ -227,6 +229,13 @@ class Shield(Equipment):
     def generate_card(self):
         generate_shield_card(self)
 
+    @property
+    def capacity(self):
+        return self.base_stats['capacity'] + self.get_modifier_value(mod_capacity)
+
+    @property
+    def recharge_rate(self):
+        return self.base_stats['charge_rate'] + self.get_modifier_value(mod_shield_regen)
 
     def  __repr__(self):
         str = ''
