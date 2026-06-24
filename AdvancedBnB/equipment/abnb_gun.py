@@ -2,9 +2,10 @@ import json
 import random
 from copy import deepcopy
 
+from AdvancedBnB.abnb_equipment import AbnbEquipment
 from util import Equipment, Dice, lookup_in_table
 from AdvancedBnB import Fusion, FusionElement
-from AdvancedBnB.abnb_tables import rarity_tables, weapon_part_count, elemental_table, fusion_table
+from AdvancedBnB.abnb_tables import rarity_tables, weapon_part_count
 from AdvancedBnB.abnb_util import get_item_tier
 from AdvancedBnB.abnb_manufacturers import Manufacturers, manufacturer_table
 from AdvancedBnB.abnb_traits import trait_high_calibre
@@ -24,7 +25,9 @@ def mod_to_string(val_1, val_2):
 
     return ''
 
-class Gun(Equipment):
+class Gun(AbnbEquipment):
+    enable_high_calibre = True
+
     def __init__(self):
         super().__init__()
 
@@ -60,7 +63,6 @@ class Gun(Equipment):
         print(f"Determining Gun Manufacturer...")
         while self.manufacturer is None:
             roll = d12.roll(f"Roll for Manufacturer")
-            roll = 7
             new_manufacturer = manufacturer_table[roll]
             print(f"Rolled a {roll}! Gun Manufacturer = {new_manufacturer}")
             if new_manufacturer == Manufacturers.ERIDIAN:
@@ -84,8 +86,6 @@ class Gun(Equipment):
         print(f"Determining Gun Rarity and Element...")
         d4_roll = d4.roll(f"Roll for Rarity and Element(1/2)")
         d6_roll = d6.roll(f"Roll for Rarity and Element(2/2)")
-        d4_roll = 4
-        d6_roll = 6
         self.rarity, roll_for_element = rarity_tables['normal'][d4_roll][d6_roll]
 
         print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Gun Rarity = {self.rarity}.{' Might also be Elemental.' if roll_for_element else ''}")
@@ -156,7 +156,7 @@ class Gun(Equipment):
                 part.attach(self)
                 self.n_parts += 1
 
-        # Roll for element (if applicable)
+        # Roll for Element(s)
         # Determine number of Elemental Rolls
         elemental_rolls = 0
         if roll_for_element is True:
@@ -165,59 +165,7 @@ class Gun(Equipment):
         if self.has_modifier(mod_elemental_roll_number):
             elemental_rolls = self.get_modifier_value(mod_elemental_roll_number)
 
-        # Rolls for Element(s)
-        n_rolls = 0
-        while n_rolls < elemental_rolls:
-            print(f"Rolling Element attempt {n_rolls+1}/{elemental_rolls}")
-            rolled_element = self.roll_for_element()
-            n_rolls += 1
-
-            # Check if rolled Element is blacklisted
-            if rolled_element is not None:
-                for blacklisted_element in self.disabled_elements:
-                    if isinstance(rolled_element, type(blacklisted_element)):
-                        rolled_element = None
-                        break
-
-            # Check if rolled Element matches forced Element (to allow forced Element +1/+2)
-            if rolled_element is not None:
-                if self.forced_element is not None:
-                    if not isinstance(rolled_element, type(self.forced_element)):
-                        print(f"Element is being forced to be <{self.forced_element}>")
-                        rolled_element = self.forced_element
-
-            # Check if Equipment is forced Non-Elemental
-            if rolled_element is not None:
-                if self.forced_non_elemental:
-                    # Add High Caliber Property instead
-                    new_trait = trait_high_calibre()
-                    new_trait.n_dice = 1 + rolled_element.bonus
-                    if isinstance(rolled_element, FusionElement):
-                        # If rolled element is a Fusion, effectively double the number of bonus dice
-                        new_trait.n_dice *= 2
-                    new_trait.attach(self)
-
-                    rolled_element = None
-
-            # Check if rolled Element is already present
-            if rolled_element is not None:
-                for available_element in self.elements:
-                    if isinstance(rolled_element, type(available_element)):
-                        print(f"Element <{rolled_element}> is already applied!")
-                        rolled_element = None
-
-            # Add resulting element
-            if rolled_element is not None:
-                element_trait = trait_elemental()
-                element_mod = deepcopy(rolled_element)
-                element_mod.attach(element_trait)
-                element_trait.attach(self)
-
-            # Allow a reroll if Equipment is forced Elemental, but the Elemental rolls did not result in an Element being applied
-            if self.forced_elemental:
-                if n_rolls >= elemental_rolls:
-                    if len(self.elements) == 0:
-                        n_rolls = elemental_rolls - 1
+        self.roll_for_elements(elemental_rolls)
 
         # If Originally Manufactured by Eridian. Apply Eridian Effects afterwards
         if self.eridian:
@@ -252,35 +200,6 @@ class Gun(Equipment):
 
         self.asset = random.choice(asset_data['weapons'][self.gun_type.asset_dir])
         self.name_raw = self.asset['item_name']
-
-    def roll_for_element(self):
-        d100 = Dice.from_string('1d100')
-        dice_roll = min([d100.roll(f"Roll on Element table") + self.elemental_roll_bonus, 100])
-        rolled_element = lookup_in_table(elemental_table, dice_roll)[self.rarity]
-        print(f"Rolled a {dice_roll}(+{self.elemental_roll_bonus})! Rolled a <{rolled_element}> Element")
-
-        if isinstance(rolled_element, Fusion):
-            d8 = Dice.from_string('1d8')
-
-            while True:
-                print(f"Rolling for specific Fusion Element...")
-                roll_1 = d8.roll(f"Roll on Elemental Fusion Table(1/2)")
-                roll_2 = d8.roll(f"Roll on Elemental Fusion Table(2/2)")
-                fusion_element = fusion_table[roll_1][roll_2]
-
-                print(f"Rolled a {roll_1} and {roll_2} resulting in <{fusion_element}> Element Fusion")
-
-                # TODO: Handle 'Special' columns
-                if fusion_element == 'special':
-                    # Reroll for now
-                    pass
-                else:
-                    if fusion_element is not None:
-                        fusion_element.bonus = rolled_element.bonus
-                    rolled_element = fusion_element
-                    break
-
-        return rolled_element
 
     def pick_weapon_accessory(self):
         d100 = Dice.from_string('1d100')
@@ -379,9 +298,6 @@ class Gun(Equipment):
 
 
     def generate_card(self):
-        for property in self.equipment_properties:
-            for mod in property.active_mods:
-                print(mod.name)
         generate_gun_card(self)
 
 

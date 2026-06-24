@@ -1,4 +1,14 @@
+from . import mod_is_elemental
 from .equipment import EquipmentProperty
+from .common_modifiers import *
+
+
+class trait_is_elemental(EquipmentProperty):
+    name = 'Forced Elemental'
+    effect = 'Equipment cannot be without an Element'
+
+    def load_modifiers(self):
+        self.attach_modifiers([mod_is_elemental()])
 
 
 class trait_elemental(EquipmentProperty):
@@ -33,4 +43,9 @@ class trait_forced_element(EquipmentProperty):
             return f"Equipment will have a {self.type.name} Element."
 
         return f"Equipment will have a <UNKOWN> Element."
+
+    def load_modifiers(self):
+        forced_element = mod_forced_element()
+        forced_element.type = self.type
+        self.attach_modifiers([forced_element])
 

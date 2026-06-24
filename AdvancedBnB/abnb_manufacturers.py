@@ -413,7 +413,10 @@ class Torgue(Manufacturer):
         d6 = Dice.from_string('1d6')
         starting_part = lookup_in_table(starting_parts, d6.roll())
 
-        return self.makes['shield'], self.shield_traits['tag'], [starting_part, Explosive()]
+        forced_explosive = trait_forced_element()
+        forced_explosive.type = Explosive()
+
+        return self.makes['shield'], self.shield_traits['tag'], [starting_part, forced_explosive]
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Any

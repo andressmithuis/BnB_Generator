@@ -4,6 +4,7 @@ from copy import deepcopy
 import numpy as np
 from PIL import Image, ImageOps
 
+from AdvancedBnB.shield import ShieldPart
 from AdvancedBnB.shield.abnb_shield_parts import shd_trait_symbiotic
 from util.cards.card_basics import *
 from util.cards.card_generation import *
@@ -127,15 +128,16 @@ def generate_shield_card(shield_obj):
     # Collect part count / deduplication of parts
     dedup_list = []
     for part in shield_obj.equipment_properties:
-        part_added = False
-        for dedup_part in dedup_list:
-            if part.name == dedup_part['part'].name:
-                dedup_part['count'] += 1
-                part_added = True
-                break
+        if isinstance(part, ShieldPart):
+            part_added = False
+            for dedup_part in dedup_list:
+                if part.name == dedup_part['part'].name:
+                    dedup_part['count'] += 1
+                    part_added = True
+                    break
 
-        if not part_added:
-            dedup_list.append({'part': part, 'count': 1})
+            if not part_added:
+                dedup_list.append({'part': part, 'count': 1})
 
     # Collecting column content
     header_col = []
