@@ -4,7 +4,6 @@ from .common_modifiers import *
 from .rarity import Rarity
 from .modifier import AdditiveModifier
 from .elements import Element
-from .common_modifiers import mod_template
 
 class Equipment:
     def __init__(self):
@@ -83,22 +82,27 @@ class Equipment:
         return self.has_modifier(mod_non_elemental)
 
     @property
-    def min_elements(self):
-        return self.get_modifier_value(mod_elements_min)
-
-    @property
     def elemental_roll_bonus(self):
         return self.get_modifier_value(mod_elemental_roll_bonus)
 
     @property
     def elements(self):
         element_list = []
-        for property in self.equipment_properties:
-            for mod in property.active_mods:
-                if isinstance(mod, Element):
-                    element_list.append(mod)
+        for mod in self.equipment_modifiers:
+            if isinstance(mod, Element):
+                element_list.append(mod)
 
         return element_list
+
+    @property
+    def forced_element(self):
+        forced_element = None
+        for modifier in self.equipment_modifiers:
+            if isinstance(modifier, mod_forced_element):
+                forced_element = modifier.type
+                break
+
+        return forced_element
 
 
     @property
@@ -177,58 +181,3 @@ class EquipmentProperty:
 
     def unlink_from_equipment(self):
         self.linked_equipment = None
-
-    if False:
-        def add_modifiers_bu(self, modifiers):
-            # Load in new properties
-            for modifier in modifiers:
-                new_modifier = deepcopy(modifier)
-                modifier_applied = False
-                new_modifier.linked_properties.append(self)
-
-                print(f"Adding {new_modifier.name} - {new_modifier.effect}({new_modifier.situational})")
-                equipment = self.linked_equipment
-
-                if isinstance(new_modifier, AdditiveModifier):
-                    for existing_mod in equipment.equipment_modifiers:
-                        if isinstance(new_modifier, type(existing_mod)):
-                            # Check Modifiers which define a sub-type (like Elemental Resistance Parts)
-                            if hasattr(new_modifier, 'type'):
-                                if new_modifier.type != existing_mod.type:
-                                    continue
-                            # Add modifiers together instead of adding a new modifier
-                            existing_mod += new_modifier
-                            existing_mod.linked_properties.append(self)
-                            self.active_mods.append(existing_mod)
-                            modifier_applied = True
-                            break
-
-                if modifier_applied is False:
-                    equipment.equipment_modifiers.append(new_modifier)
-                    new_modifier.apply_to_equipment(equipment)
-
-                    self.active_mods.append(new_modifier)
-
-        def remove_modifiers_bu(self):
-            if len(self.active_mods) > 0:
-                to_delete = self.active_mods.copy()
-
-                equipment = self.linked_equipment
-
-                for modifier in to_delete:
-                    print(f"Removing {modifier.name} - {modifier.effect}")
-                    if isinstance(modifier, AdditiveModifier):
-                        for existing_mod in equipment.equipment_modifiers:
-                            if isinstance(modifier, type(existing_mod)):
-                                existing_mod -= modifier
-                                existing_mod.linked_properties.remove(self)
-
-                    else:
-                        modifier.revert_from_equipment(self.linked_equipment)
-                        equipment.equipment_modifiers.remove(modifier)
-                        modifier.linked_properties.remove(self)
-                        self.active_mods.remove(modifier)
-
-        def replace_modifiers_bu(self, new_modifiers):
-            self.remove_modifiers()
-            self.add_modifiers(new_modifiers)

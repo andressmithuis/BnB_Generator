@@ -339,12 +339,12 @@ class trait_proliferation(WeaponTrait):
     enable_modifier_reload = True
 
     proliferation = {
-        Rarity.COMMON: [mod_elements_min(1), mod_elemental_roll_bonus(0)],
-        Rarity.UNCOMMON: [mod_elements_min(1), mod_elemental_roll_bonus(10)],
-        Rarity.RARE: [mod_elements_min(2), mod_elemental_roll_bonus(10)],
-        Rarity.EPIC: [mod_elements_min(2), mod_elemental_roll_bonus(20)],
-        Rarity.LEGENDARY: [mod_elements_min(2), mod_elemental_roll_bonus(30)],
-        Rarity.PEARLESCENT: [mod_elements_min(2), mod_elemental_roll_bonus(40)]
+        Rarity.COMMON: [mod_elemental_roll_number(1), mod_elemental_roll_bonus(0)],
+        Rarity.UNCOMMON: [mod_elemental_roll_number(1), mod_elemental_roll_bonus(10)],
+        Rarity.RARE: [mod_elemental_roll_number(2), mod_elemental_roll_bonus(10)],
+        Rarity.EPIC: [mod_elemental_roll_number(2), mod_elemental_roll_bonus(20)],
+        Rarity.LEGENDARY: [mod_elemental_roll_number(2), mod_elemental_roll_bonus(30)],
+        Rarity.PEARLESCENT: [mod_elemental_roll_number(2), mod_elemental_roll_bonus(40)]
     }
 
     def load_modifiers(self):
@@ -354,14 +354,14 @@ class trait_proliferation(WeaponTrait):
 
 class trait_mode_switch(WeaponTrait):
     name = 'Mode Switch'
-    effect = 'Rare and higher Rarity can swap between 2 elements. SPD 10 Check.'
+    effect = 'Rare and higher Rarity can swap between 2 Elements (if available). SPD 10 Check.'
     situational = True
     enable_modifier_reload = True
 
     def load_modifiers(self):
         new_modifiers = []
         # Only applicable for equipment of Rare and higher rarity
-        if not self.linked_equipment.rarity in [Rarity.COMMON, Rarity.UNCOMMON]:
+        if not self.linked_equipment.rarity in [Rarity.COMMON, Rarity.UNCOMMON] and len(self.linked_equipment.elements) > 1:
             new_modifier = mod_template(self.name, '')
             new_modifier.effect = 'Swap between 2 Elements, SPD 10 Check.'
             new_modifier.situational = True
@@ -387,7 +387,9 @@ class trait_boom(WeaponTrait):
     }
 
     def load_modifiers(self):
-        new_modifiers = [Explosive()]
+        forced_explosive = mod_forced_element()
+        forced_explosive.type = Explosive()
+        new_modifiers = [forced_explosive]
         new_modifiers += self.boom[self.linked_equipment.rarity]
         self.attach_modifiers(new_modifiers)
 

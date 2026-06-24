@@ -10,24 +10,11 @@ class Element(Modifier):
         super().__init__()
         self.bonus = bonus
 
-    def apply_to_equipment(self, equipment):
-        already_applied = False
-        for element in equipment.elements:
-            if isinstance(element, type(self)):
-                already_applied = True
-                break
-
-        if already_applied is False:
-            equipment.elements.append(self)
-
-    def revert_from_equipment(self, equipment):
-        for element in equipment.elements:
-            if isinstance(element, type(self)):
-                equipment.elements.remove(self)
-
     @property
     def effect(self):
-        return self.name
+        bonus_str = f" +{self.bonus}"
+        return f"{self.name}{bonus_str if self.bonus != 0 else ''}"
+
 
     def __repr__(self):
         str = f"{self.name}"

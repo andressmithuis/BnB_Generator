@@ -1,3 +1,4 @@
+from util.common_traits import trait_forced_element
 from .gun.abnb_guntypes import Guntypes
 from .gun.abnb_weapon_parts import wp_part_bayonet
 from .gun.abnb_weapon_traits import *
@@ -356,7 +357,7 @@ class Maliwan(Manufacturer):
         d6 = Dice.from_string('1d6')
         starting_part = lookup_in_table(starting_parts, d6.roll())
 
-        return self.makes['shield'], self.shield_traits['tag'], [starting_part, trait_elemental()]
+        return self.makes['shield'], self.shield_traits['tag'], [starting_part, trait_maliwan_elemental()]
 
     def edit_grenade(self, grenade_obj):
         # Delivery Mechanism: Any

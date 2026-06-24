@@ -26,11 +26,26 @@ class mod_is_elemental(Modifier):
     effect = "This Equipment will be Elemental."
     hidden = True
 
-    def apply_to_equipment(self, equipment):
-        equipment.forced_elemental = True
 
-    def revert_from_equipment(self, equipment):
-        equipment.forced_elemental = False
+class mod_forced_element(Modifier):
+    name = 'Forced Element (UNKNOWN)'
+    effect = "This Equipment will be of Element <UNKNOWN>"
+    type = None
+    hidden = True
+
+    @property
+    def name(self):
+        if self.type is not None:
+            return f"Forced Element ({self.type.name})"
+
+        return f"Forced Element (UNKNOWN)"
+
+    @property
+    def effect(self):
+        if self.type is not None:
+            return f"Equipment will have a {self.type.name} Element."
+
+        return f"Equipment will have a <UNKOWN> Element."
 
 
 class mod_non_explosive(Modifier):
@@ -54,14 +69,14 @@ class mod_non_explosive(Modifier):
                 equipment.disabled_elements.remove(element)
 
 
-class mod_elements_min(AdditiveModifier):
-    name = "Minimum Elements"
-    effect = "Equipment has at least a number of Elements."
+class mod_elemental_roll_number(AdditiveModifier):
+    name = "Elemental rolls"
+    effect = "Determines number of Elemental rolls when generating Equipment."
     hidden = True
 
     @property
     def effect(self):
-        return f"Equipment has at least {self.value} Elements."
+        return f"During Equipment generation, allow for {self.value} Elemental roll(s)."
 
 
 class mod_elemental_roll_bonus(AdditiveModifier):
