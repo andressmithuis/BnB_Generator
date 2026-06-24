@@ -71,9 +71,7 @@ class mod_swap_check(AdditiveModifier):
 
 class mod_splash(Modifier):
     name = 'Splash'
-
-    def __init__(self):
-        self.effect = "Splash"
+    effect = 'Splash'
 
 
 class mod_splash_range(AdditiveModifier):

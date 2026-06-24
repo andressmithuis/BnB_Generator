@@ -330,7 +330,7 @@ class Maliwan(Manufacturer):
             'relics': []
         }
         self.weapon_traits = {
-            'primary': [trait_elemental(), trait_proliferation(), trait_mode_switch()],
+            'primary': [trait_maliwan_elemental(), trait_proliferation(), trait_mode_switch()],
             'secondary': []
         }
         self.shield_traits = {
@@ -609,7 +609,7 @@ class Eridian(Manufacturer):
             # Apply Eridian Primary Traits
             eridian_traits = [trait for trait in self.weapon_traits['primary']]
             for trait in eridian_traits:
-                gun.add_property(trait)
+                trait.attach(gun)
 
             # Apply Eridian Gun Type Trait
             eridian_gun_traits = {
@@ -622,7 +622,7 @@ class Eridian(Manufacturer):
             }
 
             trait = eridian_gun_traits[gun.gun_type]
-            gun.add_property(trait)
+            trait.attach(gun)
 
     def pick_secondary_weapon_trait(self):
         return

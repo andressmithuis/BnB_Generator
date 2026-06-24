@@ -11,33 +11,33 @@ class wp_part_empty(WeaponPart):
     name = 'Trinket'
     effect = 'Looks cool. Does Nothing.'
 
-    def reload_modifiers(self):
+    def load_modifiers(self):
         new_modifier = mod_template(self.name, self.effect)
         new_modifier.hidden = True
-        self.replace_modifiers([new_modifier])
+        self.attach_modifiers([new_modifier])
 
 class wp_part_matching_barrel(WeaponPart):
     name = 'Matching Barrel'
     effect = '+2 on DMG Rolls.'
 
-    def reload_modifiers(self):
-        self.replace_modifiers([mod_dmg_mod(2)])
+    def load_modifiers(self):
+        self.attach_modifiers([mod_dmg_mod(2)])
 
 
 class wp_part_matching_grip(WeaponPart):
     name = 'Matching Grip'
     effect = '+1 on Reload and Swap Checks.'
 
-    def reload_modifiers(self):
-        self.replace_modifiers([mod_reload_check(1), mod_swap_check(1)])
+    def load_modifiers(self):
+        self.attach_modifiers([mod_reload_check(1), mod_swap_check(1)])
 
 
 class wp_part_matching_stock(WeaponPart):
     name = 'Matching Stock'
     effect = '+1 on Accuracy Rolls.'
 
-    def reload_modifiers(self):
-        self.replace_modifiers([mod_dmg_mod(1)])
+    def load_modifiers(self):
+        self.attach_modifiers([mod_dmg_mod(1)])
 
 
 # Weapon Sights / Scopes
@@ -49,10 +49,10 @@ class wp_part_iron_sight(WeaponPartScope):
     effect = 'While ADS: +1 Range and +1 Minimum ADS Range.'
     weapon_types = [Guntypes.RIFLE, Guntypes.PISTOL, Guntypes.LAUNCHER, Guntypes.SHOTGUN, Guntypes.SMG]
 
-    def reload_modifiers(self):
+    def load_modifiers(self):
         new_modifier = mod_template(self.name, 'While ADS: +1 Range')
         new_modifier.situational = True
-        self.replace_modifiers([mod_ads_range_min(1), new_modifier])
+        self.attach_modifiers([mod_ads_range_min(1), new_modifier])
 
 
 class wp_part_reflex_sight(WeaponPartScope):
@@ -60,10 +60,10 @@ class wp_part_reflex_sight(WeaponPartScope):
     effect = 'While ADS: +2 Range and +1 Minimum ADS Range.'
     weapon_types = [Guntypes.RIFLE, Guntypes.PISTOL, Guntypes.LAUNCHER, Guntypes.SHOTGUN, Guntypes.SMG]
 
-    def reload_modifiers(self):
+    def load_modifiers(self):
         new_modifier = mod_template(self.name, 'While ADS: +2 Range')
         new_modifier.situational = True
-        self.replace_modifiers([mod_ads_range_min(1), new_modifier])
+        self.attach_modifiers([mod_ads_range_min(1), new_modifier])
 
 
 class wp_part_acog(WeaponPartScope):
@@ -71,10 +71,10 @@ class wp_part_acog(WeaponPartScope):
     effect = 'While ADS: +3 Range and +2 Minimum ADS Range.'
     weapon_types = [Guntypes.RIFLE, Guntypes.LAUNCHER, Guntypes.SNIPER]
 
-    def reload_modifiers(self):
+    def load_modifiers(self):
         new_modifier = mod_template(self.name, 'While ADS: +3 Range')
         new_modifier.situational = True
-        self.replace_modifiers([mod_ads_range_min(2), new_modifier])
+        self.attach_modifiers([mod_ads_range_min(2), new_modifier])
 
 
 class wp_part_sniper_scope(WeaponPartScope):
@@ -82,10 +82,10 @@ class wp_part_sniper_scope(WeaponPartScope):
     effect = 'While ADS: +4 Range and +3 Minimum ADS Range.'
     weapon_types = [Guntypes.RIFLE, Guntypes.SNIPER]
 
-    def reload_modifiers(self):
+    def load_modifiers(self):
         new_modifier = mod_template(self.name, 'While ADS: +4 Range')
         new_modifier.situational = True
-        self.replace_modifiers([mod_ads_range_min(3), new_modifier])
+        self.attach_modifiers([mod_ads_range_min(3), new_modifier])
 
 
 # Weapon Accessories
@@ -93,52 +93,52 @@ class wp_part_bayonet(WeaponPart):
     name = 'Bayonet'
     effect = 'While holding: Melee Die becomes a d10.'
 
-    def reload_modifiers(self):
+    def load_modifiers(self):
         new_modifier = mod_template(self.name, self.effect)
         new_modifier.situational = True
-        self.replace_modifiers([new_modifier])
+        self.attach_modifiers([new_modifier])
 
 
 class wp_part_laser_sight(WeaponPart):
     name = 'Laser Sight'
     effect = 'While NOT ADS: +1 on Accuracy Rolls.'
 
-    def reload_modifiers(self):
+    def load_modifiers(self):
         new_modifier = mod_template(self.name, self.effect)
         new_modifier.situational = True
-        self.replace_modifiers([new_modifier])
+        self.attach_modifiers([new_modifier])
 
 
 class wp_part_foregrip(WeaponPart):
     name = 'Foregrip'
     effect = '+2 on Accuracy rolls, +1 Fumble Range.'
 
-    def reload_modifiers(self):
-        self.replace_modifiers([mod_acc_mod(2), mod_fumble_range(1)])
+    def load_modifiers(self):
+        self.attach_modifiers([mod_acc_mod(2), mod_fumble_range(1)])
 
 
 class wp_part_extended_magazine(WeaponPart):
     name = 'Extended Magazine'
     effect = '+1 Mag Size, -3 on Reload Checks.'
 
-    def reload_modifiers(self):
-        self.replace_modifiers([mod_mag_size(1), mod_reload_check(-3)])
+    def load_modifiers(self):
+        self.attach_modifiers([mod_mag_size(1), mod_reload_check(-3)])
 
 
 class wp_part_light_mags(WeaponPart):
     name = 'Light Mags'
     effect = '-1 Mag Size, +3 on Reload Checks.'
 
-    def reload_modifiers(self):
-        self.replace_modifiers([mod_mag_size(-1), mod_reload_check(3)])
+    def load_modifiers(self):
+        self.attach_modifiers([mod_mag_size(-1), mod_reload_check(3)])
 
 
 class wp_part_hairpin_trigger(WeaponPart):
     name = 'Hairpin Trigger'
     effect = '+2 Burst, +1 Mag Size, Consumes 2 Ammo per Attack, -3 on Accuracy Rolls.'
 
-    def reload_modifiers(self):
-        self.replace_modifiers([
+    def load_modifiers(self):
+        self.attach_modifiers([
             mod_burst(2),
             mod_mag_size(1),
             mod_ammo_cost(1),
@@ -150,8 +150,8 @@ class wp_part_hit_marker(WeaponPart):
     name = 'Hit Marker'
     effect = '-2 on Accuracy Rolls, +1 Lethal Range.'
 
-    def reload_modifiers(self):
-        self.replace_modifiers([
+    def load_modifiers(self):
+        self.attach_modifiers([
             mod_acc_mod(-2),
             mod_lethal_range(1)
         ])
@@ -161,8 +161,8 @@ class wp_part_improved_rifling(WeaponPart):
     name = 'Improved Rifling'
     effect = '+1 Range.'
 
-    def reload_modifiers(self):
-        self.replace_modifiers([
+    def load_modifiers(self):
+        self.attach_modifiers([
             mod_range(1)
         ])
 
@@ -171,18 +171,18 @@ class wp_part_sling(WeaponPart):
     name = 'Sling'
     effect = '+2 on Swap Checks to and from this Weapon.'
 
-    def reload_modifiers(self):
+    def load_modifiers(self):
         new_modifier = mod_template(self.name, self.effect)
         new_modifier.situational = True
-        self.replace_modifiers([new_modifier])
+        self.attach_modifiers([new_modifier])
 
 
 class wp_part_hollow_points(WeaponPart):
     name = 'Hollow Points'
     effect = '-1 Hit Damage, +3 Crit Damage.'
 
-    def reload_modifiers(self):
-        self.replace_modifiers([
+    def load_modifiers(self):
+        self.attach_modifiers([
             mod_hit_damage(-1),
             mod_crit_damage(3)
         ])

@@ -12,6 +12,8 @@ from AdvancedBnB.gun.abnb_weapon_traits import WeaponTrait
 from AdvancedBnB.gun.abnb_weapon_parts import WeaponPart, WeaponPartScope, weapon_parts_table, weapon_accessories_table, weapon_sight_table
 from AdvancedBnB.gun.abnb_guntypes import Guntypes
 from AdvancedBnB.gun.abnb_gun_card import generate_gun_card
+from util.common_traits import trait_elemental
+from util.common_modifiers import mod_is_elemental
 
 
 def mod_to_string(val_1, val_2):
@@ -57,6 +59,7 @@ class Gun(Equipment):
         print(f"Determining Gun Manufacturer...")
         while self.manufacturer is None:
             roll = d12.roll(f"Roll for Manufacturer")
+            roll = 8
             new_manufacturer = manufacturer_table[roll]
             print(f"Rolled a {roll}! Gun Manufacturer = {new_manufacturer}")
             if new_manufacturer == Manufacturers.ERIDIAN:
@@ -80,6 +83,8 @@ class Gun(Equipment):
         print(f"Determining Gun Rarity and Element...")
         d4_roll = d4.roll(f"Roll for Rarity and Element(1/2)")
         d6_roll = d6.roll(f"Roll for Rarity and Element(2/2)")
+        d4_roll = 4
+        d6_roll = 6
         self.rarity, roll_for_element = rarity_tables['normal'][d4_roll][d6_roll]
 
         print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Gun Rarity = {self.rarity}.{' Might also be Elemental.' if roll_for_element else ''}")
@@ -93,7 +98,7 @@ class Gun(Equipment):
         while n_firemodes < max_firemodes:
             fire_mode = Manufacturers.DAHL.pick_fire_mode()
             if self.has_property(type(fire_mode)) is False:
-                self.add_property(fire_mode)
+                fire_mode.attach(self)
                 n_firemodes += 1
             else:
                 print(f"Fire mode <{fire_mode.name}> already present!")
@@ -103,7 +108,7 @@ class Gun(Equipment):
         while n_scopes < max_scopes:
             scope_part = self.pick_weapon_scope()
             if self.has_property(type(scope_part)) is False:
-                self.add_property(scope_part)
+                scope_part.attach(self)
                 n_scopes += 1
             else:
                 print(f"Scope Part <{scope_part.name}> already present!")
@@ -113,7 +118,7 @@ class Gun(Equipment):
         while n_parts < max_parts:
             accessory_part = self.pick_weapon_accessory()
             if self.has_property(type(accessory_part)) is False:
-                self.add_property(accessory_part)
+                accessory_part.attach(self)
                 n_parts += 1
             else:
                 print(f"Accessory Part <{accessory_part.name}> already present!")
@@ -147,21 +152,24 @@ class Gun(Equipment):
                 part = None
 
             if part is not None:
-                self.add_property(part)
+                part.attach(self)
                 self.n_parts += 1
 
         # Roll for element (if applicable)
+        min_elements = self.min_elements
         if self.forced_elemental is True:
-            self.min_elements = max(self.min_elements, 1)
+            min_elements = max(self.min_elements, 1)
 
         if self.forced_non_elemental is True and self.forced_elemental is False:
-            self.min_elements = 0
+            min_elements = 0
 
         if roll_for_element is True and len(self.elements) > 0:
             # Already got at least one Element forced by a Modifier, which replaces the one that could result from the rarity table
             roll_for_element = False
 
-        while roll_for_element is True or len(self.elements) < self.min_elements:
+        print(f"Elemental roll status: {roll_for_element}, {self.forced_elemental}, {self.forced_non_elemental}, {self.min_elements}")
+
+        while roll_for_element is True or len(self.elements) < min_elements:
             dice_roll = min([d100.roll(f"Roll on Element table") + self.elemental_roll_bonus, 100])
             el_roll = lookup_in_table(elemental_table, dice_roll)[self.rarity]
 
@@ -171,7 +179,7 @@ class Gun(Equipment):
 
             if el_roll is None:
                 print(f"NO ELEMENT ROLLED! {dice_roll}")
-            elif type(el_roll) == Fusion:
+            elif isinstance(el_roll, Fusion):
                 d8 = Dice.from_string('1d8')
 
                 while True:
@@ -184,10 +192,16 @@ class Gun(Equipment):
                         if fusion_el is not None and fusion_el != 'special':
                             if fusion_el is not None:
                                 fusion_el.bonus = el_roll.bonus
-                                self.elements.append(fusion_el)
+                                element_trait = trait_elemental()
+                                element_mod = deepcopy(fusion_el)
+                                element_mod.attach(element_trait)
+                                element_trait.attach(self)
                                 break
             else:
-                self.elements.append(el_roll)
+                element_trait = trait_elemental()
+                element_mod = deepcopy(el_roll)
+                element_mod.attach(element_trait)
+                element_trait.attach(self)
 
             roll_for_element = False
 
@@ -204,7 +218,7 @@ class Gun(Equipment):
         # Remove old manufacturer traits
         if self.manufacturer is not None:
             for old_trait in self.manufacturer.weapon_traits['primary'] + self.manufacturer.weapon_traits['secondary']:
-                self.remove_property(old_trait)
+                old_trait.detach()
 
         # Set new manufacturer
         self.manufacturer = new_manufacturer
@@ -212,12 +226,12 @@ class Gun(Equipment):
         # Load new manufacturer traits
         # Primary weapon traits
         for trait in self.manufacturer.weapon_traits['primary']:
-            self.add_property(trait)
+            trait.attach(self)
 
         # Secondary weapon trait
         trait = self.manufacturer.pick_secondary_weapon_trait()
         if trait:
-            self.add_property(trait)
+            trait.attach(self)
 
     def randomize_name(self):
         with open('assets.json') as file:
@@ -264,10 +278,10 @@ class Gun(Equipment):
     @gun_type.setter
     def gun_type(self, new_type):
         for old_trait in self._gun_type.weapon_bonus:
-            self.remove_property(old_trait)
+            old_trait.detach()
 
         for new_trait in new_type.weapon_bonus:
-            self.add_property(new_trait)
+            new_trait.attach(self)
 
         self._gun_type = new_type
 
@@ -323,6 +337,9 @@ class Gun(Equipment):
 
 
     def generate_card(self):
+        for property in self.equipment_properties:
+            for mod in property.active_mods:
+                print(mod.name)
         generate_gun_card(self)
 
 

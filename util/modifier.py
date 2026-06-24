@@ -3,7 +3,18 @@ class Modifier:
     effect = '<Changes the Stats of an Item.>'
     situational = False  # Effects need a specific situation to occur before taking effect (effects don't get applied and modifier has a special section on the card).
     hidden = False  # Used to hide this modifier in the 'Mods & Checks' table on the card.
-    linked_properties = []
+
+    def __init__(self):
+        self.linked_property = None
+
+    def attach(self, property):
+        self.linked_property = property
+        property.active_mods.append(self)
+
+    def detach(self):
+        if self in self.linked_property.active_mods:
+            self.linked_property.active_mods.remove(self)
+        self.linked_property = None
 
     def apply_to_equipment(self, equipment):
         pass
@@ -12,7 +23,7 @@ class Modifier:
         pass
 
     def get_linked_equipment(self):
-        return self.linked_properties[0].linked_equipment
+        return self.linked_property.linked_equipment
 
 
 
@@ -21,6 +32,7 @@ class AdditiveModifier(Modifier):
     value = 0
 
     def __init__(self, mod_value):
+        super().__init__()
         self.value = mod_value
 
     @property

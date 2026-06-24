@@ -7,6 +7,7 @@ class Element(Modifier):
     is_fusion = False
 
     def __init__(self, bonus=0):
+        super().__init__()
         self.bonus = bonus
 
     def apply_to_equipment(self, equipment):

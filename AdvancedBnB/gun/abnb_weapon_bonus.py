@@ -12,28 +12,28 @@ class BonusPistol(WeaponBonus):
     name = 'Pistol Bonus'
     effect = 'You gain +2 on Swap Checks when swapping to or from a Pistol.'
 
-    def reload_modifiers(self):
+    def load_modifiers(self):
         new_mod = mod_template(self.name, self.effect)
         new_mod.situational = True
-        self.replace_modifiers([new_mod])
+        self.attach_modifiers([new_mod])
 
 
 class BonusSmg(WeaponBonus):
     name = 'Smg Bonus'
     effect = 'Smg has no Type Bonus.'
 
-    def reload_modifiers(self):
+    def load_modifiers(self):
         new_mod = mod_template(self.name, self.effect)
         new_mod.hidden = True
-        self.replace_modifiers([new_mod])
+        self.attach_modifiers([new_mod])
 
 
 class BonusRifle(WeaponBonus):
     name = 'Combat Rifle Bonus'
     effect = f"Combat Rifles always spawn with an Accessory Part. This Part doesn't count towards the maximum numer of Parts for this Gun."
 
-    def reload_modifiers(self):
-        self.replace_modifiers([
+    def load_modifiers(self):
+        self.attach_modifiers([
             mod_extra_accessories(1)
         ])
 
@@ -41,32 +41,32 @@ class BonusSniper_scope(WeaponBonus):
     name = 'Sniper Rifle Bonus'
     effect = f"Sniper Rifle always spawn with a Scope Part. This Part counts against the maximum number of Parts for this Gun."
 
-    def reload_modifiers(self):
-        self.replace_modifiers([mod_fixed_scopes(1), mod_maximum_parts(-1)])
+    def load_modifiers(self):
+        self.attach_modifiers([mod_fixed_scopes(1), mod_maximum_parts(-1)])
 
 
 class BonusSniper_accuracy(WeaponBonus):
     name = 'Sniper Rifle Bonus'
     effect = f"When Attacking a Target over half the Sniper Rifles' Range (rounded up), gain an ACC Bonus equal to half it's Tier (rounded up)."
 
-    def reload_modifiers(self):
-        self.replace_modifiers([wp_bonus_sniper()])
+    def load_modifiers(self):
+        self.attach_modifiers([wp_bonus_sniper()])
 
 
 class BonusShotgun(WeaponBonus):
     name = 'Shotgun Bonus'
     effect = f"When Attacking a Target within half the Shotguns' Range (rounded down), gain a DMG Bonus equal to it's Tier."
 
-    def reload_modifiers(self):
-        self.replace_modifiers([wp_bonus_shotgun()])
+    def load_modifiers(self):
+        self.attach_modifiers([wp_bonus_shotgun()])
 
 
 class BonusLauncher(WeaponBonus):
     name = 'Rocket Launcher Bonus'
     effect = f"Splash."
 
-    def reload_modifiers(self):
-        self.replace_modifiers([mod_splash()])
+    def load_modifiers(self):
+        self.attach_modifiers([mod_splash()])
 
 
 # --- Gun Bonus specififc Modifiers ---
