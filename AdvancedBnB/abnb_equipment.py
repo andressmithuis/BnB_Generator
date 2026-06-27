@@ -11,6 +11,11 @@ from .abnb_traits import *
 class AbnbEquipment(Equipment):
     enable_high_calibre = False  # Specific for Gun Equipment
 
+    def __init__(self):
+        super().__init__()
+
+        self.generated_card = []
+
     def roll_for_elements(self, attempts):
         # Rolls for Element(s)
         n_rolls = 0
@@ -66,6 +71,7 @@ class AbnbEquipment(Equipment):
             if self.forced_elemental:
                 if n_rolls >= attempts:
                     if len(self.elements) == 0:
+                        print(f"Equipment is forced Elemental, but no Elements are applied yet! Roll again...")
                         n_rolls = attempts - 1
 
     def pick_element_from_table(self):

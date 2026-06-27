@@ -12,8 +12,7 @@ class Modifier:
         property.active_mods.append(self)
 
     def detach(self):
-        if self in self.linked_property.active_mods:
-            self.linked_property.active_mods.remove(self)
+        self.linked_property.active_mods.remove(self)
         self.linked_property = None
 
     def apply_to_equipment(self, equipment):

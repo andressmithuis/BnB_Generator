@@ -3,8 +3,9 @@ from kivymd.uix.button import MDRaisedButton
 from kivy.uix.widget import Widget
 
 from frontend.ui_components.panels.colored_panel import ColoredPanel
-from frontend.ui_components.widgets.menu_category import MenuCategory
-from frontend.ui_components.widgets.menu_item import MenuItem
+from frontend.ui_components.panels.navigation_panel.components.menu_category import MenuCategory
+from frontend.ui_components.panels.navigation_panel.components.menu_item import MenuItem
+from frontend.ui_components.panels.navigation_panel.menu.menu_abnb import MenuAbnb
 
 
 class NavigationPanel(ColoredPanel):
@@ -26,28 +27,22 @@ class NavigationPanel(ColoredPanel):
             minimum_height=self.menu.setter('height')
         )
         self.add_widget(self.menu)
-        self.add_widget(Widget())  # Spacer at the bottom
+        self.add_widget(Widget())  # Spacer at the bottom to push menu to the top
 
         # --- Menu Content ---
-        abnb_menu = MenuCategory('Advanced BnB')
-        abnb_menu.add_item(MenuItem('Gun Card', self.menu_selection))
-        abnb_menu.add_item(MenuItem('Shield Card', self.menu_selection))
+        abnb_menu = MenuAbnb()
 
         sbnb_menu = MenuCategory('Standard BnB')
-        sbnb_menu.add_item(MenuItem('Gun Card', self.menu_selection))
-        sbnb_menu.add_item(MenuItem('Shield Card', self.menu_selection))
-        sbnb_menu.add_item(MenuItem('Potion Card', self.menu_selection))
+        sbnb_menu.add_item(MenuItem('Gun Card', self.on_menu_selection))
+        sbnb_menu.add_item(MenuItem('Shield Card', self.on_menu_selection))
+        sbnb_menu.add_item(MenuItem('Potion Card', self.on_menu_selection))
 
         self.menu.add_widget(abnb_menu)
         self.menu.add_widget(sbnb_menu)
 
-    def selected_gun_cards(self, *args):
-        print(f"Clicked on <Gun Cards>!")
-
-    def selected_shield_cards(self, *args):
-        print(f"Clicked on <Shield Cards>!")
-
-    def menu_selection(self,  rule_name):
-        print(f"Selected: {rule_name}")
+    def on_menu_selection(self,  menu_item):
+        category = menu_item.get_parent_category()
+        print(f"Selected: {category.text}/{menu_item.text}")
+        self.screen.main_section.change_main_section(menu_item)
 
 

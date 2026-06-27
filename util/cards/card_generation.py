@@ -1,5 +1,6 @@
 from PIL import Image, ImageFont, ImageDraw, ImageFile, ImageOps
 import numpy as np
+import time
 
 # Fixes 'Banker's Rounding Errors (i.e. round(2.5) = 2)
 def round(value, decimals=0):

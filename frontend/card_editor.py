@@ -12,6 +12,7 @@ class CardEditorApp(MDApp):
         return EditorScreen()
 
 
+
 if __name__ == "__main__":
     Window.size = (1200, 800)
     

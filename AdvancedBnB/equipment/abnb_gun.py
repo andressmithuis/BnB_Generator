@@ -1,6 +1,7 @@
 import json
 import random
 from copy import deepcopy
+import time
 
 from AdvancedBnB.abnb_equipment import AbnbEquipment
 from util import Equipment, Dice, lookup_in_table
@@ -17,6 +18,7 @@ from AdvancedBnB.gun.abnb_gun_card import generate_gun_card
 from util.common_traits import trait_elemental
 from util.common_modifiers import mod_is_elemental, mod_elemental_roll_number
 
+DEBUG = False
 
 def mod_to_string(val_1, val_2):
     delta = val_1 - val_2
@@ -24,6 +26,10 @@ def mod_to_string(val_1, val_2):
         return f"({'+' if delta > 0 else ''}{delta})"
 
     return ''
+
+def debug_print(*args, **kwargs):
+    if DEBUG is True:
+        print(*args, **kwargs)
 
 class Gun(AbnbEquipment):
     enable_high_calibre = True
@@ -48,7 +54,17 @@ class Gun(AbnbEquipment):
         self.hit_dice = Dice(1, 4)
         self.crit_dice = Dice(1, 4)
 
-    def generate(self, user_rolls=False):
+    def reset(self):
+        # Clear Equipment
+        to_delete = self.equipment_properties.copy()
+        for prop in to_delete:
+            prop.detach()
+
+        self.eridian = False
+        self.n_parts = 0
+
+    def generate(self):
+        t_start = time.time()
         # Prepare dice
         d100 = Dice(1, 100)
         d4 = Dice(1, 4)
@@ -56,26 +72,29 @@ class Gun(AbnbEquipment):
         d12 = Dice(1, 12)
         #Dice.input_rolls = True
 
+        self.reset()
+
         # Determine level and tier
         self.tier = get_item_tier(self.level)
 
         # Manufacturer and gun type
-        print(f"Determining Gun Manufacturer...")
-        while self.manufacturer is None:
+        debug_print(f"Determining Gun Manufacturer...")
+        new_manufacturer = None
+        while new_manufacturer is None:
             roll = d12.roll(f"Roll for Manufacturer")
             new_manufacturer = manufacturer_table[roll]
-            print(f"Rolled a {roll}! Gun Manufacturer = {new_manufacturer}")
+            debug_print(f"Rolled a {roll}! Gun Manufacturer = {new_manufacturer}")
             if new_manufacturer == Manufacturers.ERIDIAN:
-                print(f"Rolled Eridian Manufacturer. Roll again for Manufacturer of Gun Base.")
+                debug_print(f"Rolled Eridian Manufacturer. Roll again for Manufacturer of Gun Base.")
                 self.eridian = True
-                self.manufacturer = None
+                new_manufacturer = None
             else:
                 self.set_manufacturer(new_manufacturer)
 
-        print(f"Determining Gun Type...")
+        debug_print(f"Determining Gun Type...")
         roll = d12.roll(f"Roll for Gun Type")
         self.gun_type = self.manufacturer.make_random_gun(roll)
-        print(f"Rolled a {roll}! Gun Type = {self.gun_type}")
+        debug_print(f"Rolled a {roll}! Gun Type = {self.gun_type}")
 
         # Weapon base stats
         self.base_stats = self.gun_type.get_basestats(self.tier)
@@ -83,15 +102,15 @@ class Gun(AbnbEquipment):
         self.crit_dice = self.base_stats['crit_dice']
 
         # Rarity and element
-        print(f"Determining Gun Rarity and Element...")
+        debug_print(f"Determining Gun Rarity and Element...")
         d4_roll = d4.roll(f"Roll for Rarity and Element(1/2)")
         d6_roll = d6.roll(f"Roll for Rarity and Element(2/2)")
         self.rarity, roll_for_element = rarity_tables['normal'][d4_roll][d6_roll]
 
-        print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Gun Rarity = {self.rarity}.{' Might also be Elemental.' if roll_for_element else ''}")
+        debug_print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Gun Rarity = {self.rarity}.{' Might also be Elemental.' if roll_for_element else ''}")
 
         # Roll for weapon parts
-        print(f"Determining Gun Parts...")
+        debug_print(f"Determining Gun Parts...")
 
         # Resolve Gun Parts provided by Traits/Mods (These all do not count towards Part count total)
         max_firemodes = self.get_modifier_value(mod_tacticool_firemodes)
@@ -102,7 +121,7 @@ class Gun(AbnbEquipment):
                 fire_mode.attach(self)
                 n_firemodes += 1
             else:
-                print(f"Fire mode <{fire_mode.name}> already present!")
+                debug_print(f"Fire mode <{fire_mode.name}> already present!")
 
         max_scopes = self.get_modifier_value(mod_fixed_scopes)
         n_scopes = 0
@@ -112,7 +131,7 @@ class Gun(AbnbEquipment):
                 scope_part.attach(self)
                 n_scopes += 1
             else:
-                print(f"Scope Part <{scope_part.name}> already present!")
+                debug_print(f"Scope Part <{scope_part.name}> already present!")
 
         max_parts = self.get_modifier_value(mod_extra_accessories)
         n_parts = 0
@@ -122,34 +141,34 @@ class Gun(AbnbEquipment):
                 accessory_part.attach(self)
                 n_parts += 1
             else:
-                print(f"Accessory Part <{accessory_part.name}> already present!")
+                debug_print(f"Accessory Part <{accessory_part.name}> already present!")
 
         # Roll for remaining parts
         self.n_parts = 0
         while self.n_parts < self.max_parts:
-            print(f"Rolling for part {self.n_parts+1}/{self.max_parts}...")
+            debug_print(f"Rolling for part {self.n_parts+1}/{self.max_parts}...")
             roll = d100.roll(f"Roll for Gun Part")
             part = lookup_in_table(weapon_parts_table, roll)
 
             if part == 'sight':
-                print(f"Rolled a {roll}! You may roll for a Gun Scope!")
+                debug_print(f"Rolled a {roll}! You may roll for a Gun Scope!")
                 if self.has_property(WeaponPartScope):
-                    print(f"Gun already has a Gun Scope... Roll for new part...")
+                    debug_print(f"Gun already has a Gun Scope... Roll for new part...")
                     part = None
                 else:
                     part = self.pick_weapon_scope()
                     # Check if Scope is compatible with the Gun Type
                     if not self.gun_type in part.weapon_types:
-                        print(f"Gun Type <{self.gun_type}> is not compatible with Scope <{part.name}>... Roll for new part...")
+                        debug_print(f"Gun Type <{self.gun_type}> is not compatible with Scope <{part.name}>... Roll for new part...")
                         part = None
 
             elif part == 'accessories':
-                print(f"Rolled a {roll}! You may roll for a Gun Accessory!")
+                debug_print(f"Rolled a {roll}! You may roll for a Gun Accessory!")
                 part = self.pick_weapon_accessory()
 
             # Check if part is already applied
             if self.has_property(type(part)):
-                print(f"Picked a <{part.name}>! But the Gun already has it... Try again!")
+                debug_print(f"Picked a <{part.name}>! But the Gun already has it... Try again!")
                 part = None
 
             if part is not None:
@@ -174,6 +193,8 @@ class Gun(AbnbEquipment):
 
         # Randomly choose a name
         self.randomize_name()
+
+        print(f"Finished generating <{self.name}> in {time.time() - t_start}s")
 
     def set_manufacturer(self, new_manufacturer):
         # Remove old manufacturer traits
@@ -219,13 +240,13 @@ class Gun(AbnbEquipment):
             # Check if part already present
             for property in self.equipment_properties:
                 if isinstance(part, type(property)):
-                    print(f"Rolled a {roll}! But the part <{part.name}> is already equipped. Roll again...")
+                    debug_print(f"Rolled a {roll}! But the part <{part.name}> is already equipped. Roll again...")
                     part = None
                     retries_left -= 1
                     break
 
             if part is not None:
-                print(f"Rolled a {roll}! Adding Gun Scope <{part.name}>!")
+                debug_print(f"Rolled a {roll}! Adding Gun Scope <{part.name}>!")
                 break
 
         assert part is not None, f"Failed to roll for a Weapon Scope...\n{self}"
@@ -298,7 +319,7 @@ class Gun(AbnbEquipment):
 
 
     def generate_card(self):
-        generate_gun_card(self)
+        self.generated_card = generate_gun_card(self)
 
 
     def  __repr__(self):

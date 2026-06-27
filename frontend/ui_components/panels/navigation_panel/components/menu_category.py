@@ -11,6 +11,8 @@ class MenuCategory(BoxLayout):
         self.orientation = 'vertical'
         self.size_hint_y = None
 
+        self.title = title
+
         self.bind(
             minimum_height = self.setter('height')
         )
@@ -24,7 +26,7 @@ class MenuCategory(BoxLayout):
 
         # Category Button
         self.header = MDFlatButton(
-            text = f"+ {title}",
+            text = f"+ {self.title}",
             size_hint = (1, None),
             height = 40
         )
@@ -52,3 +54,7 @@ class MenuCategory(BoxLayout):
             self.header.text = self.header.text.replace('-', '+')
             self.item_container.height = 0
             self.item_container.opacity = 0
+
+    @property
+    def text(self):
+        return self.title

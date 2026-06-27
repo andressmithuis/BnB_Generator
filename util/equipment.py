@@ -28,18 +28,6 @@ class Equipment:
 
         return False
 
-    def add_property(self, property):
-        # Link property and add modifiers
-        self.equipment_properties.append(property)
-        property.link_to_equipment(self)
-        property.reload_modifiers()
-
-    def remove_property(self, property):
-        property.remove_modifiers()
-        property.unlink_from_equipment()
-        if property in self.equipment_properties:
-            self.equipment_properties.remove(property)
-
     def update_modifiers(self):
         for property in self.equipment_properties:
             property.reload_modifiers()
@@ -135,6 +123,7 @@ class EquipmentProperty:
         self.active_mods = []
 
     def attach(self, equipment):
+        #print(f"Attaching <{self.name}> --> ({id(equipment)})")
         # Link to equipment
         self.linked_equipment = equipment
         self.linked_equipment.equipment_properties.append(self)
@@ -144,6 +133,7 @@ class EquipmentProperty:
 
     def detach(self):
         if self.linked_equipment is not None:
+            #print(f"Detaching <{self.name}> --> ({id(self.linked_equipment)})")
             # Remove modifiers
             self.remove_modifiers()
 

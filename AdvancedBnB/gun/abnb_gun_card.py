@@ -48,11 +48,11 @@ def generate_gun_card(gun_obj):
     str = f"{gun_obj.rarity}".lower()
     path = f"./img/blank_cards/card_blank_{str}.webp"
     assert os.path.isfile(path), f"ERROR - Path to blank gun card file is not correct: <{path}>"
-    card_front = Image.open(path)
+    card_front = Image.open(path).convert('RGBA')
 
     path = f"./img/blank_cards/empty_card_blank_{str}.webp"
     assert os.path.isfile(path), f"ERROR - Path to blank gun card file is not correct: <{path}>"
-    card_back = Image.open(path)
+    card_back = Image.open(path).convert('RGBA')
 
     if False:
         card_front = draw_field_locations(card_front, basic_card_template)
@@ -241,9 +241,19 @@ def generate_gun_card(gun_obj):
 
     # Merge front and back of card
     card_joined = card_merge_sideways(card_front, card_back)
-    card_joined.show()
+    #card_joined.show()
 
-    card_joined.save('test.bmp', 'BMP', quality=100)
+    #card_joined.save('test.bmp', 'BMP', quality=100)
+
+    preview_scale = 0.5
+    tmp_front = card_front.resize(
+        (int(card_front.width * preview_scale),
+         int(card_front.height * preview_scale)),
+        resample = Image.Resampling.LANCZOS
+    )
+    #tmp_front.save(f"tmp_card_front.png", format='PNG', optimize=True)
+
+    return [card_front, card_back]
 
 def split_text_on_length(text: str, length:int):
     ret = ['']
