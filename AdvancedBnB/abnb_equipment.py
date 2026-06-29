@@ -1,8 +1,11 @@
 from copy import deepcopy
+from tkinter import Tk, filedialog
+import pathlib
 
 from util import Equipment, Dice, lookup_in_table
 from util.common_modifiers import *
 from util.common_traits import *
+from util.cards.card_basics import card_merge_sideways
 from .abnb_tables import elemental_table, fusion_table
 from .abnb_element import Fusion, FusionElement
 from .abnb_traits import *
@@ -26,17 +29,16 @@ class AbnbEquipment(Equipment):
 
             # Check if rolled Element is blacklisted
             if rolled_element is not None:
-                for blacklisted_element in self.disabled_elements:
+                for blacklisted_element in self.blacklisted_elements:
                     if isinstance(rolled_element, type(blacklisted_element)):
                         rolled_element = None
                         break
 
             # Check if rolled Element matches forced Element (to allow forced Element +1/+2)
-            if rolled_element is not None:
-                if self.forced_element is not None:
-                    if not isinstance(rolled_element, type(self.forced_element)):
-                        print(f"Element is being forced to be <{self.forced_element}>")
-                        rolled_element = self.forced_element
+            if self.forced_element is not None:
+                if not isinstance(rolled_element, type(self.forced_element)):
+                    print(f"Element is being forced to be <{self.forced_element}>")
+                    rolled_element = self.forced_element
 
             # Check if Equipment is forced Non-Elemental
             if rolled_element is not None:
@@ -102,3 +104,26 @@ class AbnbEquipment(Equipment):
                     break
 
         return rolled_element
+
+    def export_generated_card(self):
+        card_joined = card_merge_sideways(self.generated_card[0], self.generated_card[1])
+
+        # Open SaveAs Dialog
+        root = Tk()
+        root.withdraw()
+
+        filename = filedialog.asksaveasfilename(
+            defaultextension='*.png',
+            filetypes = [
+                ('PNG Image', '*.png'),
+                ('BMP Image', '*.bmp'),
+                ('All Files', '*.*')
+            ]
+        )
+        root.destroy()
+
+        # Save file if valid path is given
+        if filename:
+            ext = pathlib.Path(filename).suffix
+            ext = ext.replace('.', '').upper()
+            card_joined.save(filename, ext, quality=100)

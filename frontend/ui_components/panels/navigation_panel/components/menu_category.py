@@ -1,6 +1,7 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
-from kivymd.uix.button import MDFlatButton
+from kivy.metrics import dp
+from kivymd.uix.button import MDButton, MDButtonIcon, MDButtonText
 
 
 class MenuCategory(BoxLayout):
@@ -9,7 +10,7 @@ class MenuCategory(BoxLayout):
         super().__init__(**kwargs)
 
         self.orientation = 'vertical'
-        self.size_hint_y = None
+        self.size_hint = (1, None)
 
         self.title = title
 
@@ -25,10 +26,18 @@ class MenuCategory(BoxLayout):
         )
 
         # Category Button
-        self.header = MDFlatButton(
-            text = f"+ {self.title}",
+        self.headertext = MDButtonText(
+            text = self.title,
+            theme_text_color = 'Custom',
+            text_color = (1, 0, 0, 1)
+        )
+        self.headericon = MDButtonIcon(icon='plus')
+        self.header = MDButton(
+            self.headericon,
+            self.headertext,
+            theme_width = 'Custom',
             size_hint = (1, None),
-            height = 40
+            height = dp(30)
         )
         self.header.bind(
             on_release = self.toggle
@@ -47,11 +56,11 @@ class MenuCategory(BoxLayout):
 
     def reload_menu(self):
         if self.expanded:
-            self.header.text = self.header.text.replace('+', '-')
+            self.headericon.icon = 'minus-circle-outline'
             self.item_container.height = sum([child.height for child in self.item_container.children])
             self.item_container.opacity = 1
         else:
-            self.header.text = self.header.text.replace('-', '+')
+            self.headericon.icon = 'plus-circle-outline'
             self.item_container.height = 0
             self.item_container.opacity = 0
 

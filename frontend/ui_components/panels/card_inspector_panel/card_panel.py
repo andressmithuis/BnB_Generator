@@ -4,6 +4,7 @@ from kivy.uix.image import Image
 from kivy.graphics import Color, RoundedRectangle
 from kivy.properties import StringProperty
 
+from frontend.ui_components.util import img_to_texture
 from frontend.ui_components.ui_theme import UITheme
 from frontend.ui_components.widgets.card_region import CardRegion
 from frontend.ui_components.panels.colored_panel import ColoredPanel
@@ -17,7 +18,8 @@ class CardPanel(FloatLayout):
         self.card_size = self.size
         self.card_pos = self.pos
 
-        # Panel Background
+        self.img_front = None
+        self.img_back = None
 
         # Panel Image
         self.card_image = Image(
@@ -56,9 +58,5 @@ class CardPanel(FloatLayout):
         self.region_name.pos = self.card_pos
         self.region_name.size = self.card_size
 
-    def reload_image(self, img_file):
-        self.card_image.source = img_file
-        self.card_image.reload()
-
-    def replace_image_texture(self, img_texture):
-        self.card_image.texture = img_texture
+    def update_card_image(self, new_image):
+        self.card_image.texture = img_to_texture(new_image)

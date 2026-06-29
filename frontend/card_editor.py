@@ -7,9 +7,16 @@ from screens.editor_screen import EditorScreen
 
 class CardEditorApp(MDApp):
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.screen = EditorScreen()
+
+
     def build(self):
         self.theme_cls.theme_style = 'Dark'
-        return EditorScreen()
+
+        return self.screen
 
 
 

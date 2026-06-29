@@ -14,12 +14,6 @@ class mod_non_elemental(Modifier):
     effect = "This Equipment can't be Elemental."
     hidden = True
 
-    def apply_to_equipment(self, equipment):
-        equipment.forced_non_elemental = True
-
-    def revert_from_equipment(self, equipment):
-        equipment.forced_non_elemental = False
-
 
 class mod_is_elemental(Modifier):
     name = 'Forced Elemental'
@@ -48,25 +42,19 @@ class mod_forced_element(Modifier):
         return f"Equipment will have a <UNKOWN> Element."
 
 
-class mod_non_explosive(Modifier):
-    name = 'Non Explosive'
-    effect = "This Equipment can't have the Explosive Element."
+class mod_blacklisted_element(Modifier):
+    name = 'Blacklisted Element'
+    effect = "This Equipment can't have a specific Element."
     hidden = True
+    type = None
 
-    def apply_to_equipment(self, equipment):
-        is_present = False
-        for element in equipment.disabled_elements:
-            if isinstance(element, Explosive):
-                is_present = True
-                break
+    def __init__(self, type):
+        super().__init__()
+        self.type = type
 
-        if is_present is False:
-            equipment.disabled_elements.append(Explosive())
-
-    def revert_from_equipment(self, equipment):
-        for element in equipment.disabled_elements:
-            if isinstance(element, Explosive):
-                equipment.disabled_elements.remove(element)
+    @property
+    def effect(self):
+        return f"Equipment can't have the {self.type.name} Element"
 
 
 class mod_elemental_roll_number(AdditiveModifier):

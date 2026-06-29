@@ -272,3 +272,19 @@ class mod_taser(Modifier):
         dmg_dice = Dice(1, 4)
         dmg_dice.count *= equipment.tier
         return f"(1/Encounter) When used: Each Enemy within a 3 square Cone takes {dmg_dice} Shock Damage and is Dazed."
+
+
+class mod_mode_switch(Modifier):
+    name = 'Mode Switch'
+    effect = 'Rare and higher Rarity can swap between 2 Elements (if available). SPD 10 Check.'
+    situational = True
+
+    @property
+    def effect(self):
+        equipment = self.get_linked_equipment()
+        if equipment.rarity in [Rarity.COMMON, Rarity.UNCOMMON] or len(equipment.elements) > 1:
+            self.hidden = True
+        else:
+            self.hidden = False
+
+        return 'Swap between 2 Elements. SPD 10 Check.'

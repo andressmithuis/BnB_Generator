@@ -240,9 +240,8 @@ def generate_gun_card(gun_obj):
 
 
     # Merge front and back of card
-    card_joined = card_merge_sideways(card_front, card_back)
+    #card_joined = card_merge_sideways(card_front, card_back)
     #card_joined.show()
-
     #card_joined.save('test.bmp', 'BMP', quality=100)
 
     preview_scale = 0.5

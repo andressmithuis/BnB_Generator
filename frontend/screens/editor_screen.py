@@ -15,13 +15,16 @@ class EditorScreen(BoxLayout):
         # Navigation menu
         self.main_menu = NavigationPanel(
             self,
-            size_hint_x = 0.1
+            size_hint_x = 0.15
         )
         self.main_menu.bg_color = (0.4, 0.4, 0.4, 1)
         self.add_widget(self.main_menu)
 
         # Main section
-        self.main_section = GeneratorSection('???', None)
+        self.main_section = GeneratorSection(
+            '???',
+            None,
+        )
         self.add_widget(self.main_section)
 
     def reload_main_section(self, new_section):

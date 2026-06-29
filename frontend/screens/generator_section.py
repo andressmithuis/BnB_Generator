@@ -2,7 +2,7 @@ import time
 from threading import Thread
 import numpy as np
 
-from kivy.graphics.texture import Texture
+
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 
@@ -48,6 +48,10 @@ class GeneratorSection(BoxLayout):
     def generate_new_card(self, *args):
         Thread(target = self.generator_worker, daemon=True).start()
 
+    def export_card(self, *args):
+        self.equipment_obj.export_generated_card()
+        print(f"Saved Card to filesystem!")
+
     def generator_worker(self):
         print(f"Starting to generate Equipment Card! <{id(self.equipment_obj)}>")
         t_start = time.time()
@@ -60,21 +64,6 @@ class GeneratorSection(BoxLayout):
         print(f"Card rendered in {t_now - t_start}s")
 
         # Send result back to UI thread
-        Clock.schedule_once(lambda dt: self.reload_card_image())
+        Clock.schedule_once(lambda dt: self.editor_panel.card_inspection_panel.reload_card_image())
 
-    def reload_card_image(self):
-        t_start = time.time()
-        self.editor_panel.card_inspection_panel.card_panel.replace_image_texture(img_to_texture(self.equipment_obj.generated_card[0]))
-        print(f"Card loaded in UI in {time.time() - t_start}s")
-
-
-def img_to_texture(pil_image):
-    pil_image = pil_image.convert('RGBA')
-    w, h = pil_image.size
-    data = np.frombuffer(pil_image.tobytes(), dtype=np.uint8)
-
-    texture = Texture.create(size=(w, h), colorfmt='rgba')
-    texture.blit_buffer(data.tobytes(), colorfmt='rgba', bufferfmt='ubyte')
-    texture.flip_vertical()
-
-    return texture
+        print(self.equipment_obj)

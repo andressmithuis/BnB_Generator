@@ -329,7 +329,7 @@ class trait_maliwan_elemental(WeaponTrait):
     effect = 'Always Elemental (Non-Explosive).'
 
     def load_modifiers(self):
-        self.attach_modifiers([mod_is_elemental(), mod_non_explosive()])
+        self.attach_modifiers([mod_is_elemental(), mod_blacklisted_element(Explosive())])
 
 
 class trait_proliferation(WeaponTrait):
@@ -355,19 +355,10 @@ class trait_proliferation(WeaponTrait):
 class trait_mode_switch(WeaponTrait):
     name = 'Mode Switch'
     effect = 'Rare and higher Rarity can swap between 2 Elements (if available). SPD 10 Check.'
-    situational = True
     enable_modifier_reload = True
 
     def load_modifiers(self):
-        new_modifiers = []
-        # Only applicable for equipment of Rare and higher rarity
-        if not self.linked_equipment.rarity in [Rarity.COMMON, Rarity.UNCOMMON] and len(self.linked_equipment.elements) > 1:
-            new_modifier = mod_template(self.name, '')
-            new_modifier.effect = 'Swap between 2 Elements, SPD 10 Check.'
-            new_modifier.situational = True
-
-            new_modifiers = [new_modifier]
-
+        new_modifiers = [mod_mode_switch()]
         self.attach_modifiers(new_modifiers)
 
 

@@ -21,7 +21,7 @@ class CardRegion(Widget):
         )
 
         with self.canvas.before:
-            self.region_color = Color(1, 0, 0, 0.3)  # red with transparency
+            self.region_color = Color(1, 1, 1, 0.3)  # red with transparency
             self.mesh = Mesh(
                 vertices= [],
                 indices = [],
@@ -62,13 +62,13 @@ class CardRegion(Widget):
             if is_inside is True and self.is_hovered is False:
                 self.is_hovered = True
                 print(f"Mouse entered region!")
-                self.region_color.rgba = (1, 0, 0, 0.6)
+                self.region_color.rgba = (1, 1, 1, 0.6)
                 # self.on_hover_enter()
 
             elif is_inside is False and self.is_hovered is True:
                 self.is_hovered = False
                 print(f"Mouse left region!")
-                self.region_color.rgba = (1, 0, 0, 0.3)
+                self.region_color.rgba = (1, 1, 1, 0.3)
                 # self.on_hover_leave()
 
     def calculate_region_bb(self, *args):

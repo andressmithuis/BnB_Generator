@@ -1,5 +1,4 @@
 from kivy.uix.boxlayout import BoxLayout
-from kivymd.uix.button import MDRaisedButton
 
 from frontend.ui_components.panels.common_settings import CommonSettingsPanel
 

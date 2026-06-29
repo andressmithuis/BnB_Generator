@@ -1,6 +1,6 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
-from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.button import MDButton
 from kivymd.uix.label import MDLabel
 
 from frontend.ui_components.panels.colored_panel import ColoredPanel

@@ -1,6 +1,6 @@
 from kivymd.app import MDApp
 
-from AdvancedBnB import Gun
+from AdvancedBnB import Gun, Shield
 
 from frontend.ui_components.panels.navigation_panel.components.menu_category import MenuCategory
 from frontend.ui_components.panels.navigation_panel.components.menu_item import MenuItem
@@ -18,7 +18,11 @@ class MenuAbnb(MenuCategory):
         print(f"Selected: {category.text}/{menu_item.text}")
 
         section_title = f"{category.text} - {menu_item.text}"
-        new_section = GeneratorSection(section_title, Gun())
+
+        if menu_item.text == 'Gun Card':
+            new_section = GeneratorSection(section_title, Gun())
+        elif menu_item.text == 'Shield Card':
+            new_section = GeneratorSection(section_title, Shield())
 
         screen = MDApp.get_running_app().root
         screen.reload_main_section(new_section)

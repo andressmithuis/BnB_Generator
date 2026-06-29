@@ -19,7 +19,6 @@ class Equipment:
         self.n_parts = 0
 
         self.equipment_properties = []
-        self.disabled_elements = []
 
     def has_property(self, property_type):
         for property in self.equipment_properties:
@@ -92,6 +91,15 @@ class Equipment:
 
         return forced_element
 
+    @property
+    def blacklisted_elements(self):
+        blacklist = []
+        for modifier in self.equipment_modifiers:
+            if isinstance(modifier, mod_blacklisted_element):
+                blacklist.append(modifier.type)
+
+        return blacklist
+
 
     @property
     def equipment_modifiers(self):
@@ -160,10 +168,13 @@ class EquipmentProperty:
         for modifier in modifier_list:
             mod_copy = deepcopy(modifier)
             mod_copy.attach(self)
+            print(f"Attaching <{mod_copy.effect}>")
 
     def detach_modifiers(self, modifier_list):
         # Detach and remove from active_mods
         for modifier in modifier_list:
+            if modifier.linked_property is not None:
+                print(f"Detaching <{modifier.effect}>")
             modifier.detach()
 
     def link_to_equipment(self, equipment):

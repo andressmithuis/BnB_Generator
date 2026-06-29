@@ -1,5 +1,4 @@
 from kivy.uix.boxlayout import BoxLayout
-from kivymd.uix.button import MDRaisedButton
 from kivy.uix.widget import Widget
 
 from frontend.ui_components.panels.colored_panel import ColoredPanel

@@ -1,6 +1,6 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
-from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.button import MDButton, MDButtonText, MDButtonIcon
 
 from frontend.ui_components.panels.card_inspector_panel.card_inspector_panel import CardInspectorPanel
 from frontend.ui_components.panels.colored_panel import ColoredPanel
@@ -25,41 +25,46 @@ class EditorPanel(ColoredPanel):
             spacing = 10
         )
 
-        btn_generate = MDRaisedButton(
-            text = 'Generate Card',
+        btn_generate = MDButton(
+            MDButtonIcon(icon='reload'),
+            MDButtonText(text='Generate Card'),
             md_bg_color = UITheme.Button.PRIMARY,
-            on_release = parent_section.generate_new_card,
+            on_release = lambda x: parent_section.generate_new_card(),
             pos_hint = {'center_x': 0.5}
         )
 
-        btn_generate_roll = MDRaisedButton(
-            text='Roll for Card',
+        btn_generate_roll = MDButton(
+            MDButtonIcon(icon='dice-6'),
+            MDButtonText(text='Roll for Card'),
             md_bg_color=UITheme.Button.DISABLED,
-            text_color = UITheme.Button.DISABLED_TEXT,
+            #text_color = UITheme.Button.DISABLED_TEXT,
             on_release=lambda x: print(f"<Roll for Card>"),
             pos_hint = {'center_x': 0.5}
         )
 
-        btn_load_card = MDRaisedButton(
-            text='Load Card',
+        btn_load_card = MDButton(
+            MDButtonIcon(icon='folder'),
+            MDButtonText(text='Load Card'),
             md_bg_color=UITheme.Button.DISABLED,
-            text_color=UITheme.Button.DISABLED_TEXT,
+            #text_color=UITheme.Button.DISABLED_TEXT,
             on_release=lambda x: print(f"<Load Card>"),
             pos_hint = {'center_x': 0.5}
         )
 
-        btn_save_card = MDRaisedButton(
-            text='Save Card',
+        btn_save_card = MDButton(
+            MDButtonIcon(icon='content-save'),
+            MDButtonText(text='Save Card'),
             md_bg_color=UITheme.Button.DISABLED,
-            text_color=UITheme.Button.DISABLED_TEXT,
+            #text_color=UITheme.Button.DISABLED_TEXT,
             on_release=lambda x: print(f"<Save Card>"),
             pos_hint = {'center_x': 0.5}
         )
 
-        btn_export_card = MDRaisedButton(
-            text='Export Card',
+        btn_export_card = MDButton(
+            MDButtonIcon(icon='download'),
+            MDButtonText(text='Export Card'),
             md_bg_color=UITheme.Button.DANGER,
-            on_release=lambda x: print(f"<Export Card>"),
+            on_release=lambda x: parent_section.export_card(),
             pos_hint={'center_x': 0.5}
         )
 

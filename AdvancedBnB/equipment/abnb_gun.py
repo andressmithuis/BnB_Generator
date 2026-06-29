@@ -16,7 +16,7 @@ from AdvancedBnB.gun.abnb_weapon_parts import WeaponPart, WeaponPartScope, weapo
 from AdvancedBnB.gun.abnb_guntypes import Guntypes
 from AdvancedBnB.gun.abnb_gun_card import generate_gun_card
 from util.common_traits import trait_elemental
-from util.common_modifiers import mod_is_elemental, mod_elemental_roll_number
+from util.common_modifiers import mod_is_elemental, mod_elemental_roll_number, mod_forced_element
 
 DEBUG = False
 
@@ -62,6 +62,10 @@ class Gun(AbnbEquipment):
 
         self.eridian = False
         self.n_parts = 0
+
+        print(f"Reset equipment...")
+        print(f" - {len(self.equipment_properties)} Properties left")
+        print(f" - {len(self.equipment_modifiers)} Modifiers left")
 
     def generate(self):
         t_start = time.time()
@@ -178,7 +182,7 @@ class Gun(AbnbEquipment):
         # Roll for Element(s)
         # Determine number of Elemental Rolls
         elemental_rolls = 0
-        if roll_for_element is True:
+        if roll_for_element is True or self.has_modifier(mod_forced_element):
             elemental_rolls = 1
 
         if self.has_modifier(mod_elemental_roll_number):
@@ -323,6 +327,8 @@ class Gun(AbnbEquipment):
 
 
     def  __repr__(self):
+        t_start = time.time()
+
         str = ''
         str += f"--- Generated Gun --- \n"
         str += f"Name: <{self.name}> \n"
@@ -332,9 +338,8 @@ class Gun(AbnbEquipment):
         str += f"n Gun Scope: {self.n_scopes}\n"
 
         str += f"Elements: \n"
-        if self.forced_elemental or not self.forced_non_elemental:
-            for el in self.elements:
-                str += f" - {el}\n"
+        for el in self.elements:
+            str += f" - {el}\n"
         str += f"\n"
 
         mod_str = mod_to_string(self.range, self.base_stats['range'])
@@ -382,5 +387,7 @@ class Gun(AbnbEquipment):
                 effect = f"[{mod.effect}]"
 
             str += f" - {effect}\n"
+
+        print(f"Building repr: {time.time() - t_start}s")
 
         return str
