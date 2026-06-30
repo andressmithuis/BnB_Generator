@@ -2,7 +2,7 @@ from copy import deepcopy
 from tkinter import Tk, filedialog
 import pathlib
 
-from util import Equipment, Dice, lookup_in_table
+from util import Equipment, lookup_in_table, DiceRequest
 from util.common_modifiers import *
 from util.common_traits import *
 from util.cards.card_basics import card_merge_sideways
@@ -24,7 +24,7 @@ class AbnbEquipment(Equipment):
         n_rolls = 0
         while n_rolls < attempts:
             print(f"Rolling Element attempt {n_rolls + 1}/{attempts}")
-            rolled_element = self.pick_element_from_table()
+            rolled_element = yield from self.pick_element_from_table()
             n_rolls += 1
 
             # Check if rolled Element is blacklisted
@@ -77,18 +77,16 @@ class AbnbEquipment(Equipment):
                         n_rolls = attempts - 1
 
     def pick_element_from_table(self):
-        d100 = Dice.from_string('1d100')
-        dice_roll = min([d100.roll(f"Roll on Element table") + self.elemental_roll_bonus, 100])
-        rolled_element = lookup_in_table(elemental_table, dice_roll)[self.rarity]
+        dice_roll = yield DiceRequest('1d100', f"Roll 1d100 for Element on Element table")
+        element_roll = min([dice_roll + self.elemental_roll_bonus, 100])
+        rolled_element = lookup_in_table(elemental_table, element_roll)[self.rarity]
         print(f"Rolled a {dice_roll}(+{self.elemental_roll_bonus})! Rolled a <{rolled_element}> Element")
 
         if isinstance(rolled_element, Fusion):
-            d8 = Dice.from_string('1d8')
-
             while True:
                 print(f"Rolling for specific Fusion Element...")
-                roll_1 = d8.roll(f"Roll on Elemental Fusion Table(1/2)")
-                roll_2 = d8.roll(f"Roll on Elemental Fusion Table(2/2)")
+                roll_1 = yield DiceRequest('1d8', f"Roll 1d8 on Elemental Fusion table (1/2)")
+                roll_2 = yield DiceRequest('1d8', f"Roll 1d8 on Elemental Fusion table (2/2)")
                 fusion_element = fusion_table[roll_1][roll_2]
 
                 print(f"Rolled a {roll_1} and {roll_2} resulting in <{fusion_element}> Element Fusion")

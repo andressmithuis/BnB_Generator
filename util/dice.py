@@ -1,4 +1,5 @@
 import random
+from dataclasses import dataclass
 
 class Dice:
     input_rolls = False
@@ -10,31 +11,14 @@ class Dice:
     def __repr__(self):
         return f"{self.count}d{self.sides}"
 
-    def roll_extended(self):
+    def rolls(self):
         return [random.randint(1, self.sides) for _ in range(self.count)]
 
-    def roll(self, text=None):
-        rolls = self.roll_extended()
+    def roll(self):
+        rolls = self.rolls()
         total = sum(rolls)
 
-        if self.input_rolls is True:
-            total = self.ask_for_roll(text)
-
         return total
-
-    def ask_for_roll(self, text=None):
-        roll = None
-        if text is None:
-            text = f"Please roll"
-
-        valid_roll = False
-        while not valid_roll:
-            roll = int(input(f"[{self}] {text}:"))
-            if self.count <= roll <= self.count * self.sides:
-                valid_roll = True
-
-        return roll
-
 
     @staticmethod
     def from_string(dice_str: str):
@@ -62,6 +46,8 @@ class Dice:
             best_dice = '1d20'
 
         return Dice.from_string(best_dice)
+
+
 
 
 

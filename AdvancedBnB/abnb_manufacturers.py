@@ -11,11 +11,10 @@ from util import lookup_in_table
 class Manufacturer:
     name = ''
 
-    def pick_secondary_weapon_trait(self):
+    def pick_secondary_weapon_trait(self, roll):
         return []
 
-    def roll_for_secondary_weapon_trait(self, table):
-        roll = Dice(1, 6).roll(f"Roll for Secondary Manufacturer Gun Trait")
+    def roll_for_secondary_weapon_trait(self, roll, table):
         trait = lookup_in_table(table, roll)
         print(f"Rolled a {roll}! Gun Trait <{trait.name}> added.")
 
@@ -57,13 +56,13 @@ class Anshin(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self):
+    def pick_secondary_weapon_trait(self, roll):
         table = {
             (1, 3): self.weapon_traits['secondary'][0],
             (4, 6): self.weapon_traits['secondary'][1]
         }
 
-        return self.roll_for_secondary_weapon_trait(table)
+        return self.roll_for_secondary_weapon_trait(roll, table)
 
     def make_random_shield(self):
         return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
@@ -185,24 +184,24 @@ class Dahl(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self):
+    def pick_secondary_weapon_trait(self, roll):
         return []
 
-    def roll_for_secondary_weapon_trait(self, table):
-        roll = Dice(1, 6).roll(f"Roll for Manufacturer Fire Mode Trait")
+    def roll_for_secondary_weapon_trait(self, roll, table):
         trait = lookup_in_table(table, roll)
         print(f"Rolled a {roll}! Gun Trait <{trait.name}>")
 
         return trait
 
-    def pick_fire_mode(self):
+    def pick_fire_mode(self, dice_roller) -> WeaponTrait:
         table = {
             (1, 2): self.weapon_traits['secondary'][0],
             (3, 4): self.weapon_traits['secondary'][1],
             (5, 6): self.weapon_traits['secondary'][2]
         }
+        roll = yield from dice_roller.roll('1d6', f"Roll 1d6 for DAHL Gun fire mode")
 
-        return self.roll_for_secondary_weapon_trait(table)
+        return self.roll_for_secondary_weapon_trait(roll, table)
 
     def make_random_shield(self):
         starting_parts = {
@@ -251,14 +250,14 @@ class Hyperion(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self):
+    def pick_secondary_weapon_trait(self, roll):
         table = {
             (1, 2): self.weapon_traits['secondary'][0],
             (3, 4): self.weapon_traits['secondary'][1],
             (5, 6): self.weapon_traits['secondary'][2]
         }
 
-        return self.roll_for_secondary_weapon_trait(table)
+        return self.roll_for_secondary_weapon_trait(roll, table)
 
     def make_random_shield(self):
         return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
@@ -300,14 +299,14 @@ class Jakobs(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self):
+    def pick_secondary_weapon_trait(self, roll):
         table = {
             (1, 2): self.weapon_traits['secondary'][0],
             (3, 4): self.weapon_traits['secondary'][1],
             (5, 6): self.weapon_traits['secondary'][2]
         }
 
-        return self.roll_for_secondary_weapon_trait(table)
+        return self.roll_for_secondary_weapon_trait(roll, table)
 
     def make_random_shield(self):
         return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
@@ -396,14 +395,14 @@ class Torgue(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self):
+    def pick_secondary_weapon_trait(self, roll):
         table = {
             (1, 2): self.weapon_traits['secondary'][0],
             (3, 4): self.weapon_traits['secondary'][1],
             (5, 6): self.weapon_traits['secondary'][2]
         }
 
-        return self.roll_for_secondary_weapon_trait(table)
+        return self.roll_for_secondary_weapon_trait(roll, table)
 
     def make_random_shield(self):
         starting_parts = {
@@ -459,13 +458,13 @@ class Pangolin(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self):
+    def pick_secondary_weapon_trait(self, roll):
         table = {
             (1, 3): self.weapon_traits['secondary'][0],
             (4, 6): self.weapon_traits['secondary'][1],
         }
 
-        return self.roll_for_secondary_weapon_trait(table)
+        return self.roll_for_secondary_weapon_trait(roll, table)
 
     def make_random_shield(self):
         return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
@@ -507,13 +506,13 @@ class Tediore(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self):
+    def pick_secondary_weapon_trait(self, roll):
         table = {
             (1, 3): self.weapon_traits['secondary'][0],
             (4, 6): self.weapon_traits['secondary'][1],
         }
 
-        return self.roll_for_secondary_weapon_trait(table)
+        return self.roll_for_secondary_weapon_trait(roll, table)
 
     def make_random_shield(self):
         return self.makes['shield'], self.shield_traits['tag'], self.shield_traits['parts']
@@ -555,13 +554,13 @@ class Vladof(Manufacturer):
 
         return lookup_in_table(table, dice_roll)
 
-    def pick_secondary_weapon_trait(self):
+    def pick_secondary_weapon_trait(self, roll):
         table = {
             (1, 3): self.weapon_traits['secondary'][0],
             (4, 6): self.weapon_traits['secondary'][1],
         }
 
-        return self.roll_for_secondary_weapon_trait(table)
+        return self.roll_for_secondary_weapon_trait(roll, table)
 
     def make_random_shield(self):
         starting_parts = {
@@ -628,7 +627,7 @@ class Eridian(Manufacturer):
             trait = eridian_gun_traits[gun.gun_type]
             trait.attach(gun)
 
-    def pick_secondary_weapon_trait(self):
+    def pick_secondary_weapon_trait(self, roll):
         return
 
 
