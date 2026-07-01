@@ -120,7 +120,7 @@ class Gun(AbnbEquipment):
         max_firemodes = self.get_modifier_value(mod_tacticool_firemodes)
         n_firemodes = 0
         while n_firemodes < max_firemodes:
-            fire_mode = yield from Manufacturers.DAHL.pick_fire_mode(self.dice_roller)
+            fire_mode = yield from Manufacturers.DAHL.pick_fire_mode()
             if self.has_property(type(fire_mode)) is False:
                 fire_mode.attach(self)
                 n_firemodes += 1

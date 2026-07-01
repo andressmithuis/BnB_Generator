@@ -6,7 +6,7 @@ from .shield.abnb_shield_parts import *
 from .shield.abnb_shieldtypes import Shieldtypes
 from .grenade.abnb_grenade_parts import *
 
-from util import lookup_in_table
+from util import lookup_in_table, DiceRequest
 
 class Manufacturer:
     name = ''
@@ -193,13 +193,13 @@ class Dahl(Manufacturer):
 
         return trait
 
-    def pick_fire_mode(self, dice_roller) -> WeaponTrait:
+    def pick_fire_mode(self) -> WeaponTrait:
         table = {
             (1, 2): self.weapon_traits['secondary'][0],
             (3, 4): self.weapon_traits['secondary'][1],
             (5, 6): self.weapon_traits['secondary'][2]
         }
-        roll = yield from dice_roller.roll('1d6', f"Roll 1d6 for DAHL Gun fire mode")
+        roll = yield DiceRequest('1d6', f"Roll 1d6 for DAHL Gun fire mode")
 
         return self.roll_for_secondary_weapon_trait(roll, table)
 
