@@ -1,9 +1,10 @@
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.graphics import Color, Rectangle, RoundedRectangle
 from kivy.properties import ListProperty
 
 
-class ColoredPanel(BoxLayout):
+class ColoredPanel(MDBoxLayout):
     bg_color = ListProperty([0, 0, 0, 0])
 
     def __init__(self, **kwargs):

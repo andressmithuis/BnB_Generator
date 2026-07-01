@@ -38,7 +38,7 @@ class EditorPanel(ColoredPanel):
             MDButtonText(text='Roll for Card'),
             md_bg_color=UITheme.Button.DISABLED,
             #text_color = UITheme.Button.DISABLED_TEXT,
-            on_release=lambda x: print(f"<Roll for Card>"),
+            on_release=lambda x: parent_section.dicerequest_panel.toggle_panel(),
             pos_hint = {'center_x': 0.5}
         )
 

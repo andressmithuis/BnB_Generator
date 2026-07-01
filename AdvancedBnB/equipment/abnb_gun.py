@@ -67,6 +67,9 @@ class Gun(AbnbEquipment):
         print(f" - {len(self.equipment_properties)} Properties left")
         print(f" - {len(self.equipment_modifiers)} Modifiers left")
 
+    def new_generation_session(self, user_input=False):
+        return GenerationSession(self._generate_impl(), manual=user_input)
+
     def generate(self, user_input=False):
         return GenerationSession(self._generate_impl(), manual=user_input).start()
 

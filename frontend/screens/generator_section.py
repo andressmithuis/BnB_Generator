@@ -5,21 +5,28 @@ import numpy as np
 
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
+from kivy.core.window import Window
 
 from frontend.ui_components.widgets.banner import Banner
 from frontend.ui_components.panels.editor_panel import EditorPanel
 from frontend.ui_components.panels.card_settings_panel import CardSettingsPanel
+from frontend.ui_components.panels.dicerequest_panel.dicerequest_panel import DicerequestPanel
 
 from AdvancedBnB import Gun
 
-class GeneratorSection(BoxLayout):
+class GeneratorSection(FloatLayout):
     def __init__(self, section_title, equipment_obj, **kwargs):
         super().__init__(**kwargs)
 
         self.equipment_obj = equipment_obj
         self.card_iteration = 0
 
-        self.orientation = 'vertical'
+        self.static_container = BoxLayout(
+            orientation = 'vertical',
+            size_hint = (1, 1),
+            pos_hint = {'x': 0, 'y': 0}
+        )
 
         # Title banner
         self.banner = Banner(
@@ -34,18 +41,35 @@ class GeneratorSection(BoxLayout):
             size_hint_y=0.6,
             bg_color=(0.1, 0.1, 0.1, 1)
         )
+        self.editor_panel.card_inspection_panel.bind(size = self.resize_dicerequest_panel)
 
         # Equipment Properties & Mods
-        properties_panel = CardSettingsPanel(
+        self.properties_panel = CardSettingsPanel(
             size_hint_y=0.2
         )
 
+        # Dice Roll panel
+        self.dicerequest_panel = DicerequestPanel(
+            size_hint=(None, 1),
+            width = 650,
+            x = Window.width,
+            bg_color=(1, 0, 0, 0.3)
+        )
+
         # Build Main Section
-        self.add_widget(self.banner)
-        self.add_widget(self.editor_panel)
-        self.add_widget(properties_panel)
+        self.static_container.add_widget(self.banner)
+        self.static_container.add_widget(self.editor_panel)
+        self.static_container.add_widget(self.properties_panel)
+
+        self.add_widget(self.static_container)
+        self.add_widget(self.dicerequest_panel)
+
+    def resize_dicerequest_panel(self, *args):
+        self.dicerequest_panel.width = self.editor_panel.width - self.editor_panel.card_inspection_panel.width
+        self.dicerequest_panel.reposition()
 
     def generate_new_card(self, *args):
+        print(self.x)
         Thread(target = self.generator_worker, daemon=True).start()
 
     def export_card(self, *args):
@@ -55,7 +79,8 @@ class GeneratorSection(BoxLayout):
     def generator_worker(self):
         print(f"Starting to generate Equipment Card! <{id(self.equipment_obj)}>")
         t_start = time.time()
-        self.equipment_obj.generate()
+        session = self.equipment_obj.new_generation_session()
+        session.start()
         t_now = time.time()
         print(f"Equipment generated in {t_now - t_start}s")
         t_start = t_now
