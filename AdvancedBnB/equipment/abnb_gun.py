@@ -85,7 +85,7 @@ class Gun(AbnbEquipment):
         debug_print(f"Determining Gun Manufacturer...")
         new_manufacturer = None
         while new_manufacturer is None:
-            roll = yield DiceRequest('1d12', f"Roll 1d12 on the Manufacturer table")
+            roll = yield DiceRequest('1d12', f"Roll 1d12 on the Manufacturer table.")
             new_manufacturer = manufacturer_table[roll]
             debug_print(f"Rolled a {roll}! Gun Manufacturer = {new_manufacturer}")
             if new_manufacturer == Manufacturers.ERIDIAN:
@@ -96,7 +96,7 @@ class Gun(AbnbEquipment):
                 yield from self.set_manufacturer(new_manufacturer)
 
         debug_print(f"Determining Gun Type, made by {self.manufacturer}...")
-        roll = yield DiceRequest('1d12', f"Roll 1d12 for Gun Type")
+        roll = yield DiceRequest('1d12', f"Roll 1d12 on the Gun Type table.")
         self.gun_type = self.manufacturer.make_random_gun(roll)
         debug_print(f"Rolled a {roll}! Gun Type = {self.gun_type}")
 
@@ -107,8 +107,8 @@ class Gun(AbnbEquipment):
 
         # Rarity and element
         debug_print(f"Determining Gun Rarity and Element...")
-        d4_roll = yield DiceRequest('1d4', f"Roll for Rarity and Element(1/2)")
-        d6_roll = yield DiceRequest('1d6', f"Roll for Rarity and Element(2/2)")
+        d4_roll = yield DiceRequest('1d4', f"Roll 1d4 on the Rarity and Element table (1/2).")
+        d6_roll = yield DiceRequest('1d6', f"Roll 1d6 on the Rarity and Element table (2/2).")
         self.rarity, roll_for_element = rarity_tables['normal'][d4_roll][d6_roll]
 
         debug_print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Gun Rarity = {self.rarity}.{' Might also be Elemental.' if roll_for_element else ''}")

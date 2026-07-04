@@ -7,12 +7,14 @@ from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.core.window import Window
+from kivymd.app import MDApp
 
 from frontend.ui_components.widgets.banner import Banner
 from frontend.ui_components.panels.editor_panel import EditorPanel
 from frontend.ui_components.panels.card_settings_panel import CardSettingsPanel
 from frontend.ui_components.panels.dicerequest_panel.dicerequest_panel import DicerequestPanel
 
+from util import DiceRequest
 from AdvancedBnB import Gun
 
 class GeneratorSection(FloatLayout):
@@ -20,6 +22,7 @@ class GeneratorSection(FloatLayout):
         super().__init__(**kwargs)
 
         self.equipment_obj = equipment_obj
+        self.session = None
         self.card_iteration = 0
 
         self.static_container = BoxLayout(
@@ -67,6 +70,21 @@ class GeneratorSection(FloatLayout):
     def resize_dicerequest_panel(self, *args):
         self.dicerequest_panel.width = self.editor_panel.width - self.editor_panel.card_inspection_panel.width
         self.dicerequest_panel.reposition()
+
+    def start_generation(self):
+        self.session = self.equipment_obj.new_generation_session(True)
+        new_event = self.session.start()
+        if isinstance(new_event, DiceRequest):
+            self.dicerequest_panel.add_to_log(new_event)
+
+    def step_generation(self, input=None):
+        new_event = self.session.submit(input)
+        if isinstance(new_event, DiceRequest):
+            self.dicerequest_panel.add_to_log(new_event)
+        else:
+            self.equipment_obj.generate_card()
+            # Send result back to UI thread
+            Clock.schedule_once(lambda dt: self.editor_panel.card_inspection_panel.reload_card_image())
 
     def generate_new_card(self, *args):
         print(self.x)

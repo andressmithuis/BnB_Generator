@@ -75,8 +75,9 @@ class DicerequestPanel(ColoredPanel):
 
     def open_panel(self, duration=0.25):
         # Set up a generation session if not yet started
-        if self.session is None:
-            self.start_generation()
+        current_session = MDApp.get_running_app().screen.main_section.session
+        if current_session is None:
+            MDApp.get_running_app().screen.main_section.start_generation()
 
         self.is_opened = True
         self.animation = Animation(
@@ -99,19 +100,12 @@ class DicerequestPanel(ColoredPanel):
         else:
             self.close_panel()
 
-    def start_generation(self):
-        equipment_obj = MDApp.get_running_app().screen.main_section.equipment_obj
-        self.session = equipment_obj.new_generation_session(True)
-        new_event = self.session.start()
-        if isinstance(new_event, DiceRequest):
-            self.add_to_log(new_event)
-
     def add_to_log(self, event: DiceRequest):
         new_event = LoggerEvent(
             event,
-            anchor_x = 'left',
+            anchor='left'
         )
-        self.diceroll_log.list_entries.add_widget(new_event)
+        self.diceroll_log.content.add_widget(new_event)
         self.diceroll_log.scroll_view.scroll_y = 0  # Scroll to the bottom of the list to make the most recent event visible.
 
     def on_touch_down(self, touch):

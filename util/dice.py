@@ -47,6 +47,11 @@ class Dice:
 
         return Dice.from_string(best_dice)
 
+    @property
+    def value_range(self):
+        return self.count, self.count * self.sides
+
+
 
 
 
