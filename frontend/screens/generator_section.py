@@ -81,28 +81,22 @@ class GeneratorSection(FloatLayout):
             self.dicerequest_panel.add_to_log(new_event)
 
             if isinstance(new_event, InfoEvent):
-                self.step_generation()
+                Clock.schedule_once(lambda dt: self.step_generation())  # Give UI time to update EventLog
             elif isinstance(new_event, DiceRequest):
                 if self.session.manual is False:
                     dice = Dice.from_string(new_event.dice)
                     dice_result = dice.roll()
                     self.dicerequest_panel.diceroll_log.content.children[0].resolve_user_input(dice_result)
-                    self.step_generation(dice_result)
+                    Clock.schedule_once(lambda dt: self.step_generation(dice_result)) # Give UI time to update EventLog
         else:
+            # Generation is done, render card image and show in UI
             self.equipment_obj.generate_card()
-            # Send result back to UI thread
-            Clock.schedule_once(lambda dt: self.editor_panel.card_inspection_panel.reload_card_image())
+            self.editor_panel.card_inspection_panel.reload_card_image()
 
-    def generate_new_card(self, *args):
-        self.start_generation()
-        Thread(target = self.generator_worker, daemon=True).start()
+    def generate_new_card(self, manual_input=False, *args):
+        self.dicerequest_panel.clear_log()
+        self.start_generation(manual_input)
 
     def export_card(self, *args):
         self.equipment_obj.export_generated_card()
         print(f"Saved Card to filesystem!")
-
-    def generator_worker(self):
-        # Send result back to UI thread
-        Clock.schedule_once(lambda dt: self.editor_panel.card_inspection_panel.reload_card_image())
-
-        print(self.equipment_obj)

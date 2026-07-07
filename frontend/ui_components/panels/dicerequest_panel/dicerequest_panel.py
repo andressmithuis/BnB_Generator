@@ -3,11 +3,12 @@ from functools import partial
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
-from kivy.clock import Clock
+from kivy.clock import Clock, mainthread
+from kivy.metrics import dp
 from kivy.animation import Animation
 from kivy.core.window import Window
 from kivymd.app import MDApp
-from kivymd.uix.button import MDButton, MDButtonText
+from kivymd.uix.button import MDButton, MDButtonText, MDButtonIcon
 from kivymd.uix.label import MDLabel
 
 from util import DiceRequest, GenerationSession, GenerationEvent
@@ -28,8 +29,16 @@ class DicerequestPanel(ColoredPanel):
         # Panel header
         self.header = ColoredPanel(
             size_hint_y = 0.2,
-            bg_color = UITheme.Panel.BG_BORDER
+            bg_color = UITheme.Panel.BG_BORDER,
         )
+        header_label = MDLabel(
+            text='Equipment Generation Log',
+            halign='center',
+            theme_text_color = 'Custom',
+            text_color = 'black',
+            font_style = 'Headline'
+        )
+        self.header.add_widget(header_label)
         # Diceroll log
         self.diceroll_log = ScrollableLog(
             bg_color=UITheme.Panel.BG_DARK
@@ -37,32 +46,37 @@ class DicerequestPanel(ColoredPanel):
 
         # Buttons
         self.button_section = ColoredPanel(
-            size_hint_y = 0.1,
-            bg_color = UITheme.Panel.BG_LIGHT
+            size_hint = (1, 0.1),
+            bg_color = UITheme.Panel.BG_LIGHT,
+            spacing = dp(10)
         )
         # - Reset button
-        self.button_section.add_widget(
-            MDButton(
-                MDButtonText(
-                    text = 'Reset'
-                ),
-                pos_hint = {'center_y': 0.5}
-            )
+        self.btn_new = MDButton(
+            MDButtonText(
+                text = 'New'
+            ),
+            MDButtonIcon(icon='dice-6'),
+            pos_hint = {'center_y': 0.5}
         )
         # - Return button
-        self.button_section.add_widget(
-            MDButton(
-                MDButtonText(
-                    text='Return'
-                ),
-                pos_hint={'center_y': 0.5}
-            )
+        self.btn_exit = MDButton(
+            MDButtonText(
+                text='Exit'
+            ),
+            MDButtonIcon(icon='arrow-left-bold'),
+            pos_hint={'center_y': 0.5}
         )
+        self.button_section.add_widget(Widget())
+        self.button_section.add_widget(self.btn_new)
+        self.button_section.add_widget(self.btn_exit)
+        self.button_section.add_widget(Widget())
 
         # Build Layout
         self.add_widget(self.header)
         self.add_widget(self.diceroll_log)
         self.add_widget(self.button_section)
+
+        self.btn_exit.bind(on_release=lambda x: self.close_panel())
 
         # Hide (close) the panel on launch
         Clock.schedule_once(partial(self.close_panel, 0),0)
@@ -104,6 +118,10 @@ class DicerequestPanel(ColoredPanel):
         new_event = LoggerEventLayout(event)
         self.diceroll_log.content.add_widget(new_event)
         self.diceroll_log.scroll_view.scroll_y = 0  # Scroll to the bottom of the list to make the most recent event visible.
+
+    def clear_log(self):
+        self.diceroll_log.content.clear_widgets()
+        self.diceroll_log.scroll_view.scroll_y = 0
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):

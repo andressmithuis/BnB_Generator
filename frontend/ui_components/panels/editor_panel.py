@@ -1,6 +1,7 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
 from kivymd.uix.button import MDButton, MDButtonText, MDButtonIcon
+from kivymd.uix.divider import MDDivider
 
 from frontend.ui_components.panels.card_inspector_panel.card_inspector_panel import CardInspectorPanel
 from frontend.ui_components.panels.colored_panel import ColoredPanel
@@ -26,25 +27,30 @@ class EditorPanel(ColoredPanel):
         )
 
         btn_generate = MDButton(
-            MDButtonIcon(icon='reload'),
             MDButtonText(text='Generate Card'),
+            MDButtonIcon(icon='reload'),
+            theme_bg_color='Custom',
             md_bg_color = UITheme.Button.PRIMARY,
             on_release = lambda x: parent_section.generate_new_card(),
             pos_hint = {'center_x': 0.5}
         )
 
         btn_generate_roll = MDButton(
-            MDButtonIcon(icon='dice-6'),
             MDButtonText(text='Roll for Card'),
-            md_bg_color=UITheme.Button.DISABLED,
+            MDButtonIcon(icon='dice-6'),
+            theme_bg_color='Custom',
+            md_bg_color=UITheme.Button.PRIMARY,
             #text_color = UITheme.Button.DISABLED_TEXT,
-            on_release=lambda x: parent_section.dicerequest_panel.toggle_panel(),
+            on_release=lambda x: (
+                parent_section.generate_new_card(manual_input=True),
+                parent_section.dicerequest_panel.open_panel(),
+            ),
             pos_hint = {'center_x': 0.5}
         )
 
         btn_load_card = MDButton(
-            MDButtonIcon(icon='folder'),
             MDButtonText(text='Load Card'),
+            MDButtonIcon(icon='folder'),
             md_bg_color=UITheme.Button.DISABLED,
             #text_color=UITheme.Button.DISABLED_TEXT,
             on_release=lambda x: print(f"<Load Card>"),
@@ -52,29 +58,41 @@ class EditorPanel(ColoredPanel):
         )
 
         btn_save_card = MDButton(
-            MDButtonIcon(icon='content-save'),
             MDButtonText(text='Save Card'),
+            MDButtonIcon(icon='content-save'),
+            theme_bg_color='Custom',
             md_bg_color=UITheme.Button.DISABLED,
             #text_color=UITheme.Button.DISABLED_TEXT,
             on_release=lambda x: print(f"<Save Card>"),
             pos_hint = {'center_x': 0.5}
         )
 
+        btn_gen_log = MDButton(
+            MDButtonText(text='Generation Log'),
+            MDButtonIcon(icon='view-list'),
+            theme_bg_color='Custom',
+            md_bg_color=UITheme.Button.PRIMARY,
+            on_release=lambda x: parent_section.dicerequest_panel.open_panel(),
+            pos_hint={'center_x': 0.5}
+        )
+
         btn_export_card = MDButton(
-            MDButtonIcon(icon='download'),
             MDButtonText(text='Export Card'),
-            md_bg_color=UITheme.Button.DANGER,
+            MDButtonIcon(icon='download'),
+            theme_bg_color = 'Custom',
+            md_bg_color=UITheme.Button.PRIMARY,
             on_release=lambda x: parent_section.export_card(),
             pos_hint={'center_x': 0.5}
         )
 
-
-
         # Add Buttons
         editor_menu.add_widget(btn_generate)
         editor_menu.add_widget(btn_generate_roll)
+        editor_menu.add_widget(MDDivider(size_hint_x=1))
         editor_menu.add_widget(btn_save_card)
         editor_menu.add_widget(btn_load_card)
+        editor_menu.add_widget(MDDivider(size_hint_x = 1))
+        editor_menu.add_widget(btn_gen_log)
         editor_menu.add_widget(btn_export_card)
         editor_menu.add_widget(Widget())
 

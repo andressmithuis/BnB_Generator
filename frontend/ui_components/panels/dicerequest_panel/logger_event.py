@@ -1,7 +1,6 @@
-from kivy.clock import Clock
-from kivy.tools.pep8checker.pep8 import maximum_line_length
-from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.widget import Widget
+from kivy.metrics import dp
+from kivy.uix.image import Image
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDButton, MDButtonText
@@ -9,12 +8,8 @@ from kivymd.uix.card import MDCard
 from kivymd.uix.divider import MDDivider
 from kivymd.uix.label import MDLabel, MDIcon
 from kivymd.uix.textfield import MDTextField, MDTextFieldHintText, MDTextFieldMaxLengthText, MDTextFieldHelperText
-from kivy.metrics import dp
-from kivy.uix.image import Image
 
 from frontend.ui_components.ui_theme import UITheme
-from frontend.ui_components.panels.colored_panel import ColoredPanel
-
 from util import Dice, DiceRequest
 
 

@@ -223,7 +223,6 @@ class Gun(AbnbEquipment):
         if self.manufacturer is not None:
             for old_trait in self.manufacturer.weapon_traits['primary'] + self.manufacturer.weapon_traits['secondary']:
                 old_trait.detach()
-                yield InfoEvent(f"Removing Primary Gun Trait <[b][i]{old_trait.name}[/i][/b]>.")
 
         # Set new manufacturer
         self.manufacturer = new_manufacturer
