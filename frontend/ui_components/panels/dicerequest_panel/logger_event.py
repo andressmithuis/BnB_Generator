@@ -15,156 +15,170 @@ from kivy.uix.image import Image
 from frontend.ui_components.ui_theme import UITheme
 from frontend.ui_components.panels.colored_panel import ColoredPanel
 
-from util import Dice
+from util import Dice, DiceRequest
 
 
-class LoggerEvent(MDBoxLayout):
-    def __init__(self, dice_request, anchor='right', **kwargs):
+class LoggerEventLayout(MDBoxLayout):
+    def __init__(self, event, **kwargs):
         super().__init__(**kwargs)
 
         self.size_hint = (1, None)
         self.adaptive_height = True
 
-        self.dice_request = dice_request
-
         # (optional) spacer | bubble | (optional) spacer
-        if anchor == 'right':
+        if event.anchor == 'right':
             self.add_widget(Widget())
 
         self.bubble = EventBubble(
-            dice_request = dice_request,
+            event = event,
             style='elevated'
         )
         self.add_widget(self.bubble)
 
-        if anchor == 'left':
+        if event.anchor == 'left':
             self.add_widget(Widget())
 
         self.bind(size = self.bubble.resize)
 
+    def resolve_user_input(self, value):
+        self.bubble.md_bg_color = UITheme.Button.PRIMARY
+        self.bubble.prompt.text += f"\nRolled:  [b]{value}[/b]"
+        self.bubble.body.remove_widget(self.bubble.user_input)
+
 
 class EventBubble(MDCard):
-    def __init__(self, dice_request, **kwargs):
+    def __init__(self, event, **kwargs):
         super().__init__(**kwargs)
 
         self.size_hint = (None, None)
+        self.adaptive_height = True
         self.padding = dp(10)
         self.theme_bg_color = 'Custom'
-        self.md_bg_color = UITheme.Panel.BG_LIGHT
+        self.md_bg_color = UITheme.Button.PRIMARY
+
+        self.leading_img = None
+        self.trailing_img = None
 
         self.content = MDBoxLayout(
             orientation = 'horizontal',
-            spacing = dp(10)
+            spacing = dp(10),
+            size_hint = (1, None),
+            adaptive_height = True
+        )
+
+        img_divider = MDDivider(
+            orientation = 'vertical',
+            size_hint_y = 1.0,
+            pos_hint = {'center_y': 0.5}
         )
 
         # (optional) icon | prompt + buttons
         # - OR -
         # prompt | (optional) icon
-        self.leading_img = Image(
-            source = 'img/dice_symbol/1d20.png',
-            size_hint=(None, None),
-            fit_mode = 'contain',
-            pos_hint = {'center_y': 0.5}
-        )
-        self.content.add_widget(self.leading_img)
-
-        self.content.add_widget(
-            MDDivider(
-                orientation = 'vertical',
-                size_hint_y = 1.0,
+        if event.leading_img_src != '':
+            self.leading_img = Image(
+                source = event.leading_img_src,
+                size_hint=(None, None),
+                width = dp(40),
+                height = dp(40),
+                fit_mode = 'contain',
                 pos_hint = {'center_y': 0.5}
             )
-        )
+            self.content.add_widget(self.leading_img)
+            self.content.add_widget(img_divider)
 
         self.body = MDBoxLayout(
             orientation = 'vertical',
-            size_hint_y = None,
+            size_hint = (1, None),
+            adaptive_height = True,
+            pos_hint = {'center_y': 0.5},
             spacing = dp(10)
         )
+        self.content.add_widget(self.body)
+
+        if event.trailing_img_src != '':
+            self.trailing_img = Image(
+                source = event.trailing_img_src,
+                size_hint=(None, None),
+                width = dp(40),
+                height = dp(40),
+                fit_mode = 'contain',
+                pos_hint = {'center_y': 0.5}
+            )
+            self.content.add_widget(img_divider)
+            self.content.add_widget(self.trailing_img)
 
         self.prompt = MDLabel(
-            #text = 'Hello World!'
-            #text = 'Super duper long text of a lot of letters and characters and spaces and stuff and have we reached a newline yet?',
-            text = dice_request.prompt,
-            pos_hint = {'top': 1}
-        )
-
-        self.user_input = MDBoxLayout(
+            text = event.prompt,
             size_hint = (None, None),
+            markup = True
+        )
+        self.body.add_widget(self.prompt)
+
+
+        # User input
+        self.user_input = MDBoxLayout(
+            size_hint = (1, None),
+            adaptive_height = True,
             pos_hint = {'center_x': 0.5},
-            spacing = dp(10)
+            spacing = dp(10),
         )
-        self.dice_input = DiceInputField(
-            dice=Dice.from_string(dice_request.dice),
-            pos_hint={'center_y': 0.5}
-        )
-        self.submit_button = MDButton(
-            MDButtonText(
-                text = 'Submit'
-            ),
-            pos_hint = {'center_y': 0.5}
-        )
-        self.user_input.add_widget(self.dice_input)
-        self.user_input.add_widget(self.submit_button)
+        if isinstance(event, DiceRequest):
+            self.md_bg_color = UITheme.Button.DANGER
+            self.dice_input = DiceInputField(
+                dice=Dice.from_string(event.dice),
+                pos_hint={'center_y': 0.5}
+            )
+            self.submit_button = MDButton(
+                MDButtonText(
+                    text = 'Submit'
+                ),
+                pos_hint = {'center_y': 0.5}
+            )
+            self.user_input.add_widget(self.dice_input)
+            self.user_input.add_widget(self.submit_button)
+            self.body.add_widget(self.user_input)
+
+            self.submit_button.bind(on_release=self.on_submit)
 
         # Build Layout
-        self.body.add_widget(self.prompt)
-        self.body.add_widget(self.user_input)
-        self.content.add_widget(self.body)
         self.add_widget(self.content)
-
-        self.submit_button.bind(on_release=self.on_submit)
         self.bind(size=self.resize)
 
     def resize(self, *args):
+        # LoggerEvent.width
         full_w = self.parent.width
+        static_w = 2 * self.padding[0]
+        if self.leading_img is not None:
+            static_w += self.leading_img.width + 2 * self.content.spacing
+        if self.trailing_img is not None:
+            static_w += self.trailing_img.width + 2 * self.content.spacing
 
-        # Resize leading/trailing images based on LoggerEvent.width
-        self.leading_img.width = dp(40)
-        self.leading_img.height = self.leading_img.width
-
-        # Resize labels based on text width, limit to x% of LoggerEvent.width
-        # Include Text wrap
-
-        #  Maximum width = 80% of full width - image_width - (2x) padding - (2x) spacing
-        maximum_text_w = full_w * 0.8 - self.leading_img.width - 2 * self.padding[0] - 2 * self.content.spacing
-
-        # Raw text size
+        # Raw text width (singular line)
         self.prompt.text_size = (None, None)
         self.prompt.texture_update()
         raw_text_width = self.prompt.texture_size[0]
 
-        target_text_width = min(raw_text_width, maximum_text_w)
+        # Set bubble width based on raw_text_size -OR- 80% of full width
+        self.width = min(
+            static_w + raw_text_width,
+            full_w * 0.8
+        )
 
-        # Enable text wrapping
-        self.prompt.text_size = (target_text_width+dp(5), None)
+        # Set maximum text width, enabling text wrapping
+        self.prompt.text_size = (
+            self.width - static_w,
+            None
+        )
         self.prompt.texture_update()
 
-        # Make sure Event Bubble is also resized
-        self.width = target_text_width + self.leading_img.width + 2 * self.padding[0] + 2 * self.content.spacing
-        self.body.height = self.prompt.texture_size[1] + self.body.spacing + self.user_input.height
-        self.height = self.body.height + 2 * self.padding[0]
-
-        # Resize user input field
-        self.user_input.width = max(target_text_width * 0.8, dp(100))
-
-        if True:
-            print(f"--- Event Resize ---")
-            print(f" - Padding top: {self.padding[0]}")
-            print(f" - Text texture height: {self.leading_img.texture_size[1]}")
-            print(f" - Spacing: {self.body.spacing}")
-            print(f" - Input height: {self.user_input.size[1]}")
-            print(f" - Padding bottom: {self.padding[0]}")
-            print(f" ---- +")
-            print(f" - Body height: {self.body.size[1]}")
-            print(f" - content height: {self.body.size[1]}")
-            print(f" - Bubble height: {self.size[1]}")
-            print()
-            print(f" - Bubble Width: {self.width} ({self.width / self.parent.width})")
+        # Resize text space, which resizes bubble as well
+        self.prompt.size = self.prompt.texture_size
 
     def on_submit(self, *args):
         if self.dice_input.value is not None:
-            print(f"Submitting {self.dice_input.value}")
+            self.md_bg_color = UITheme.Button.PRIMARY
+            self.parent.resolve_user_input(self.dice_input.value)
             MDApp.get_running_app().screen.main_section.step_generation(self.dice_input.value)
 
     def on_enter(self):

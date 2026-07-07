@@ -4,7 +4,7 @@ from copy import deepcopy
 import time
 
 from AdvancedBnB.abnb_equipment import AbnbEquipment
-from util import Equipment, Dice, lookup_in_table, DiceRequest, GenerationSession
+from util import Equipment, Dice, lookup_in_table, DiceRequest, GenerationSession, InfoEvent, AddPropertyEvent
 from AdvancedBnB import Fusion, FusionElement
 from AdvancedBnB.abnb_tables import rarity_tables, weapon_part_count
 from AdvancedBnB.abnb_util import get_item_tier
@@ -37,7 +37,7 @@ class Gun(AbnbEquipment):
     def __init__(self):
         super().__init__()
 
-        self._gun_type = Guntypes.PISTOL
+        self.gun_type = Guntypes.PISTOL
 
         self.base_stats = {
             'hit_dice': Dice.from_string('1d4'),
@@ -70,9 +70,6 @@ class Gun(AbnbEquipment):
     def new_generation_session(self, user_input=False):
         return GenerationSession(self._generate_impl(), manual=user_input)
 
-    def generate(self, user_input=False):
-        return GenerationSession(self._generate_impl(), manual=user_input).start()
-
     def _generate_impl(self):
         t_start = time.time()
 
@@ -85,10 +82,12 @@ class Gun(AbnbEquipment):
         debug_print(f"Determining Gun Manufacturer...")
         new_manufacturer = None
         while new_manufacturer is None:
-            roll = yield DiceRequest('1d12', f"Roll 1d12 on the Manufacturer table.")
+            roll = yield DiceRequest('1d12', f"Roll [b][u]1d12[/u][/b] on the Manufacturer table.")
             new_manufacturer = manufacturer_table[roll]
+            yield InfoEvent(f"Rolled Manufacturer <[b][i]{new_manufacturer}[/i][/b]>!", trailing_img=f"img/guild_logo/AdvancedBnB/{new_manufacturer}.png")
             debug_print(f"Rolled a {roll}! Gun Manufacturer = {new_manufacturer}")
             if new_manufacturer == Manufacturers.ERIDIAN:
+                yield InfoEvent(f"Rolled <[b][i]Eridian[/i][/b]> Manufacturer. Roll again for Manufacturer of Gun Base.")
                 debug_print(f"Rolled Eridian Manufacturer. Roll again for Manufacturer of Gun Base.")
                 self.eridian = True
                 new_manufacturer = None
@@ -96,9 +95,13 @@ class Gun(AbnbEquipment):
                 yield from self.set_manufacturer(new_manufacturer)
 
         debug_print(f"Determining Gun Type, made by {self.manufacturer}...")
-        roll = yield DiceRequest('1d12', f"Roll 1d12 on the Gun Type table.")
-        self.gun_type = self.manufacturer.make_random_gun(roll)
-        debug_print(f"Rolled a {roll}! Gun Type = {self.gun_type}")
+        roll = yield DiceRequest('1d12', f"Roll [b][u]1d12[/u][/b] on the Gun Type table.")
+        new_guntype = self.manufacturer.make_random_gun(roll)
+        debug_print(f"Rolled a {roll}! Gun Type = {new_guntype}")
+        yield InfoEvent(f"Rolled a <[b][i]{new_guntype}[/i][/b]>!", trailing_img=f"img/gun_symbol/{new_guntype.asset_dir}.png")
+        yield from self.set_gun_type(new_guntype)
+        # Randomly choose a Gun name
+        yield from self.randomize_name()
 
         # Weapon base stats
         self.base_stats = self.gun_type.get_basestats(self.tier)
@@ -107,11 +110,14 @@ class Gun(AbnbEquipment):
 
         # Rarity and element
         debug_print(f"Determining Gun Rarity and Element...")
-        d4_roll = yield DiceRequest('1d4', f"Roll 1d4 on the Rarity and Element table (1/2).")
-        d6_roll = yield DiceRequest('1d6', f"Roll 1d6 on the Rarity and Element table (2/2).")
+        d4_roll = yield DiceRequest('1d4', f"Roll [b][u]1d4[/u][/b] on the Rarity and Element table (1/2).")
+        d6_roll = yield DiceRequest('1d6', f"Roll [b][u]1d6[/u][/b] on the Rarity and Element table (2/2).")
         self.rarity, roll_for_element = rarity_tables['normal'][d4_roll][d6_roll]
 
         debug_print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Gun Rarity = {self.rarity}.{' Might also be Elemental.' if roll_for_element else ''}")
+        yield InfoEvent(f"Rolled <[b][i]{self.rarity}[/i][/b]> Rarity!")
+        if roll_for_element is True:
+            yield InfoEvent(f"You may roll on the Elemental table later!")
 
         # Roll for weapon parts
         debug_print(f"Determining Gun Parts...")
@@ -124,8 +130,10 @@ class Gun(AbnbEquipment):
             if self.has_property(type(fire_mode)) is False:
                 fire_mode.attach(self)
                 n_firemodes += 1
+                yield AddPropertyEvent('Dahl Fire Mode', fire_mode)
             else:
                 debug_print(f"Fire mode <{fire_mode.name}> already present!")
+                yield InfoEvent(f"Dahl Fire Mode <[b][i]{fire_mode.name}[/i][/b]> is already present! Roll again...")
 
         max_scopes = self.get_modifier_value(mod_fixed_scopes)
         n_scopes = 0
@@ -134,8 +142,10 @@ class Gun(AbnbEquipment):
             if self.has_property(type(scope_part)) is False:
                 scope_part.attach(self)
                 n_scopes += 1
+                yield AddPropertyEvent('Gun Scope Part', scope_part)
             else:
                 debug_print(f"Scope Part <{scope_part.name}> already present!")
+                yield InfoEvent(f"Gun Scope Part <[b][i]{scope_part.name}[/i][/b]> is already present! Roll again...")
 
         max_parts = self.get_modifier_value(mod_extra_accessories)
         n_parts = 0
@@ -144,39 +154,49 @@ class Gun(AbnbEquipment):
             if self.has_property(type(accessory_part)) is False:
                 accessory_part.attach(self)
                 n_parts += 1
+                yield AddPropertyEvent('Accessory Gun Part', accessory_part)
             else:
                 debug_print(f"Accessory Part <{accessory_part.name}> already present!")
+                yield InfoEvent(f"Gun Accessory Part <[b][i]{accessory_part.name}[/i][/b]> is already present! Roll again...")
 
         # Roll for remaining parts
         self.n_parts = 0
         while self.n_parts < self.max_parts:
             debug_print(f"Rolling for part {self.n_parts+1}/{self.max_parts}...")
-            roll = yield DiceRequest('1d100', f"Roll 1d100 on Gun Part table")
+            yield InfoEvent(f"Picking Gun Part {self.n_parts+1}/{self.max_parts}...")
+            roll = yield DiceRequest('1d100', f"Roll [b][u]1d100[/u][/b] on the Gun Part table.")
             part = lookup_in_table(weapon_parts_table, roll)
 
             if part == 'sight':
                 debug_print(f"Rolled a {roll}! You may roll for a Gun Scope!")
+                yield InfoEvent(f"Rolled a Gun Scope!")
+
                 if self.has_property(WeaponPartScope):
                     debug_print(f"Gun already has a Gun Scope... Roll for new part...")
+                    yield InfoEvent(f"Gun already has a Gun Scope... Roll for a new Gun Part...")
                     part = None
                 else:
                     part = yield from self.pick_weapon_scope()
                     # Check if Scope is compatible with the Gun Type
                     if not self.gun_type in part.weapon_types:
-                        debug_print(f"Gun Type <{self.gun_type}> is not compatible with Scope <{part.name}>... Roll for new part...")
+                        debug_print(f"Gun Type <{self.gun_type}> is not compatible with Scope <{part.name}>... Roll for a new part...")
+                        yield InfoEvent(f"Gun Type <[b][i]{self.gun_type}[/i][/b]> is not compatible with Scope <[b][i]{part.name}[/i][/b]>... Roll for a new Gun Part...")
                         part = None
 
             elif part == 'accessories':
+                yield InfoEvent(f"Rolled a Gun Accessory!")
                 debug_print(f"Rolled a {roll}! You may roll for a Gun Accessory!")
                 part = yield from self.pick_weapon_accessory()
 
             # Check if part is already applied
             if self.has_property(type(part)):
                 debug_print(f"Picked a <{part.name}>! But the Gun already has it... Try again!")
+                yield InfoEvent(f"Rolled a <[b][i]{part.name}[/i][/b]>, but the Gun already has that part... Roll for a new Gun Part...")
                 part = None
 
             if part is not None:
                 part.attach(self)
+                yield AddPropertyEvent('Gun Part', part)
                 self.n_parts += 1
 
         # Roll for Element(s)
@@ -195,16 +215,15 @@ class Gun(AbnbEquipment):
             self.manufacturer = Manufacturers.ERIDIAN
             self.manufacturer.gun_part_exception(self)
 
-        # Randomly choose a name
-        self.randomize_name()
-
         print(f"Finished generating <{self.name}> in {time.time() - t_start}s")
+        yield InfoEvent(f"Finished generating Gun <[b][i]{self.name}[/i][/b]>!")
 
     def set_manufacturer(self, new_manufacturer):
         # Remove old manufacturer traits
         if self.manufacturer is not None:
             for old_trait in self.manufacturer.weapon_traits['primary'] + self.manufacturer.weapon_traits['secondary']:
                 old_trait.detach()
+                yield InfoEvent(f"Removing Primary Gun Trait <[b][i]{old_trait.name}[/i][/b]>.")
 
         # Set new manufacturer
         self.manufacturer = new_manufacturer
@@ -213,12 +232,25 @@ class Gun(AbnbEquipment):
         # Primary weapon traits
         for trait in self.manufacturer.weapon_traits['primary']:
             trait.attach(self)
+            yield AddPropertyEvent('Primary Gun Trait', trait)
 
         # Secondary weapon trait
-        roll = yield DiceRequest('1d6', f"Roll 1d6 for {self.manufacturer} Secondary Gun Trait")
-        trait = self.manufacturer.pick_secondary_weapon_trait(roll)
-        if trait:
-            trait.attach(self)
+        if self.manufacturer.sec_wpn_trait_roll is True:
+            roll = yield DiceRequest('1d6', f"Roll [b][u]1d6[/u][/b] for {self.manufacturer} Secondary Gun Trait.")
+            trait = self.manufacturer.pick_secondary_weapon_trait(roll)
+            if trait:
+                trait.attach(self)
+                yield AddPropertyEvent('Secondary Gun Trait', trait)
+
+    def set_gun_type(self, new_type):
+        for old_trait in self.gun_type.weapon_bonus:
+            old_trait.detach()
+
+        self.gun_type = new_type
+
+        for new_trait in new_type.weapon_bonus:
+            new_trait.attach(self)
+            yield AddPropertyEvent('Gun Bonus', new_trait)
 
     def randomize_name(self):
         with open('assets.json') as file:
@@ -226,9 +258,10 @@ class Gun(AbnbEquipment):
 
         self.asset = random.choice(asset_data['weapons'][self.gun_type.asset_dir])
         self.name_raw = self.asset['item_name']
+        yield InfoEvent(f"Random Gun name: <[b][i]{self.name_raw}[/i][/b]>")
 
     def pick_weapon_accessory(self):
-        roll = yield DiceRequest('1d100', f"Roll a d100 on Gun Accessory table")
+        roll = yield DiceRequest('1d100', f"Roll a [b][u]1d100[/u][/b] on the Gun Accessory table.")
         part = lookup_in_table(weapon_accessories_table, roll)
 
         return part
@@ -238,7 +271,7 @@ class Gun(AbnbEquipment):
 
         retries_left = 50
         while retries_left > 0:
-            roll = yield DiceRequest('1d100', f"Roll a d100 on Gun Scope table")
+            roll = yield DiceRequest('1d100', f"Roll a [b][u]d100[/u][/b] on Gun Scope table.")
             part = lookup_in_table(weapon_sight_table, roll)
             # Check if part already present
             for property in self.equipment_properties:
@@ -255,20 +288,6 @@ class Gun(AbnbEquipment):
         assert part is not None, f"Failed to roll for a Weapon Scope...\n{self}"
 
         return part
-
-    @property
-    def gun_type(self):
-        return self._gun_type
-
-    @gun_type.setter
-    def gun_type(self, new_type):
-        for old_trait in self._gun_type.weapon_bonus:
-            old_trait.detach()
-
-        for new_trait in new_type.weapon_bonus:
-            new_trait.attach(self)
-
-        self._gun_type = new_type
 
     @property
     def mag_size(self):

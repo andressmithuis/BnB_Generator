@@ -2,7 +2,7 @@ from copy import deepcopy
 from tkinter import Tk, filedialog
 import pathlib
 
-from util import Equipment, lookup_in_table, DiceRequest
+from util import Equipment, lookup_in_table, DiceRequest, InfoEvent, AddPropertyEvent
 from util.common_modifiers import *
 from util.common_traits import *
 from util.cards.card_basics import card_merge_sideways
@@ -27,10 +27,16 @@ class AbnbEquipment(Equipment):
             rolled_element = yield from self.pick_element_from_table()
             n_rolls += 1
 
+            if rolled_element is None:
+                yield InfoEvent(f"Rolled no Element...")
+            else:
+                yield InfoEvent(f"Rolled a <[b][i]{rolled_element}[/i][/b]> Element!")
+
             # Check if rolled Element is blacklisted
             if rolled_element is not None:
                 for blacklisted_element in self.blacklisted_elements:
                     if isinstance(rolled_element, type(blacklisted_element)):
+                        yield InfoEvent(f"But Equipment properties makes it invalid...")
                         rolled_element = None
                         break
 
@@ -38,11 +44,14 @@ class AbnbEquipment(Equipment):
             if self.forced_element is not None:
                 if not isinstance(rolled_element, type(self.forced_element)):
                     print(f"Element is being forced to be <{self.forced_element}>")
+                    yield InfoEvent(f"But Equipment properties forces it to be <[b][i]{self.forced_element}[/i][/b]> Element...")
                     rolled_element = self.forced_element
+
 
             # Check if Equipment is forced Non-Elemental
             if rolled_element is not None:
                 if self.forced_non_elemental:
+                    yield InfoEvent(f"But Equipment must be Non-Elemental...")
                     if self.enable_high_calibre is True:
                         # Add High Caliber Property instead (Gun Equipment only)
                         new_trait = trait_high_calibre()
@@ -51,6 +60,7 @@ class AbnbEquipment(Equipment):
                             # If rolled element is a Fusion, effectively double the number of bonus dice
                             new_trait.n_dice *= 2
                         new_trait.attach(self)
+                        yield AddPropertyEvent('', new_trait)
 
                     rolled_element = None
 
@@ -59,6 +69,7 @@ class AbnbEquipment(Equipment):
                 for available_element in self.elements:
                     if isinstance(rolled_element, type(available_element)):
                         print(f"Element <{rolled_element}> is already applied!")
+                        yield InfoEvent(f"But it is already applied...")
                         rolled_element = None
 
             # Add resulting element
@@ -68,21 +79,24 @@ class AbnbEquipment(Equipment):
                 element_trait.type = element_mod
                 element_mod.attach(element_trait)
                 element_trait.attach(self)
+                yield AddPropertyEvent('', element_trait)
 
             # Allow a reroll if Equipment is forced Elemental, but the Elemental rolls did not result in an Element being applied
             if self.forced_elemental:
                 if n_rolls >= attempts:
                     if len(self.elements) == 0:
                         print(f"Equipment is forced Elemental, but no Elements are applied yet! Roll again...")
+                        yield InfoEvent(f"Equipment must be Elemental! Roll again...")
                         n_rolls = attempts - 1
 
     def pick_element_from_table(self):
-        dice_roll = yield DiceRequest('1d100', f"Roll 1d100 for Element on Element table")
+        dice_roll = yield DiceRequest('1d100', f"Roll [b][u]1d100[/u][/b] on Element table.")
         element_roll = min([dice_roll + self.elemental_roll_bonus, 100])
         rolled_element = lookup_in_table(elemental_table, element_roll)[self.rarity]
         print(f"Rolled a {dice_roll}(+{self.elemental_roll_bonus})! Rolled a <{rolled_element}> Element")
 
         if isinstance(rolled_element, Fusion):
+            yield InfoEvent(f"Rolled a Fusion Element!")
             while True:
                 print(f"Rolling for specific Fusion Element...")
                 roll_1 = yield DiceRequest('1d8', f"Roll 1d8 on Elemental Fusion table (1/2)")
@@ -94,7 +108,7 @@ class AbnbEquipment(Equipment):
                 # TODO: Handle 'Special' columns
                 if fusion_element == 'special':
                     # Reroll for now
-                    pass
+                    yield InfoEvent(f"Rolled a 'special' Fusion Element. This is not implemented yet! Roll again...")
                 else:
                     if fusion_element is not None:
                         fusion_element.bonus = rolled_element.bonus

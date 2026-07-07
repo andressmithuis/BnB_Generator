@@ -10,12 +10,12 @@ from kivymd.app import MDApp
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.label import MDLabel
 
-from util import DiceRequest, GenerationSession
+from util import DiceRequest, GenerationSession, GenerationEvent
 
 from frontend.ui_components.ui_theme import UITheme
 from frontend.ui_components.panels.colored_panel import ColoredPanel
 from .scroll_log import ScrollableLog
-from .logger_event import LoggerEvent
+from .logger_event import LoggerEventLayout
 
 class DicerequestPanel(ColoredPanel):
     def __init__(self, **kwargs):
@@ -77,7 +77,7 @@ class DicerequestPanel(ColoredPanel):
         # Set up a generation session if not yet started
         current_session = MDApp.get_running_app().screen.main_section.session
         if current_session is None:
-            MDApp.get_running_app().screen.main_section.start_generation()
+            MDApp.get_running_app().screen.main_section.start_generation(True)
 
         self.is_opened = True
         self.animation = Animation(
@@ -100,11 +100,8 @@ class DicerequestPanel(ColoredPanel):
         else:
             self.close_panel()
 
-    def add_to_log(self, event: DiceRequest):
-        new_event = LoggerEvent(
-            event,
-            anchor='left'
-        )
+    def add_to_log(self, event: GenerationEvent):
+        new_event = LoggerEventLayout(event)
         self.diceroll_log.content.add_widget(new_event)
         self.diceroll_log.scroll_view.scroll_y = 0  # Scroll to the bottom of the list to make the most recent event visible.
 

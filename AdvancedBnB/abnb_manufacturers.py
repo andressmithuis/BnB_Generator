@@ -10,6 +10,7 @@ from util import lookup_in_table, DiceRequest
 
 class Manufacturer:
     name = ''
+    sec_wpn_trait_roll = True
 
     def pick_secondary_weapon_trait(self, roll):
         return []
@@ -77,6 +78,7 @@ class Anshin(Manufacturer):
 class Atlas(Manufacturer):
     name = 'Atlas'
     logo_file = 'Atlas.png'
+    sec_wpn_trait_roll = False
 
     def __init__(self):
         self.makes = {
@@ -116,6 +118,7 @@ class Atlas(Manufacturer):
 class Bandit(Manufacturer):
     name = 'Bandit'
     logo_file = 'Bandit.png'
+    sec_wpn_trait_roll = False
 
     def __init__(self):
         self.makes = {
@@ -157,6 +160,7 @@ class Bandit(Manufacturer):
 class Dahl(Manufacturer):
     name = 'Dahl'
     logo_file = 'Dahl.png'
+    sec_wpn_trait_roll = False
 
     def __init__(self):
         self.makes = {
@@ -321,6 +325,7 @@ class Jakobs(Manufacturer):
 class Maliwan(Manufacturer):
     name = 'Maliwan'
     logo_file = 'Maliwan.png'
+    sec_wpn_trait_roll = False
 
     def __init__(self):
         self.makes = {
@@ -591,6 +596,7 @@ class Vladof(Manufacturer):
 class Eridian(Manufacturer):
     name = 'Eridian'
     logo_file = 'Eridian.png'
+    sec_wpn_trait_roll = False
 
     def __init__(self):
         self.makes = {

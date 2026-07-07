@@ -14,7 +14,7 @@ from frontend.ui_components.panels.editor_panel import EditorPanel
 from frontend.ui_components.panels.card_settings_panel import CardSettingsPanel
 from frontend.ui_components.panels.dicerequest_panel.dicerequest_panel import DicerequestPanel
 
-from util import DiceRequest
+from util import DiceRequest, GenerationEvent, InfoEvent, Dice
 from AdvancedBnB import Gun
 
 class GeneratorSection(FloatLayout):
@@ -71,23 +71,30 @@ class GeneratorSection(FloatLayout):
         self.dicerequest_panel.width = self.editor_panel.width - self.editor_panel.card_inspection_panel.width
         self.dicerequest_panel.reposition()
 
-    def start_generation(self):
-        self.session = self.equipment_obj.new_generation_session(True)
-        new_event = self.session.start()
-        if isinstance(new_event, DiceRequest):
-            self.dicerequest_panel.add_to_log(new_event)
+    def start_generation(self, manual_input=False):
+        self.session = self.equipment_obj.new_generation_session(manual_input)
+        self.step_generation()
 
     def step_generation(self, input=None):
         new_event = self.session.submit(input)
-        if isinstance(new_event, DiceRequest):
+        if isinstance(new_event, GenerationEvent):
             self.dicerequest_panel.add_to_log(new_event)
+
+            if isinstance(new_event, InfoEvent):
+                self.step_generation()
+            elif isinstance(new_event, DiceRequest):
+                if self.session.manual is False:
+                    dice = Dice.from_string(new_event.dice)
+                    dice_result = dice.roll()
+                    self.dicerequest_panel.diceroll_log.content.children[0].resolve_user_input(dice_result)
+                    self.step_generation(dice_result)
         else:
             self.equipment_obj.generate_card()
             # Send result back to UI thread
             Clock.schedule_once(lambda dt: self.editor_panel.card_inspection_panel.reload_card_image())
 
     def generate_new_card(self, *args):
-        print(self.x)
+        self.start_generation()
         Thread(target = self.generator_worker, daemon=True).start()
 
     def export_card(self, *args):
@@ -95,17 +102,6 @@ class GeneratorSection(FloatLayout):
         print(f"Saved Card to filesystem!")
 
     def generator_worker(self):
-        print(f"Starting to generate Equipment Card! <{id(self.equipment_obj)}>")
-        t_start = time.time()
-        session = self.equipment_obj.new_generation_session()
-        session.start()
-        t_now = time.time()
-        print(f"Equipment generated in {t_now - t_start}s")
-        t_start = t_now
-        self.equipment_obj.generate_card()
-        t_now = time.time()
-        print(f"Card rendered in {t_now - t_start}s")
-
         # Send result back to UI thread
         Clock.schedule_once(lambda dt: self.editor_panel.card_inspection_panel.reload_card_image())
 

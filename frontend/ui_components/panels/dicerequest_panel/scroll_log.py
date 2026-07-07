@@ -1,15 +1,7 @@
-from copy import deepcopy
-
-from kivy.clock import Clock
 from kivy.metrics import dp
 from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.list import MDList
 
-from util import DiceRequest
-
-from .logger_event import LoggerEvent
-from frontend.ui_components.ui_theme import UITheme
 from frontend.ui_components.panels.colored_panel import ColoredPanel
 
 
