@@ -15,15 +15,15 @@ class MenuAbnb(MenuCategory):
 
     def on_menu_selection(self,  menu_item):
         category = menu_item.get_parent_category()
-        print(f"Selected: {category.text}/{menu_item.text}")
-
         section_title = f"{category.text} - {menu_item.text}"
 
+        equipment_obj = None
         if menu_item.text == 'Gun Card':
-            new_section = GeneratorSection(section_title, Gun())
+            equipment_obj = Gun()
         elif menu_item.text == 'Shield Card':
-            new_section = GeneratorSection(section_title, Shield())
+            equipment_obj = Shield()
 
-        screen = MDApp.get_running_app().root
+        new_section = GeneratorSection(section_title, equipment_obj)
+
+        screen = MDApp.get_running_app().screen
         screen.reload_main_section(new_section)
-
