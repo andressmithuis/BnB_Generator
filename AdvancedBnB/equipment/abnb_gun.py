@@ -3,6 +3,7 @@ import random
 from copy import deepcopy
 import time
 
+from file_handling import open_appdatafile, resource_path
 from AdvancedBnB.abnb_equipment import AbnbEquipment
 from util import Equipment, Dice, lookup_in_table, DiceRequest, GenerationSession, InfoEvent, AddPropertyEvent
 from AdvancedBnB import Fusion, FusionElement
@@ -84,7 +85,7 @@ class Gun(AbnbEquipment):
         while new_manufacturer is None:
             roll = yield DiceRequest('1d12', f"Roll [b][u]1d12[/u][/b] on the Manufacturer table.")
             new_manufacturer = manufacturer_table[roll]
-            yield InfoEvent(f"Rolled Manufacturer <[b][i]{new_manufacturer}[/i][/b]>!", trailing_img=f"img/guild_logo/AdvancedBnB/{new_manufacturer}.png")
+            yield InfoEvent(f"Rolled Manufacturer <[b][i]{new_manufacturer}[/i][/b]>!", trailing_img=resource_path(f"img/guild_logo/AdvancedBnB/{new_manufacturer}.png"))
             debug_print(f"Rolled a {roll}! Gun Manufacturer = {new_manufacturer}")
             if new_manufacturer == Manufacturers.ERIDIAN:
                 yield InfoEvent(f"Rolled <[b][i]Eridian[/i][/b]> Manufacturer. Roll again for Manufacturer of Gun Base.")
@@ -98,7 +99,7 @@ class Gun(AbnbEquipment):
         roll = yield DiceRequest('1d12', f"Roll [b][u]1d12[/u][/b] on the Gun Type table.")
         new_guntype = self.manufacturer.make_random_gun(roll)
         debug_print(f"Rolled a {roll}! Gun Type = {new_guntype}")
-        yield InfoEvent(f"Rolled a <[b][i]{new_guntype}[/i][/b]>!", trailing_img=f"img/gun_symbol/{new_guntype.asset_dir}.png")
+        yield InfoEvent(f"Rolled a <[b][i]{new_guntype}[/i][/b]>!", trailing_img=resource_path(f"img/gun_symbol/{new_guntype.asset_dir}.png"))
         yield from self.set_gun_type(new_guntype)
         # Randomly choose a Gun name
         yield from self.randomize_name()
@@ -252,7 +253,7 @@ class Gun(AbnbEquipment):
             yield AddPropertyEvent('Gun Bonus', new_trait)
 
     def randomize_name(self):
-        with open('assets.json') as file:
+        with open_appdatafile('assets.json') as file:
             asset_data = json.load(file)
 
         self.asset = random.choice(asset_data['weapons'][self.gun_type.asset_dir])

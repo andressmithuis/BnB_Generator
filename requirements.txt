@@ -1,10 +1,9 @@
-pillow~=11.2.1
-opencv-python~=4.11.0.86
-numpy~=2.2.6
-pypdfium2~=5.10.1
-pillow-avif-plugin~=1.5.1
-requests~=2.32.3
-selenium~=4.33.0
-bs4~=0.0.2
 beautifulsoup4~=4.13.3
+numpy~=2.2.6
+opencv-python~=4.11.0.86
+pillow~=11.2.1
+pillow-avif-plugin~=1.5.1
+playwright~=1.61.0
+pypdfium2~=5.10.1
 PyYAML~=6.0.2
+requests~=2.32.3

@@ -1,6 +1,9 @@
 .venv
 .idea
 __pycache__/
+/build
+/dist
+
 /img/weapons/*
 /img/shields/*
 /img/grenades/*

@@ -2,7 +2,9 @@ from PIL import Image, ImageFont, ImageDraw, ImageFile, ImageOps
 import numpy as np
 import time
 
-# Fixes 'Banker's Rounding Errors (i.e. round(2.5) = 2)
+from file_handling import resource_path
+
+# Fixes Banker's Rounding Errors (i.e. round(2.5) = 2)
 def round(value, decimals=0):
     if value >= 0:
         return int(np.floor(value + 0.5))
@@ -97,7 +99,7 @@ def draw_text_to_field(img: ImageFile, field: Field, text: str, font_file: str, 
 
         font_size = 100
         while True:
-            font = ImageFont.truetype('fonts/' + font_file, font_size)
+            font = ImageFont.truetype(resource_path(f"fonts/{font_file}"), font_size)
             text_bbox = font.getmask(text).getbbox()
             text_w = text_bbox[2] - text_bbox[0]
             text_h = text_bbox[3] - text_bbox[1]
@@ -111,7 +113,7 @@ def draw_text_to_field(img: ImageFile, field: Field, text: str, font_file: str, 
             else:
                 break
 
-    font = ImageFont.truetype('fonts/' + font_file, font_size)
+    font = ImageFont.truetype(resource_path(f"fonts/{font_file}"), font_size)
 
 
     if align == 'center':
@@ -147,7 +149,7 @@ def draw_text_to_modfield(img: ImageFile, field: Field, text: str, font_file: st
 
     font_size = int(round(field_h / 2 * 0.91))
     spacing = int(round(0.5 * font_size))
-    font = ImageFont.truetype('fonts/' + font_file, font_size)
+    font = ImageFont.truetype(resource_path(f"fonts/{font_file}"), font_size)
 
     field_origin = field.get_origin(img)
     offset = (0, 0)
@@ -219,7 +221,7 @@ def get_max_font_size(img, text_list, field, font_file):
 
     for fnt_size in range(fnt_size_max, fnt_size_min - 1, -1):
         # Load font with new font size
-        font = ImageFont.truetype(f"fonts/{font_file}", fnt_size)
+        font = ImageFont.truetype(resource_path(f"fonts/{font_file}"), fnt_size)
 
         text_height = 0
         for line in text_list:

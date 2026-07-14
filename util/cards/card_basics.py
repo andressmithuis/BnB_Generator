@@ -81,7 +81,7 @@ def card_add_element(card_img, item_obj):
                 symbols = []
                 for sub_el in el.fusion_elements:
                     filename = sub_el.name.lower()
-                    symbols.append(Image.open(f"img/element_symbol/{filename}.png"))
+                    symbols.append(Image.open(resource_path(f"img/element_symbol/{filename}.png")))
 
                 # Resize both images to biggest of the 2
                 # Take half of both and stitch together
@@ -107,7 +107,7 @@ def card_add_element(card_img, item_obj):
                 symbol = Image.composite(symbols[0], symbols[1], mask)
             else:
                 filename = el.name.lower()
-                symbol = Image.open(f"img/element_symbol/{filename}.png")
+                symbol = Image.open(resource_path(f"img/element_symbol/{filename}.png"))
 
             card_img = draw_image_to_field(card_img, symbol, subfield)
 
@@ -135,7 +135,7 @@ def card_add_quick_ref(card_img, item_parts, item_obj, alt_name_field=None, alt_
     # Quick Reference n Rows and Font Size
     font_file = card_fonts['default']
     fnt_size = get_max_font_size(card_img, [x.effect for x in item_parts], effect_field_ref, font_file)
-    font = ImageFont.truetype(f"fonts/{font_file}", fnt_size)
+    font = ImageFont.truetype(resource_path(f"fonts/{font_file}"), fnt_size)
 
     name_col = []
     effect_col = []
@@ -183,7 +183,7 @@ def card_add_column_text(card_img, columns_content, header_idx=None, alt_col1_fi
     # TODO: Assumes col2 has lengthier text. Check both columns?
     font_file = card_fonts['default']
     fnt_size = get_max_font_size(card_img, [x[1] for x in columns_content], col2_field_ref, font_file)
-    font = ImageFont.truetype(f"fonts/{font_file}", fnt_size)
+    font = ImageFont.truetype(resource_path(f"fonts/{font_file}"), fnt_size)
 
     col1_content = []
     col2_content = []

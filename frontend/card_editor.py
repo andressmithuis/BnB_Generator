@@ -1,9 +1,11 @@
 from kivy.core.window import Window
 from kivymd.app import MDApp
 from kivy.config import Config
+from kivy.core.image import Image
 
-from screens.editor_screen import EditorScreen
+from frontend.screens.editor_screen import EditorScreen
 
+from file_handling import resource_path
 
 
 class CardEditorApp(MDApp):

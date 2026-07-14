@@ -61,7 +61,7 @@ class DicerequestPanel(ColoredPanel):
         # - Return button
         self.btn_exit = MDButton(
             MDButtonText(
-                text='Exit'
+                text='Close Log'
             ),
             MDButtonIcon(icon='arrow-left-bold'),
             pos_hint={'center_y': 0.5}
@@ -76,6 +76,7 @@ class DicerequestPanel(ColoredPanel):
         self.add_widget(self.diceroll_log)
         self.add_widget(self.button_section)
 
+        self.btn_new.bind(on_release=lambda x: MDApp.get_running_app().screen.main_section.generate_new_card(True))
         self.btn_exit.bind(on_release=lambda x: self.close_panel())
 
         # Hide (close) the panel on launch
@@ -91,7 +92,7 @@ class DicerequestPanel(ColoredPanel):
         # Set up a generation session if not yet started
         current_session = MDApp.get_running_app().screen.main_section.session
         if current_session is None:
-            MDApp.get_running_app().screen.main_section.start_generation(True)
+            MDApp.get_running_app().screen.main_section.generate_new_card(True)
 
         self.is_opened = True
         self.animation = Animation(

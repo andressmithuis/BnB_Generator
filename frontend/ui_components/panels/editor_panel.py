@@ -3,6 +3,7 @@ from kivy.uix.widget import Widget
 from kivymd.uix.button import MDButton, MDButtonText, MDButtonIcon
 from kivymd.uix.divider import MDDivider
 
+from frontend.ui_components.widgets.placeholder_bubble import PlaceholderPopup
 from frontend.ui_components.panels.card_inspector_panel.card_inspector_panel import CardInspectorPanel
 from frontend.ui_components.panels.colored_panel import ColoredPanel
 from frontend.ui_components.panels.common_settings import CommonSettingsPanel
@@ -53,7 +54,7 @@ class EditorPanel(ColoredPanel):
             MDButtonIcon(icon='folder'),
             md_bg_color=UITheme.Button.DISABLED,
             #text_color=UITheme.Button.DISABLED_TEXT,
-            on_release=lambda x: print(f"<Load Card>"),
+            on_release=lambda x: PlaceholderPopup().open(),
             pos_hint = {'center_x': 0.5}
         )
 
@@ -63,7 +64,7 @@ class EditorPanel(ColoredPanel):
             theme_bg_color='Custom',
             md_bg_color=UITheme.Button.DISABLED,
             #text_color=UITheme.Button.DISABLED_TEXT,
-            on_release=lambda x: print(f"<Save Card>"),
+            on_release=lambda x: PlaceholderPopup().open(),
             pos_hint = {'center_x': 0.5}
         )
 

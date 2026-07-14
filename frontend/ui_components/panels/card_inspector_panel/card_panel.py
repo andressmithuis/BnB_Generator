@@ -4,13 +4,14 @@ from kivy.uix.image import Image
 from kivy.graphics import Color, RoundedRectangle
 from kivy.properties import StringProperty
 
+from file_handling import resource_path
 from frontend.ui_components.util import img_to_texture
 from frontend.ui_components.ui_theme import UITheme
 from frontend.ui_components.widgets.card_region import CardRegion
 from frontend.ui_components.panels.colored_panel import ColoredPanel
 
 class CardPanel(FloatLayout):
-    img_path = StringProperty('img/blank_cards/card_blank_common.webp')
+    img_path = StringProperty(resource_path('img/blank_cards/card_blank_common.webp'))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -45,6 +46,7 @@ class CardPanel(FloatLayout):
         ]
 
         self.add_widget(self.region_name)
+        print(self.img_path)
 
     def update_card_size(self, *args):
         card_h = int(self.width * 0.714)

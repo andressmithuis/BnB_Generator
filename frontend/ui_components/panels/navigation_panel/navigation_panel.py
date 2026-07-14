@@ -5,6 +5,7 @@ from frontend.ui_components.panels.colored_panel import ColoredPanel
 from frontend.ui_components.panels.navigation_panel.components.menu_category import MenuCategory
 from frontend.ui_components.panels.navigation_panel.components.menu_item import MenuItem
 from frontend.ui_components.panels.navigation_panel.menu.menu_abnb import MenuAbnb
+from frontend.ui_components.panels.navigation_panel.menu.menu_sbnb import MenuSbnb
 from frontend.ui_components.panels.navigation_panel.menu.menu_loadassets import MenuAssets
 
 
@@ -32,11 +33,7 @@ class NavigationPanel(ColoredPanel):
         # --- Menu Content ---
         assets_menu = MenuAssets()
         abnb_menu = MenuAbnb()
-
-        sbnb_menu = MenuCategory('Standard BnB')
-        sbnb_menu.add_item(MenuItem('Gun Card', self.on_menu_selection))
-        sbnb_menu.add_item(MenuItem('Shield Card', self.on_menu_selection))
-        sbnb_menu.add_item(MenuItem('Potion Card', self.on_menu_selection))
+        sbnb_menu = MenuSbnb()
 
         self.menu.add_widget(assets_menu)
         self.menu.add_widget(abnb_menu)

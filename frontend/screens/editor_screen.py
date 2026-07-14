@@ -1,12 +1,12 @@
+import sys
+
+from kivy.core.image import ImageLoader
 from kivy.uix.boxlayout import BoxLayout
 
+from file_handling import resource_path
 from frontend.ui_components.ui_theme import UITheme
-from frontend.ui_components.widgets.banner import Banner
 from frontend.ui_components.panels.navigation_panel.navigation_panel import NavigationPanel
-from frontend.ui_components.panels.editor_panel import EditorPanel
-from frontend.ui_components.panels.card_settings_panel import CardSettingsPanel
 from frontend.ui_components.panels.colored_panel import ColoredPanel
-from frontend.screens.generator_section import GeneratorSection
 
 class EditorScreen(BoxLayout):
     def __init__(self):

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from .dice import Dice
 
+from file_handling import resource_path
+
 class GenerationEvent:
     def __init__(
             self,
@@ -36,7 +38,7 @@ class DiceRequest(GenerationEvent):
             dice = '1d10'
         elif dice not in ['1d4', '1d6', '1d8', '1d10', '1d12', '1d20']:
             dice = '1d20'
-        self.leading_img_src = f"img/dice_symbol/{dice}.png"
+        self.leading_img_src = resource_path(f"img/dice_symbol/{dice}.png")
 
 
 class GenerationSession:
@@ -48,10 +50,24 @@ class GenerationSession:
         return self.submit(None)
 
     def submit(self, dice_result):
-        while True:
-            try:
-                event = self.generator.send(dice_result)
-            except StopIteration as e:
-                return e.value
+        try:
+            event = self.generator.send(dice_result)
+        except StopIteration as e:
+            return e.value
 
-            return event
+        return event
+
+class GeneratorSession:
+    def __init__(self, generator_func):
+        self.generator = generator_func
+
+    def start(self):
+        return self.submit(None)
+
+    def submit(self, input_value):
+        try:
+            event = self.generator.send(input_value)
+        except StopIteration as e:
+            return e.value
+
+        return event

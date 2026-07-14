@@ -3,6 +3,7 @@ import os
 import numpy as np
 from PIL import Image, ImageOps
 
+from file_handling import resource_path, appdata_path
 from AdvancedBnB.gun.abnb_weapon_traits import WeaponTrait
 from AdvancedBnB.gun.abnb_weapon_parts import WeaponPart
 from util.cards.card_generation import Field, draw_image_to_field, draw_text_to_field, draw_field_locations
@@ -46,11 +47,11 @@ for i in range(14):
 def generate_gun_card(gun_obj):
     # Take gun card template (blank card) based on rarity
     str = f"{gun_obj.rarity}".lower()
-    path = f"./img/blank_cards/card_blank_{str}.webp"
+    path = resource_path(f"img/blank_cards/card_blank_{str}.webp")
     assert os.path.isfile(path), f"ERROR - Path to blank gun card file is not correct: <{path}>"
     card_front = Image.open(path).convert('RGBA')
 
-    path = f"./img/blank_cards/empty_card_blank_{str}.webp"
+    path = resource_path(f"img/blank_cards/empty_card_blank_{str}.webp")
     assert os.path.isfile(path), f"ERROR - Path to blank gun card file is not correct: <{path}>"
     card_back = Image.open(path).convert('RGBA')
 
@@ -60,26 +61,26 @@ def generate_gun_card(gun_obj):
         card_back = draw_field_locations(card_back, gun_card_back_template)
 
     # Add Gun Image
-    img_to_insert = Image.open(gun_obj.asset['path_to_img'])
+    img_to_insert = Image.open(appdata_path(gun_obj.asset['path_to_img']))
     card_front = card_add_item_image(card_front, img_to_insert)
 
     # Add Manufacturer logo
-    symbol = Image.open(f"img/guild_logo/AdvancedBnB/{gun_obj.manufacturer.logo_file}")
+    symbol = Image.open(resource_path(f"img/guild_logo/AdvancedBnB/{gun_obj.manufacturer.logo_file}"))
     card_front = card_add_tl_logo(card_front, symbol)
     card_back = card_add_tl_logo(card_back, symbol)
 
     # Add Gun type symbol
-    symbol = Image.open(f"img/gun_symbol/{gun_obj.gun_type.asset_dir}.png")
+    symbol = Image.open(resource_path(f"img/gun_symbol/{gun_obj.gun_type.asset_dir}.png"))
     card_front = card_add_tr_logo(card_front, symbol)
     card_back = card_add_tr_logo(card_back, symbol)
 
     # Add Damage Dice symbol
     card_field = gun_card_front_template['fld_dmg_dice']
-    symbol = Image.open(f"img/dice_symbol/1d{gun_obj.hit_dice.sides}.png")
+    symbol = Image.open(resource_path(f"img/dice_symbol/1d{gun_obj.hit_dice.sides}.png"))
     card_front = draw_image_to_field(card_front, symbol, card_field)
 
     # Add Ammo counter
-    symbol = Image.open(f"img/item_icons/ammo_{gun_obj.gun_type.asset_dir}.png")
+    symbol = Image.open(resource_path(f"img/item_icons/ammo_{gun_obj.gun_type.asset_dir}.png"))
 
     n_fields = max(gun_obj.mag_size, 10)
     ammo_cnt_field = deepcopy(gun_card_front_template['fld_ammo_bar'])

@@ -8,7 +8,7 @@ class CommonSettingsPanel(ColoredPanel):
         super().__init__(**kwargs)
 
         placeholder_label = MDLabel(
-            text = 'Common Settings',
+            text = '<Placeholder>',
             halign = 'center'
         )
         self.add_widget(placeholder_label)
