@@ -35,6 +35,7 @@ class Downloader:
         self.progress = 0
         self.last_image = None
 
+        self.browser = None
         self.page = None
 
     def init_browser(self):

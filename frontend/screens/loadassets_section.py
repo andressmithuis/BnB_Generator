@@ -2,6 +2,7 @@ from threading import Thread
 
 from kivy.uix.widget import Widget
 from kivy.uix.boxlayout import BoxLayout
+from kivy.metrics import dp
 from kivy.clock import Clock
 from kivymd.uix.button import MDButton, MDButtonText, MDButtonIcon
 from kivymd.uix.dropdownitem import MDDropDownItem, MDDropDownItemText
@@ -12,6 +13,7 @@ from kivymd.uix.progressindicator import MDLinearProgressIndicator
 from resource_downloader import Downloader, DownloadProgress
 from util import GeneratorSession
 
+from frontend import UITheme
 from frontend.ui_components.panels.colored_panel import ColoredPanel
 from frontend.ui_components.widgets.banner import Banner
 from frontend.ui_components.widgets.dropdown_button import DropdownButton
@@ -88,28 +90,30 @@ class LoadAssetsSection(ColoredPanel):
 
         # Image and Progress Bar
         self.loadbar = MDLinearProgressIndicator(
-            size_hint_x = 0.5,
+            size_hint = (0.75, None),
+            height = dp(50),
             value = 0,
-            pos_hint = {'center_x': 0.5}
+            pos_hint = {'center_x': 0.5},
+            track_color = UITheme.Panel.BG_GRAY
         )
         self.add_widget(self.loadbar)
 
         # Build Layout
-        self.add_widget(Widget())
+        self.add_widget(
+            Widget(
+                size_hint_y = 0.2
+            )
+        )
 
     def start_load(self, game, item_type):
         self.downloader = Downloader()
         Thread(target=self.downloader.download, args=(game, item_type,), daemon=True).start()
         Clock.schedule_interval(self.update_download_progress, 0.05)
 
-        #self.session = GeneratorSession(self.downloader.download(game, item_type))
-        #self.step_load()
-
     def step_load(self):
         event = self.session.submit(None)
 
         if isinstance(event, DownloadProgress):
-            print(event.currently_at, event.complete_at, event.last_img)
             self.loadbar.value = event.currently_at / event.complete_at * 100
             # TODO: Update loading bar / image
             Clock.schedule_once(lambda dt: self.step_load())  # Give UI time to update
@@ -136,4 +140,7 @@ class LoadAssetsSection(ColoredPanel):
 
         if is_done is True:
             # Unschedule this Clock function / stop updating progressbar
+            self.loadbar.indicator_color = UITheme.colors.TINY_TINA_PINK
             return False
+        else:
+            self.loadbar.indicator_color = UITheme.colors.TINY_TINA_PURPLE

@@ -54,7 +54,6 @@ class GeneratorSection(FloatLayout):
         # Dice Roll panel
         self.dicerequest_panel = DicerequestPanel(
             size_hint=(None, 1),
-            width = 650,
             x = Window.width,
             bg_color=(1, 0, 0, 0.3)
         )

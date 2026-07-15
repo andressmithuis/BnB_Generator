@@ -3,6 +3,9 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.metrics import dp
 from kivymd.uix.button import MDButton, MDButtonIcon, MDButtonText
 
+from file_handling import resource_path
+from frontend.ui_components.ui_theme import UITheme
+
 
 class MenuCategory(BoxLayout):
 
@@ -29,15 +32,24 @@ class MenuCategory(BoxLayout):
         self.headertext = MDButtonText(
             text = self.title,
             theme_text_color = 'Custom',
-            text_color = (1, 0, 0, 1)
+            text_color = UITheme.Panel.BG_GRAY,
+            theme_font_name = 'Custom',
+            font_name = UITheme.fonts.CARD_TITLE,
         )
-        self.headericon = MDButtonIcon(icon='plus')
+        self.headericon = MDButtonIcon(
+            icon='plus',
+            theme_icon_color = 'Custom',
+            icon_color = UITheme.Panel.BG_GRAY
+        )
         self.header = MDButton(
             self.headericon,
             self.headertext,
             theme_width = 'Custom',
             size_hint = (1, None),
-            height = dp(30)
+            height = dp(30),
+            radius = [0, 0, 0, 0],
+            theme_bg_color = 'Custom',
+            md_bg_color = UITheme.colors.TINY_TINA_PURPLE
         )
         self.header.bind(
             on_release = self.toggle

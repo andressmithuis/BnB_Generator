@@ -5,6 +5,7 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.label import MDLabel
 
 from frontend.ui_components.panels.navigation_panel.components.menu_category import MenuCategory
+from frontend.ui_components.ui_theme import UITheme
 
 
 class MenuItem(MDButton):
@@ -15,13 +16,21 @@ class MenuItem(MDButton):
         self.theme_width = 'Custom'
         self.size_hint = (1, None)
         self.height = dp(25)
+        self.radius = [0, 0, 0, 0]
+
+        self.theme_bg_color = 'Custom'
+        self.md_bg_color = UITheme.Panel.BG_GRAY
 
         self.text = text
 
         self.add_widget(
             MDButtonText(
                 text = text,
-                pos_hint = {'right': 0.95, 'center_y': 0.5}
+                pos_hint = {'right': 0.95, 'center_y': 0.5},
+                theme_text_color = 'Custom',
+                text_color = UITheme.colors.TINY_TINA_PINK,
+                theme_font_name = 'Custom',
+                font_name = UITheme.fonts.CARD_TITLE
             )
         )
 
