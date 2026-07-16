@@ -10,7 +10,7 @@ from kivymd.uix.label import MDLabel, MDIcon
 from kivymd.uix.textfield import MDTextField, MDTextFieldHintText, MDTextFieldMaxLengthText, MDTextFieldHelperText
 
 from frontend.ui_components.ui_theme import UITheme
-from util import Dice, DiceRequest
+from util import Dice, DiceRequest, WarningEvent
 
 
 class LoggerEventLayout(MDBoxLayout):
@@ -49,7 +49,10 @@ class EventBubble(MDCard):
         self.adaptive_height = True
         self.padding = dp(10)
         self.theme_bg_color = 'Custom'
-        self.md_bg_color = UITheme.Button.PRIMARY
+        if isinstance(event, WarningEvent):
+            self.md_bg_color = UITheme.colors.CRIT_RED
+        else:
+            self.md_bg_color = UITheme.colors.HIT_BLUE
 
         self.leading_img = None
         self.trailing_img = None

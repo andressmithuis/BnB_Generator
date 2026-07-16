@@ -14,7 +14,7 @@ from frontend.ui_components.panels.editor_panel import EditorPanel
 from frontend.ui_components.panels.card_settings_panel import CardSettingsPanel
 from frontend.ui_components.panels.dicerequest_panel.dicerequest_panel import DicerequestPanel
 
-from util import DiceRequest, GenerationEvent, InfoEvent, Dice
+from util import DiceRequest, GenerationEvent, InfoEvent, WarningEvent, Dice
 from AdvancedBnB import Gun
 
 class GeneratorSection(FloatLayout):
@@ -79,14 +79,15 @@ class GeneratorSection(FloatLayout):
         if isinstance(new_event, GenerationEvent):
             self.dicerequest_panel.add_to_log(new_event)
 
-            if isinstance(new_event, InfoEvent):
-                Clock.schedule_once(lambda dt: self.step_generation())  # Give UI time to update EventLog
-            elif isinstance(new_event, DiceRequest):
+            if isinstance(new_event, DiceRequest):
                 if self.session.manual is False:
                     dice = Dice.from_string(new_event.dice)
                     dice_result = dice.roll()
                     self.dicerequest_panel.diceroll_log.content.children[0].resolve_user_input(dice_result)
                     Clock.schedule_once(lambda dt: self.step_generation(dice_result)) # Give UI time to update EventLog
+            else:
+                Clock.schedule_once(lambda dt: self.step_generation())  # Give UI time to update EventLog
+
         else:
             # Generation is done, render card image and show in UI
             self.equipment_obj.generate_card()
@@ -98,4 +99,3 @@ class GeneratorSection(FloatLayout):
 
     def export_card(self, *args):
         self.equipment_obj.export_generated_card()
-        print(f"Saved Card to filesystem!")

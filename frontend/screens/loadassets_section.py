@@ -94,7 +94,8 @@ class LoadAssetsSection(ColoredPanel):
             height = dp(50),
             value = 0,
             pos_hint = {'center_x': 0.5},
-            track_color = UITheme.Panel.BG_GRAY
+            track_color = UITheme.Panel.BG_GRAY,
+            radius = [dp(5), dp(5), dp(5), dp(5)]
         )
         self.add_widget(self.loadbar)
 

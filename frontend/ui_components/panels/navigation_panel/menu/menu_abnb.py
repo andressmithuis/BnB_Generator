@@ -25,14 +25,10 @@ class MenuAbnb(MenuCategory):
         if menu_item.text == 'Gun Card':
             equipment_obj = Gun()
 
-        if equipment_obj is not None:
-            # Open Generator Page with equipment generator
-            new_section = GeneratorSection(section_title, equipment_obj)
+        navigation_panel = self.get_navigation_panel()
 
-            screen = MDApp.get_running_app().screen
-            screen.reload_main_section(new_section)
+        # Open Generator Page with equipment generator
+        new_section = GeneratorSection(section_title, equipment_obj)
+        navigation_panel.on_menu_selection(new_section)
 
-        else:
-            # Equipment type not yet implemented
-            popup = PlaceholderPopup()
-            popup.open()
+

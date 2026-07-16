@@ -20,6 +20,13 @@ class InfoEvent(GenerationEvent):
         super().__init__(**kwargs)
         self.prompt = prompt
 
+
+class WarningEvent(GenerationEvent):
+    def __init__(self, prompt, **kwargs):
+        super().__init__(**kwargs)
+        self.prompt = prompt
+
+
 class AddPropertyEvent(InfoEvent):
     def __init__(self, property_type, property, **kwargs):
         prompt = f"Adding {property_type}"

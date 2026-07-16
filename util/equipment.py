@@ -9,6 +9,7 @@ class Equipment:
     def __init__(self):
         self.name_prefix = ''
         self.name_raw = ''
+        self.asset = None
         self.level = 1
         self.tier = 1
         self._rarity = Rarity.COMMON

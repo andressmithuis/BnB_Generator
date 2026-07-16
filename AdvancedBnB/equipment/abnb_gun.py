@@ -1,11 +1,12 @@
+import os
 import json
 import random
 from copy import deepcopy
 import time
 
-from file_handling import open_appdatafile, resource_path
+from file_handling import open_appdatafile, resource_path, appdata_path
 from AdvancedBnB.abnb_equipment import AbnbEquipment
-from util import Equipment, Dice, lookup_in_table, DiceRequest, GenerationSession, InfoEvent, AddPropertyEvent
+from util import Equipment, Dice, lookup_in_table, DiceRequest, GenerationSession, InfoEvent, AddPropertyEvent, WarningEvent
 from AdvancedBnB import Fusion, FusionElement
 from AdvancedBnB.abnb_tables import rarity_tables, weapon_part_count
 from AdvancedBnB.abnb_util import get_item_tier
@@ -101,8 +102,6 @@ class Gun(AbnbEquipment):
         debug_print(f"Rolled a {roll}! Gun Type = {new_guntype}")
         yield InfoEvent(f"Rolled a <[b][i]{new_guntype}[/i][/b]>!", trailing_img=resource_path(f"img/gun_symbol/{new_guntype.asset_dir}.png"))
         yield from self.set_gun_type(new_guntype)
-        # Randomly choose a Gun name
-        yield from self.randomize_name()
 
         # Weapon base stats
         self.base_stats = self.gun_type.get_basestats(self.tier)
@@ -216,6 +215,9 @@ class Gun(AbnbEquipment):
             self.manufacturer = Manufacturers.ERIDIAN
             self.manufacturer.gun_part_exception(self)
 
+        # Randomly choose a Gun name
+        yield from self.randomize_name()
+
         print(f"Finished generating <{self.name}> in {time.time() - t_start}s")
         yield InfoEvent(f"Finished generating Gun <[b][i]{self.name}[/i][/b]>!")
 
@@ -253,12 +255,16 @@ class Gun(AbnbEquipment):
             yield AddPropertyEvent('Gun Bonus', new_trait)
 
     def randomize_name(self):
-        with open_appdatafile('assets.json') as file:
-            asset_data = json.load(file)
+        if os.path.isfile(appdata_path('assets.json')):
+            with open_appdatafile('assets.json') as file:
+                asset_data = json.load(file)
 
-        self.asset = random.choice(asset_data['weapons'][self.gun_type.asset_dir])
-        self.name_raw = self.asset['item_name']
-        yield InfoEvent(f"Random Gun name: <[b][i]{self.name_raw}[/i][/b]>")
+            self.asset = random.choice(asset_data['weapons'][self.gun_type.asset_dir])
+            self.name_raw = self.asset['item_name']
+            yield InfoEvent(f"Random Gun name: <[b][i]{self.name_raw}[/i][/b]>")
+        else:
+            yield WarningEvent(f"[b][u]No Gun Images loaded![/u][/b] Please go to [i]Image Assets[/i] -> [i]Load Images[/i].")
+            self.name_raw = "New Gun"
 
     def pick_weapon_accessory(self):
         roll = yield DiceRequest('1d100', f"Roll a [b][u]1d100[/u][/b] on the Gun Accessory table.")

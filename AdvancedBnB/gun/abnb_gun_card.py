@@ -61,8 +61,9 @@ def generate_gun_card(gun_obj):
         card_back = draw_field_locations(card_back, gun_card_back_template)
 
     # Add Gun Image
-    img_to_insert = Image.open(appdata_path(gun_obj.asset['path_to_img']))
-    card_front = card_add_item_image(card_front, img_to_insert)
+    if gun_obj.asset is not None:
+        img_to_insert = Image.open(appdata_path(gun_obj.asset['path_to_img']))
+        card_front = card_add_item_image(card_front, img_to_insert)
 
     # Add Manufacturer logo
     symbol = Image.open(resource_path(f"img/guild_logo/AdvancedBnB/{gun_obj.manufacturer.logo_file}"))
