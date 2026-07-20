@@ -37,7 +37,7 @@ class wp_part_matching_stock(WeaponPart):
     effect = '+1 on Accuracy Rolls.'
 
     def load_modifiers(self):
-        self.attach_modifiers([mod_dmg_mod(1)])
+        self.attach_modifiers([mod_acc_mod(1)])
 
 
 # Weapon Sights / Scopes

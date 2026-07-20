@@ -41,14 +41,13 @@ class GeneratorSection(FloatLayout):
         # Editor Panel
         self.editor_panel = EditorPanel(
             self,
-            size_hint_y=0.6,
             bg_color=(0.1, 0.1, 0.1, 1)
         )
         self.editor_panel.card_inspection_panel.bind(size = self.resize_dicerequest_panel)
 
         # Equipment Properties & Mods
         self.properties_panel = CardSettingsPanel(
-            size_hint_y=0.2
+            size_hint_y=0.3
         )
 
         # Dice Roll panel

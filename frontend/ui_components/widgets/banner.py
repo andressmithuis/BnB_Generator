@@ -4,6 +4,7 @@ from kivymd.uix.button import MDButton
 from kivymd.uix.label import MDLabel
 
 from frontend.ui_components.panels.colored_panel import ColoredPanel
+from frontend import UITheme
 
 
 class Banner(ColoredPanel):
@@ -16,6 +17,9 @@ class Banner(ColoredPanel):
         # Banner Text
         self.label = MDLabel(
             text=f"{title_text}",
-            halign='center'
+            halign='center',
+            font_style='Headline',
+            theme_font_name='Custom',
+            font_name=UITheme.fonts.CARD_TITLE,
         )
         self.add_widget(self.label)

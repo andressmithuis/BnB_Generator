@@ -102,7 +102,7 @@ class LoadAssetsSection(ColoredPanel):
         # Build Layout
         self.add_widget(
             Widget(
-                size_hint_y = 0.2
+                #size_hint_y = 0.3
             )
         )
 

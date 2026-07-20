@@ -84,10 +84,19 @@ class MenuCategory(BoxLayout):
             self.headericon.icon = 'minus-circle-outline'
             self.item_container.height = sum([child.height for child in self.item_container.children])
             self.item_container.opacity = 1
+
+            # Enable the menu items to be selectable
+            for menu_item in self.item_container.children:
+                menu_item.enabled = True
+
         else:
             self.headericon.icon = 'plus-circle-outline'
             self.item_container.height = 0
             self.item_container.opacity = 0
+
+            # Disable the menu items from being selectable
+            for menu_item in self.item_container.children:
+                menu_item.enabled = False
 
     def get_navigation_panel(self):
         return self.parent.parent

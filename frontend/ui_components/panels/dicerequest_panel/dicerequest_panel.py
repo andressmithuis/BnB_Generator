@@ -28,7 +28,7 @@ class DicerequestPanel(ColoredPanel):
 
         # Panel header
         self.header = ColoredPanel(
-            size_hint_y = 0.2,
+            size_hint_y = 0.15,
             bg_color = UITheme.Panel.BG_BORDER,
         )
         header_label = MDLabel(
@@ -36,7 +36,9 @@ class DicerequestPanel(ColoredPanel):
             halign='center',
             theme_text_color = 'Custom',
             text_color = 'black',
-            font_style = 'Headline'
+            font_style = 'Headline',
+            theme_font_name='Custom',
+            font_name=UITheme.fonts.CARD_TITLE
         )
         self.header.add_widget(header_label)
         # Diceroll log

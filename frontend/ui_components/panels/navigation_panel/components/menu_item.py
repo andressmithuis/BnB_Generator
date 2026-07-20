@@ -22,6 +22,7 @@ class MenuItem(MDButton):
         self.md_bg_color = UITheme.Panel.BG_GRAY
 
         self.text = text
+        self.enabled = False
 
         self.add_widget(
             MDButtonText(
@@ -34,11 +35,15 @@ class MenuItem(MDButton):
             )
         )
 
-        self.on_select = on_select
+        self.on_select_cb = on_select
         self.bind(
-            on_release = lambda x: self.on_select(self)
+            on_release = lambda x: self.on_select()
         )
 
+    def on_select(self):
+        # Prevent clicking on collapsed menu items
+        if self.enabled is True:
+            self.on_select_cb(self)
 
     def get_parent_category(self):
         cur_item = self

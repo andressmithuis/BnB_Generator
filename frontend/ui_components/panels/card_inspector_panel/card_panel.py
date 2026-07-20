@@ -45,8 +45,7 @@ class CardPanel(FloatLayout):
             (0.735, 0.967)
         ]
 
-        self.add_widget(self.region_name)
-        print(self.img_path)
+        #self.add_widget(self.region_name)
 
     def update_card_size(self, *args):
         card_h = int(self.width * 0.714)
