@@ -4,6 +4,7 @@ from .common_modifiers import *
 from .rarity import Rarity
 from .modifier import AdditiveModifier
 from .elements import Element
+from .generation_session import GenerationOverrides
 
 class Equipment:
     def __init__(self):
@@ -11,7 +12,6 @@ class Equipment:
         self.name_raw = ''
         self.asset = None
         self.level = 1
-        self.tier = 1
         self._rarity = Rarity.COMMON
 
         self.manufacturer = None
@@ -20,6 +20,24 @@ class Equipment:
         self.n_parts = 0
 
         self.equipment_properties = []
+
+        self.overrides = GenerationOverrides()
+
+        self.generated_card = None
+        self.card_render_func = None
+
+    def reset(self):
+        # Clear Equipment
+        to_delete = self.equipment_properties.copy()
+        for prop in to_delete:
+            prop.detach()
+
+        self.eridian = False
+        self.n_parts = 0
+
+        print(f"Reset equipment...")
+        print(f" - {len(self.equipment_properties)} Properties left")
+        print(f" - {len(self.equipment_modifiers)} Modifiers left")
 
     def has_property(self, property_type):
         for property in self.equipment_properties:
@@ -46,6 +64,9 @@ class Equipment:
                 mod_value += modifier.value
 
         return mod_value
+
+    def render_card(self):
+        self.generated_card = self.card_render_func(self)
 
     @property
     def name(self):
@@ -112,9 +133,10 @@ class Equipment:
                     # Check if mod is already present in the list. Add values together if it is, add it new if it isn't
                     for existing_mod in linked_mods:
                         if isinstance(existing_mod, type(mod)):
-                            existing_mod += mod
-                            added_to_list = True
-                            break
+                            if existing_mod.type == mod.type:
+                                existing_mod += mod
+                                added_to_list = True
+                                break
 
                 if added_to_list is False:
                     linked_mods.append(deepcopy(mod))

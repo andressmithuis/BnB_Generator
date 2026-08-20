@@ -1,6 +1,6 @@
 from kivy.uix.boxlayout import BoxLayout
 
-from frontend.ui_components.panels.common_settings import CommonSettingsPanel
+from frontend.ui_components.panels.placeholder_panel import PlaceholderPanel
 
 
 class CardSettingsPanel(BoxLayout):
@@ -8,13 +8,13 @@ class CardSettingsPanel(BoxLayout):
         super().__init__(**kwargs)
 
         # Common Settings Panel
-        common_panel = CommonSettingsPanel(
+        common_panel = PlaceholderPanel(
             size_hint_x = 0.5,
             bg_color = (0.2, 0.2, 0.2, 1)
         )
 
         # Equipment Specific Panel
-        specific_panel = CommonSettingsPanel(
+        specific_panel = PlaceholderPanel(
             size_hint_x = 0.5,
             bg_color=(0.2, 0.2, 0.2, 1)
         )

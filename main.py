@@ -6,117 +6,46 @@ from kivy.core.image import ImageLoader
 from kivy.core.image.img_pil import ImageLoaderPIL
 ImageLoader.loaders.remove(ImageLoaderPIL)
 ImageLoader.loaders.insert(0, ImageLoaderPIL)
-
 from kivy.config import Config
-
-from AdvancedBnB.equipment.abnb_class_mod import ClassMod
-from resource_loading import load_resources
-from load_item_config import load_item_config
-
-from StandardBnB import HealthPotion, ShieldPotion
-
-
 from kivy.core.window import Window
-from frontend.card_editor import CardEditorApp
 
+from util import GenerationEvent, DiceRequest, Dice, Rarity, GenerationSession
+from frontend.card_editor import CardEditorApp
 
 if __name__ == '__main__':
     Config.set('input', 'mouse', 'mouse,disable_multitouch')  # Disable debug touch markers on desktop
     Window.size = (1200, 800)
 
     # Start the application
-    CardEditorApp().run()
+    if True:
+        CardEditorApp().run()
 
-    if False:
 
+    if True:
+        # CLI generation bypass for custom cards not supported by UI yet
+        from AdvancedBnB import Gun, Guntypes
 
-        # --- CLI Argument Parser ---
-        cli_parser = argparse.ArgumentParser(description='Bunkers&Badasses Loot Generator')
-        cli_subparsers = cli_parser.add_subparsers(dest='command', required=True)
+        equipment_obj = Gun()
 
-        # Subcommand: load_resources
-        parser_load = cli_subparsers.add_parser('load', help='Initiate loading of resources')
-        parser_load.add_argument(
-            '--games',
-            nargs='+',
-            choices=['bl1', 'bl2', 'bl3', 'bl-tps', 'bl-wl'],
-            help='Which games to pull resources from',
-            default=['bl3']
-        )
-        parser_load.add_argument(
-            '--items',
-            nargs='+',
-            choices=['all', 'weapons', 'shields', 'grenades', 'relics', 'class-mods'],
-            help='Which item category to pull',
-            default=['all']
-        )
-        parser_load.add_argument('--reset', action='store_true', help='Removes any existing resources')
+        equipment_obj.overrides.set('name', 'Standard Issue')
+        equipment_obj.overrides.set('rarity', Rarity.COMMON)
+        equipment_obj.overrides.set('type', Guntypes.PISTOL)
 
-        # Subcommand: generate_item
-        parser_create = cli_subparsers.add_parser('generate', help='Which item to generate a card for')
-        parser_create.add_argument('item_type', choices=['gun', 'shield', 'grenade', 'relic', 'class-mod', 'health_potion', 'shield_potion'], help='Select what kind of item to generate a card for')
-        parser_create.add_argument('--use-abnb', action='store_true', help='Enable Advanced Bunkers&Badasses')
+        gen_session = GenerationSession(equipment_obj.generator_func)
 
-        args = cli_parser.parse_args()
-
-        if args.command == 'load':
-            load_resources(args.games, args.items, args.reset)
-
-        elif args.command == 'generate':
-            # If the Assets are not loaded yet, exit
-            if not os.path.isfile('assets.json'):
-                print(f"Item Assets not loaded yet! Run: python main.py load <game selection>\n"
-                      f" - Borderlands 1:   bl1\n"
-                      f" - Borderlands 2:   bl2\n"
-                      f" - Borderlands 3:   bl3\n"
-                      f" - Borderlands TPS: bl-tps\n"
-                      f" - Wonderlands:     bl-wl\n")
-                exit(0)
-
-            if args.use_abnb:
-                from AdvancedBnB import Gun, Shield, Grenade, Relic
+        dice_roll = None
+        while True:
+            event = gen_session.submit(dice_roll)
+            if isinstance(event, GenerationEvent):
+                if isinstance(event, DiceRequest):
+                    dice = Dice.from_string(event.dice)
+                    dice_roll = dice.roll()
+                else:
+                    dice_roll = None
             else:
-                from StandardBnB import Gun, Shield
+                break
 
-            # Load item_config.yaml file
-            props = load_item_config()
-
-            if args.item_type == 'gun':
-                new_gun = Gun()
-                new_gun.generate()
-                print(new_gun)
-                new_gun.generate_card()
-
-            elif args.item_type == 'shield':
-                new_shield = Shield()
-                new_shield.generate()
-                print(new_shield)
-                new_shield.generate_card()
-
-            elif args.item_type == 'grenade':
-                new_grenade = Grenade()
-                new_grenade.generate()
-                print(new_grenade)
-                new_grenade.generate_card()
-
-            elif args.item_type == 'relic':
-                new_item = Relic()
-                new_item.generate()
-                print(new_item)
-                new_item.generate_card()
-
-            elif args.item_type == 'class-mod':
-                new_item = ClassMod()
-                new_item.generate()
-                print(new_item)
-                new_item.generate_card()
-
-            elif args.item_type == 'health_potion':
-                new_potion = HealthPotion()
-                new_potion.generate_card()
-
-            elif args.item_type == 'shield_potion':
-                new_potion = ShieldPotion()
-                new_potion.generate_card()
+        equipment_obj.render_card()
+        equipment_obj.export_generated_card(dialog=False)
 
 

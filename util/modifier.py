@@ -29,6 +29,7 @@ class Modifier:
 
 class AdditiveModifier(Modifier):
     value = 0
+    type = ''
 
     def __init__(self, mod_value):
         super().__init__()

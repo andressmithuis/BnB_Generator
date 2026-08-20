@@ -1,6 +1,7 @@
 from copy import deepcopy
 from tkinter import Tk, filedialog
 import pathlib
+import numpy as np
 
 from util import Equipment, lookup_in_table, DiceRequest, InfoEvent, AddPropertyEvent
 from util.common_modifiers import *
@@ -117,25 +118,49 @@ class AbnbEquipment(Equipment):
 
         return rolled_element
 
-    def export_generated_card(self):
+    def export_generated_card(self, dialog=True):
         card_joined = card_merge_sideways(self.generated_card[0], self.generated_card[1])
 
-        # Open SaveAs Dialog
-        root = Tk()
-        root.withdraw()
+        if dialog is True:
+            # Open SaveAs Dialog
+            root = Tk()
+            root.withdraw()
 
-        filename = filedialog.asksaveasfilename(
-            defaultextension='*.png',
-            filetypes = [
-                ('PNG Image', '*.png'),
-                ('BMP Image', '*.bmp'),
-                ('All Files', '*.*')
-            ]
-        )
-        root.destroy()
+            filename = filedialog.asksaveasfilename(
+                defaultextension='*.png',
+                filetypes = [
+                    ('PNG Image', '*.png'),
+                    ('BMP Image', '*.bmp'),
+                    ('All Files', '*.*')
+                ]
+            )
+            root.destroy()
+        else:
+            filename = 'test.png'
 
         # Save file if valid path is given
         if filename:
             ext = pathlib.Path(filename).suffix
             ext = ext.replace('.', '').upper()
             card_joined.save(filename, ext, quality=100)
+
+    @property
+    def tier(self):
+        level_to_tiers = {
+            (1, 6): 1,
+            (7, 12): 2,
+            (13, 18): 3,
+            (19, 24): 4,
+            (25, 30): 5,
+            (31, 35): 6,
+            (36, 40): 7,
+            (41, 45): 8,
+            (46, 50): 9,
+            (51, np.inf): 10
+        }
+
+        for (lo, hi), tier in level_to_tiers.items():
+            if lo <= self.level <= hi:
+                return tier
+
+        raise ValueError(f"Equipment level '{self.level}' is invalid! Does not translate to equipment tier!")

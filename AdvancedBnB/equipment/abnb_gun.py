@@ -38,6 +38,7 @@ class Gun(AbnbEquipment):
 
     def __init__(self):
         super().__init__()
+        self.card_render_func = generate_gun_card
 
         self.gun_type = Guntypes.PISTOL
 
@@ -56,29 +57,10 @@ class Gun(AbnbEquipment):
         self.hit_dice = Dice(1, 4)
         self.crit_dice = Dice(1, 4)
 
-    def reset(self):
-        # Clear Equipment
-        to_delete = self.equipment_properties.copy()
-        for prop in to_delete:
-            prop.detach()
-
-        self.eridian = False
-        self.n_parts = 0
-
-        print(f"Reset equipment...")
-        print(f" - {len(self.equipment_properties)} Properties left")
-        print(f" - {len(self.equipment_modifiers)} Modifiers left")
-
-    def new_generation_session(self, user_input=False):
-        return GenerationSession(self._generate_impl(), manual=user_input)
-
-    def _generate_impl(self):
+    def generator_func(self):
         t_start = time.time()
 
         self.reset()
-
-        # Determine level and tier
-        self.tier = get_item_tier(self.level)
 
         # Manufacturer and gun type
         debug_print(f"Determining Gun Manufacturer...")
@@ -101,6 +83,7 @@ class Gun(AbnbEquipment):
         new_guntype = self.manufacturer.make_random_gun(roll)
         debug_print(f"Rolled a {roll}! Gun Type = {new_guntype}")
         yield InfoEvent(f"Rolled a <[b][i]{new_guntype}[/i][/b]>!", trailing_img=resource_path(f"img/gun_symbol/{new_guntype.asset_dir}.png"))
+        new_guntype = yield from self.overrides.apply('type', new_guntype)
         yield from self.set_gun_type(new_guntype)
 
         # Weapon base stats
@@ -116,6 +99,8 @@ class Gun(AbnbEquipment):
 
         debug_print(f"Rolled a {d4_roll}(d4) and a {d6_roll}(d6)! Gun Rarity = {self.rarity}.{' Might also be Elemental.' if roll_for_element else ''}")
         yield InfoEvent(f"Rolled <[b][i]{self.rarity}[/i][/b]> Rarity!")
+        self.rarity = yield from self.overrides.apply('rarity', self.rarity)
+
         if roll_for_element is True:
             yield InfoEvent(f"You may roll on the Elemental table later!")
 
@@ -266,6 +251,8 @@ class Gun(AbnbEquipment):
             yield WarningEvent(f"[b][u]No Gun Images loaded![/u][/b] Please go to [i]Image Assets[/i] -> [i]Load Images[/i].")
             self.name_raw = "New Gun"
 
+        self.name_raw = yield from self.overrides.apply('name', self.name_raw)
+
     def pick_weapon_accessory(self):
         roll = yield DiceRequest('1d100', f"Roll a [b][u]1d100[/u][/b] on the Gun Accessory table.")
         part = lookup_in_table(weapon_accessories_table, roll)
@@ -344,11 +331,6 @@ class Gun(AbnbEquipment):
                 stats[atk]['crits'] = 1
 
         return stats
-
-
-    def generate_card(self):
-        self.generated_card = generate_gun_card(self)
-
 
     def  __repr__(self):
         t_start = time.time()

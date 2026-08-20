@@ -14,7 +14,7 @@ from frontend.ui_components.panels.editor_panel import EditorPanel
 from frontend.ui_components.panels.card_settings_panel import CardSettingsPanel
 from frontend.ui_components.panels.dicerequest_panel.dicerequest_panel import DicerequestPanel
 
-from util import DiceRequest, GenerationEvent, InfoEvent, WarningEvent, Dice
+from util import DiceRequest, GenerationEvent, InfoEvent, WarningEvent, Dice, GenerationSession
 from AdvancedBnB import Gun
 
 class GeneratorSection(FloatLayout):
@@ -23,6 +23,7 @@ class GeneratorSection(FloatLayout):
 
         self.equipment_obj = equipment_obj
         self.session = None
+        self.manual_input = False
         self.card_iteration = 0
 
         self.static_container = BoxLayout(
@@ -69,17 +70,13 @@ class GeneratorSection(FloatLayout):
         self.dicerequest_panel.width = self.editor_panel.width - self.editor_panel.card_inspection_panel.width
         self.dicerequest_panel.reposition()
 
-    def start_generation(self, manual_input=False):
-        self.session = self.equipment_obj.new_generation_session(manual_input)
-        self.step_generation()
-
     def step_generation(self, input=None):
         new_event = self.session.submit(input)
         if isinstance(new_event, GenerationEvent):
             self.dicerequest_panel.add_to_log(new_event)
 
             if isinstance(new_event, DiceRequest):
-                if self.session.manual is False:
+                if self.manual_input is False:
                     dice = Dice.from_string(new_event.dice)
                     dice_result = dice.roll()
                     self.dicerequest_panel.diceroll_log.content.children[0].resolve_user_input(dice_result)
@@ -89,12 +86,20 @@ class GeneratorSection(FloatLayout):
 
         else:
             # Generation is done, render card image and show in UI
-            self.equipment_obj.generate_card()
+            self.equipment_obj.render_card()
             self.editor_panel.card_inspection_panel.reload_card_image()
+            self.editor_panel.equipment_settings.on_card_generated()
 
-    def generate_new_card(self, manual_input=False, *args):
+    def generate_new_card(self, manual_input:bool=False, *args) -> None:
+        # Clear previous generation log
         self.dicerequest_panel.clear_log()
-        self.start_generation(manual_input)
+
+        # Setup new generation session
+        self.session = GenerationSession(self.equipment_obj.generator_func)
+        self.manual_input = manual_input
+
+        # Begin generation process
+        self.step_generation()
 
     def export_card(self, *args):
         self.equipment_obj.export_generated_card()

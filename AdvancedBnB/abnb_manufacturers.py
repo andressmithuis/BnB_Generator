@@ -1,3 +1,5 @@
+from enum import Enum
+
 from util.common_traits import trait_forced_element
 from .gun.abnb_guntypes import Guntypes
 from .gun.abnb_weapon_parts import wp_part_bayonet
@@ -10,6 +12,7 @@ from util import lookup_in_table, DiceRequest
 
 class Manufacturer:
     name = ''
+    logo_file = ''
     sec_wpn_trait_roll = True
 
     def pick_secondary_weapon_trait(self, roll):
@@ -650,6 +653,10 @@ class Manufacturers:
     TEDIORE = Tediore()
     TORGUE = Torgue()
     VLADOF = Vladof()
+
+    @classmethod
+    def all(cls):
+        return [value for value in vars(cls).values() if isinstance(value, Manufacturer)]
 
 
 manufacturer_table = {

@@ -246,14 +246,6 @@ def generate_gun_card(gun_obj):
     #card_joined.show()
     #card_joined.save('test.bmp', 'BMP', quality=100)
 
-    preview_scale = 0.5
-    tmp_front = card_front.resize(
-        (int(card_front.width * preview_scale),
-         int(card_front.height * preview_scale)),
-        resample = Image.Resampling.LANCZOS
-    )
-    #tmp_front.save(f"tmp_card_front.png", format='PNG', optimize=True)
-
     return [card_front, card_back]
 
 def split_text_on_length(text: str, length:int):

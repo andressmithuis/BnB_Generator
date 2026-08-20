@@ -4,6 +4,7 @@ from copy import deepcopy
 import numpy as np
 from PIL import Image, ImageOps
 
+from file_handling import resource_path, appdata_path
 from AdvancedBnB.shield import ShieldPart
 from AdvancedBnB.shield.abnb_shield_parts import shd_trait_symbiotic
 from util.cards.card_basics import *
@@ -37,13 +38,13 @@ for i in range(14):
 def generate_shield_card(shield_obj):
     # Take shield card template (blank card) based on rarity
     str = f"{shield_obj.rarity}".lower()
-    path = f"./img/blank_cards/shield_card_blank_{str}.webp"
-    assert os.path.isfile(path), f"ERROR - Path to blank gun card file is not correct: <{path}>"
-    card_front = Image.open(path)
+    path = resource_path(f"img/blank_cards/shield_card_blank_{str}.webp")
+    assert os.path.isfile(path), f"ERROR - Path to blank shield card file is not correct: <{path}>"
+    card_front = Image.open(path).convert('RGBA')
 
-    path = f"./img/blank_cards/empty_card_blank_{str}.webp"
-    assert os.path.isfile(path), f"ERROR - Path to blank gun card file is not correct: <{path}>"
-    card_back = Image.open(path)
+    path = resource_path(f"img/blank_cards/empty_card_blank_{str}.webp")
+    assert os.path.isfile(path), f"ERROR - Path to blank shield card file is not correct: <{path}>"
+    card_back = Image.open(path).convert('RGBA')
 
     if False:
         card_front = draw_field_locations(card_front, basic_card_template)
@@ -51,8 +52,9 @@ def generate_shield_card(shield_obj):
         card_back = draw_field_locations(card_back, shield_card_back_template)
 
     # Add Shield Image
-    img_to_insert = Image.open(shield_obj.asset['path_to_img'])
-    card_front = card_add_item_image(card_front, img_to_insert)
+    if shield_obj.asset is not None:
+        img_to_insert = Image.open(appdata_path(shield_obj.asset['path_to_img']))
+        card_front = card_add_item_image(card_front, img_to_insert)
 
     # Add Manufacturer logo
     symbol = Image.open(f"img/guild_logo/AdvancedBnB/{shield_obj.manufacturer.logo_file}")
@@ -68,8 +70,10 @@ def generate_shield_card(shield_obj):
     card_front = card_add_element(card_front, shield_obj)
 
     # Add shield name
-    card_front = card_add_item_name(card_front, shield_obj.name)
-    card_back = card_add_item_name(card_back, shield_obj.name)
+    item_name = f"{shield_obj.name}"
+    if item_name != '':
+        card_front = card_add_item_name(card_front, item_name)
+        card_back = card_add_item_name(card_back, item_name)
 
     # Add Rarity and Shield Type
     item_rarity = f"{shield_obj.rarity}".upper()
@@ -215,10 +219,11 @@ def generate_shield_card(shield_obj):
             idx = min(idx, 12)
 
     # Merge front and back of card
-    card_joined = card_merge_sideways(card_front, card_back)
-    card_joined.show()
+    #card_joined = card_merge_sideways(card_front, card_back)
+    #card_joined.show()
+    #card_joined.save('test.bmp', 'BMP', quality=100)
 
-    card_joined.save('test.bmp', 'BMP', quality=100)
+    return [card_front, card_back]
 
 def split_text_on_length(text: str, length:int):
     ret = ['']

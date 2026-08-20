@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-from .dice import Dice
+from collections.abc import Callable, Generator
 
 from file_handling import resource_path
 
@@ -19,12 +18,14 @@ class InfoEvent(GenerationEvent):
     def __init__(self, prompt, **kwargs):
         super().__init__(**kwargs)
         self.prompt = prompt
+        print(f"INFO EVENT: {self.prompt.replace('\n', '')}")
 
 
 class WarningEvent(GenerationEvent):
     def __init__(self, prompt, **kwargs):
         super().__init__(**kwargs)
         self.prompt = prompt
+        print(f"WARNING EVENT: {self.prompt.replace('\n', '')}")
 
 
 class AddPropertyEvent(InfoEvent):
@@ -46,12 +47,13 @@ class DiceRequest(GenerationEvent):
         elif dice not in ['1d4', '1d6', '1d8', '1d10', '1d12', '1d20']:
             dice = '1d20'
         self.leading_img_src = resource_path(f"img/dice_symbol/{dice}.png")
+        print(f"DICEREQUEST EVENT: {self.prompt.replace('\n', '')}")
 
 
 class GenerationSession:
-    def __init__(self, generator_obj, manual=False):
-        self.generator = generator_obj
-        self.manual = manual
+    def __init__(self, generator_func):
+        self.generator_func = generator_func
+        self.generator = self.generator_func()
 
     def start(self):
         return self.submit(None)
@@ -63,6 +65,9 @@ class GenerationSession:
             return e.value
 
         return event
+
+    def reset(self):
+        self.generator = self.generator_func()
 
 class GeneratorSession:
     def __init__(self, generator_func):
@@ -78,3 +83,20 @@ class GeneratorSession:
             return e.value
 
         return event
+
+
+class GenerationOverrides:
+    def __init__(self):
+        self.overrides: dict[str, object] = {}
+
+    def set(self, name: str, value: any) -> None:
+        self.overrides.update({name: value})
+
+    def apply(self, var_name: str, var_value: any) -> any:
+        ret = self.overrides.get(var_name, var_value)
+        if ret != var_value:
+            print(f"Property '{var_name}' replaced <{var_value}> with <{ret}>")
+            yield InfoEvent(f"Property '{var_name}' replaced <{var_value}> with <{ret}>")
+
+        return ret
+

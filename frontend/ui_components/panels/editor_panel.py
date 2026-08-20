@@ -6,7 +6,7 @@ from kivymd.uix.divider import MDDivider
 from frontend.ui_components.widgets.placeholder_bubble import PlaceholderPopup
 from frontend.ui_components.panels.card_inspector_panel.card_inspector_panel import CardInspectorPanel
 from frontend.ui_components.panels.colored_panel import ColoredPanel
-from frontend.ui_components.panels.common_settings import CommonSettingsPanel
+from frontend.ui_components.panels.equipment_settings_panel.equipment_settings import EquipmentSettingsPanel
 
 from frontend.ui_components.ui_theme import UITheme
 
@@ -104,15 +104,9 @@ class EditorPanel(ColoredPanel):
             size_hint_x = 0.5
         )
 
+        self.equipment_settings = EquipmentSettingsPanel(parent_section)
         settings_panel.add_widget(
-            CommonSettingsPanel(
-                size_hint_y = 0.5
-            )
-        )
-        settings_panel.add_widget(
-            CommonSettingsPanel(
-                size_hint_y=0.5
-            )
+            self.equipment_settings
         )
 
         # --- Build Panel Widgets ---
