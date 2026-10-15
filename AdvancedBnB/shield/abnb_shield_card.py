@@ -6,7 +6,7 @@ from PIL import Image, ImageOps
 
 from file_handling import resource_path, appdata_path
 from AdvancedBnB.shield import ShieldPart
-from AdvancedBnB.shield.abnb_shield_parts import shd_trait_symbiotic
+from AdvancedBnB.shield.abnb_shield_parts import shd_trait_symbiotic, shd_tag_energy, shd_tag_bio, shd_tag_alloy
 from util.cards.card_basics import *
 from util.cards.card_generation import *
 from util.modifier import AdditiveModifier
@@ -114,11 +114,19 @@ def generate_shield_card(shield_obj):
             capacity_value = 0
             charge_rate_value = 0
 
+    tag_colors = {
+        shd_tag_energy.name: (0, 116, 219),
+        shd_tag_bio.name: (219, 38, 0),
+        shd_tag_alloy.name: (210, 219, 0)
+    }
+
+    value_color = tag_colors[shield_obj.tag.name]
+
     card_field = shield_card_front_template['fld_cap_val']
-    card_front = draw_text_to_field(card_front, card_field, f"{capacity_value}", 'rexlia rg.otf', color=(11, 121, 189),font_size=50)
+    card_front = draw_text_to_field(card_front, card_field, f"{capacity_value}", 'rexlia rg.otf', color=value_color,font_size=50)
 
     card_field = shield_card_front_template['fld_rr_val']
-    card_front = draw_text_to_field(card_front, card_field, f"{charge_rate_value}", 'rexlia rg.otf',color=(11, 121, 189), font_size=50)
+    card_front = draw_text_to_field(card_front, card_field, f"{charge_rate_value}", 'rexlia rg.otf',color=value_color, font_size=50)
 
     # Quick Reference
     quick_ref = []

@@ -71,6 +71,8 @@ class Shield(AbnbEquipment):
         if roll_for_element is True:
             yield InfoEvent(f"You may roll on the Elemental table later!")
 
+        self.rarity = yield from self.overrides.apply('rarity', self.rarity)
+
         # Roll for Element(s)
         # Determine number of Elemental Rolls
         elemental_rolls = 0

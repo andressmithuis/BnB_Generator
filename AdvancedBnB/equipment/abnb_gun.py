@@ -76,7 +76,9 @@ class Gun(AbnbEquipment):
                 self.eridian = True
                 new_manufacturer = None
             else:
+                new_manufacturer = yield from self.overrides.apply('manufacturer', new_manufacturer)
                 yield from self.set_manufacturer(new_manufacturer)
+
 
         debug_print(f"Determining Gun Type, made by {self.manufacturer}...")
         roll = yield DiceRequest('1d12', f"Roll [b][u]1d12[/u][/b] on the Gun Type table.")

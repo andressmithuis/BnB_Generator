@@ -12,24 +12,26 @@ from kivy.core.window import Window
 from util import GenerationEvent, DiceRequest, Dice, Rarity, GenerationSession
 from frontend.card_editor import CardEditorApp
 
+USE_UI = False
+
 if __name__ == '__main__':
     Config.set('input', 'mouse', 'mouse,disable_multitouch')  # Disable debug touch markers on desktop
     Window.size = (1200, 800)
 
     # Start the application
-    if True:
+    if USE_UI:
         CardEditorApp().run()
 
-
-    if True:
+    else:
         # CLI generation bypass for custom cards not supported by UI yet
-        from AdvancedBnB import Gun, Guntypes
+        from AdvancedBnB import Shield, Shieldtypes, Gun, Guntypes, Manufacturers
 
         equipment_obj = Gun()
 
-        equipment_obj.overrides.set('name', 'Standard Issue')
+        #equipment_obj.overrides.set('name', 'Expendable Crap')
         equipment_obj.overrides.set('rarity', Rarity.COMMON)
-        equipment_obj.overrides.set('type', Guntypes.PISTOL)
+        #equipment_obj.overrides.set('type', Guntypes.SHOTGUN)
+        #equipment_obj.overrides.set('manufacturer', Manufacturers.JAKOBS)
 
         gen_session = GenerationSession(equipment_obj.generator_func)
 
